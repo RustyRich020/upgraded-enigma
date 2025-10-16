@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TRON Job System — Clean</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    :root{
+      --bg:#000000;--bg-secondary:#0a0a0a;--panel:#111111;--panel-border:#1a1a1a;--orange:#ff0000;--orange-bright:#ff2929;--orange-glow:rgba(255,0,0,0.5);--orange-dim:rgba(255,0,0,0.12);--white:#ffffff;--white-dim:#e0e0e0;--muted:#808080;--grid:#330000;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{font-family:'Orbitron',system-ui,Arial,sans-serif;background:#000;color:var(--white);position:relative;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;background:
+      radial-gradient(ellipse at 50% 120%, rgba(255,0,0,0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(255,0,0,0.08) 0%, transparent 40%),
+      radial-gradient(circle at 20% 60%, rgba(255,0,0,0.06) 0%, transparent 35%),
+      linear-gradient(90deg, transparent 0%, rgba(255,0,0,0.03) 50%, transparent 100%) 0 0 / 120px 100%,
+      linear-gradient(0deg, transparent 0%, rgba(255,0,0,0.03) 50%, transparent 100%) 0 0 / 100% 120px;opacity:1;pointer-events:none;z-index:0;animation:gridPulse 8s ease-in-out infinite}
+    @keyframes gridPulse{0%,100%{opacity:.8}50%{opacity:1}}
+    body::after{content:'';position:fixed;inset:0;background:
+      repeating-linear-gradient(0deg, transparent 0px, transparent 39px, rgba(255,0,0,0.08) 40px, transparent 41px),
+      repeating-linear-gradient(90deg, transparent 0px, transparent 39px, rgba(255,0,0,0.08) 40px, transparent 41px);
+      pointer-events:none;z-index:0;animation:gridShift 20s linear infinite}
+    @keyframes gridShift{0%{transform:perspective(500px) rotateX(60deg) translateY(0)}100%{transform:perspective(500px) rotateX(60deg) translateY(40px)}}
+
+    .app{display:grid;grid-template-rows:70px 1fr;position:relative;z-index:1}
+    header{height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:2px solid var(--orange);box-shadow:0 0 20px var(--orange-glow);background:linear-gradient(180deg, rgba(10,10,10,0.95), rgba(0,0,0,0.98));backdrop-filter:blur(10px);position:sticky;top:0;z-index:100}
+    header .brand{display:flex;gap:14px;align-items:center}
+    .logo{width:40px;height:40px;border:2px solid var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle, rgba(255,0,0,0.3), transparent);box-shadow:0 0 25px rgba(255,0,0,0.6), inset 0 0 15px rgba(255,0,0,0.4);animation:pulse 3s ease-in-out infinite}
+    @keyframes pulse{0%,100%{box-shadow:0 0 25px rgba(255,0,0,0.6), inset 0 0 15px rgba(255,0,0,0.4)}50%{box-shadow:0 0 40px rgba(255,0,0,0.9), inset 0 0 25px rgba(255,0,0,0.6)}}
+    .logo-text{font-weight:900;font-size:18px;color:var(--orange)}
+    header h1{font-size:20px;font-weight:900;letter-spacing:2px;color:var(--white);text-shadow:0 0 10px var(--orange-glow)}
+    .tag{font-size:11px;padding:4px 10px;background:var(--orange-dim);border:1px solid var(--orange);border-radius:20px;color:var(--orange-bright);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+    .role-sel{background:var(--panel);border:2px solid var(--orange);color:var(--white);padding:8px 12px;border-radius:6px;font-family:'Orbitron',sans-serif;font-weight:600;cursor:pointer;transition:all .3s}
+    .role-sel:hover{box-shadow:0 0 15px var(--orange-glow)}
+
+    .layout{display:grid;grid-template-columns:280px 1fr;gap:0;min-height:calc(100vh - 70px)}
+    nav{border-right:2px solid var(--orange);padding:20px 16px;position:sticky;top:70px;height:calc(100vh - 70px);overflow-y:auto;background:linear-gradient(180deg, rgba(10,10,10,0.95), rgba(0,0,0,0.98));box-shadow:0 0 40px rgba(255,0,0,0.3)}
+    nav .group{margin-bottom:24px}
+    nav h4{margin:12px 8px 10px;color:var(--orange);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid var(--orange);padding-bottom:6px}
+    .nav-btn{width:100%;display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--grid);background:var(--panel);border-radius:6px;color:var(--white-dim);cursor:pointer;margin:8px 0;font-family:'Orbitron',sans-serif;font-weight:500;font-size:13px;transition:all .3s;position:relative;overflow:hidden}
+    .nav-btn::before{content:'';position:absolute;left:-100%;top:0;width:100%;height:100%;background:linear-gradient(90deg, transparent, var(--orange-glow), transparent);transition:left .5s}
+    .nav-btn:hover::before{left:100%}
+    .nav-btn:hover{border-color:var(--orange);color:var(--orange-bright);box-shadow:0 0 15px var(--orange-glow)}
+    .nav-btn.active{border:2px solid var(--orange);background:var(--orange-dim);color:var(--orange-bright);box-shadow:0 0 20px var(--orange-glow), inset 0 0 10px var(--orange-glow);font-weight:700}
+
+    main{padding:24px;background:radial-gradient(ellipse at top right, rgba(255,0,0,0.04), transparent 60%),radial-gradient(ellipse at bottom left, rgba(255,0,0,0.03), transparent 50%)}
+    .panel{background:linear-gradient(135deg, rgba(17,17,17,0.9), rgba(10,10,10,0.95));border:2px solid var(--panel-border);border-radius:8px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,0.5);position:relative}
+    .panel::before{content:'';position:absolute;inset:0;border-radius:8px;padding:2px;background:linear-gradient(135deg, var(--orange), transparent, var(--orange));-webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.3}
+
+    .grid{display:grid;gap:16px}
+    .grid.cols-2{grid-template-columns:1fr 1fr}
+    .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+    h2{font-size:22px;font-weight:900;color:var(--orange);letter-spacing:1px;text-shadow:0 0 10px var(--orange-glow)}
+    h3{font-size:18px;font-weight:700;color:var(--orange-bright);margin-bottom:12px}
+    h4{font-size:14px;font-weight:600;color:var(--white);margin-bottom:8px}
+
+    .btn{background:var(--panel);border:2px solid var(--orange);color:var(--white);padding:10px 16px;border-radius:6px;cursor:pointer;font-family:'Orbitron',sans-serif;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:1px;transition:all .3s;position:relative;overflow:hidden}
+    .btn::after{content:'';position:absolute;inset:0;background:var(--orange);opacity:0;transition:opacity .3s}
+    .btn:hover::after{opacity:.2}
+    .btn:hover{box-shadow:0 0 20px var(--orange-glow);transform:translateY(-2px)}
+    .btn.brand{background:linear-gradient(135deg, var(--orange), var(--orange-bright));border:none;box-shadow:0 0 15px var(--orange-glow)}
+    .btn.ghost{background:transparent;border:2px dashed var(--orange);color:var(--orange)}
+    .btn.danger{border-color:#ff0000;color:#ff3333}
+    .btn.small{padding:6px 10px;font-size:11px}
+
+    .input, select, textarea{background:var(--panel);border:2px solid var(--grid);color:var(--white);padding:10px 12px;border-radius:6px;font-family:'Orbitron',sans-serif;font-size:13px;transition:all .3s}
+    .input:focus, select:focus, textarea:focus{outline:none;border-color:var(--orange);box-shadow:0 0 15px var(--orange-glow)}
+    textarea{resize:vertical;min-height:100px}
+
+    .table{width:100%;border-collapse:separate;border-spacing:0;margin-top:12px}
+    .table th{background:var(--orange-dim);border:1px solid var(--orange);padding:12px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--orange-bright);font-weight:700}
+    .table th:first-child{border-top-left-radius:6px}
+    .table th:last-child{border-top-right-radius:6px}
+    .table td{border:1px solid var(--grid);padding:12px;font-size:13px;background:rgba(17,17,17,0.5)}
+    .table tr:hover td{background:var(--orange-dim);border-color:var(--orange)}
+
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;background:var(--panel);border:1px solid var(--orange);font-size:11px;color:var(--orange-bright);font-weight:600;text-transform:uppercase;letter-spacing:1px}
+
+    .kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:12px}
+    .col{background:var(--panel);border:2px solid var(--orange);border-radius:8px;min-height:300px;padding:12px;box-shadow:0 0 20px rgba(255,107,0,0.1)}
+    .col h5{margin:8px 0 12px;color:var(--orange-bright);font-weight:700;text-transform:uppercase;letter-spacing:1px;text-align:center;border-bottom:2px solid var(--orange);padding-bottom:8px}
+    .card{background:linear-gradient(135deg, rgba(17,17,17,0.9), rgba(10,10,10,0.95));border:1px solid var(--orange);border-radius:6px;padding:12px;margin:10px 0;cursor:grab;transition:all .3s;box-shadow:0 2px 10px rgba(0,0,0,0.3)}
+    .card:hover{border-color:var(--orange-bright);box-shadow:0 0 20px var(--orange-glow);transform:translateY(-2px)}
+
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:20px;z-index:200}
+    .modal.show{display:flex}
+    .modal .content{background:var(--bg);border:3px solid var(--orange);border-radius:12px;padding:24px;max-width:860px;width:100%;box-shadow:0 0 50px var(--orange-glow);max-height:90vh;overflow-y:auto}
+
+    .empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+    .empty-state-icon{font-size:64px;margin-bottom:16px;opacity:.6}
+
+    .hidden{display:none!important}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="logo"><div class="logo-text">T</div></div>
+      <h1>TRON JOB SYSTEM — Clean</h1>
+      <span class="tag">Local-Only</span>
+    </div>
+    <div class="row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <label class="muted" style="font-weight:600">ROLE:</label>
+      <select id="roleSelect" class="role-sel">
+        <option>Candidate</option><option>Manager</option><option>Executive</option><option>Auditor</option>
+      </select>
+      <button class="btn" id="seedBtn">SEED</button>
+      <button class="btn" id="exportBtn">EXPORT CSV</button>
+      <button class="btn" id="importJobsBtn">IMPORT JOBS</button>
+      <button class="btn" id="importCompaniesBtn">IMPORT COMPANIES</button>
+      <button class="btn brand" id="addJobBtn">+ JOB</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav>
+      <div class="group">
+        <h4>Primary Systems</h4>
+        <button class="nav-btn active" data-view="dashboard">◆ Dashboard</button>
+        <button class="nav-btn" data-view="tracker">◆ Tracker</button>
+        <button class="nav-btn" data-view="ai">◆ AI Tools</button>
+        <button class="nav-btn" data-view="resume">◆ Resume Center</button>
+        <button class="nav-btn" data-view="companies">◆ Companies</button>
+        <button class="nav-btn" data-view="contacts">◆ Contacts</button>
+        <button class="nav-btn" data-view="insights">◆ Insights</button>
+      </div>
+    </nav>
+
+    <main>
+      <!-- DASHBOARD -->
+      <section id="view-dashboard" class="panel">
+        <div class="toolbar"><h2>⟨ DASHBOARD ⟩</h2><span class="tag">Pipeline</span></div>
+        <div class="grid cols-3">
+          <div class="panel"><h4>PIPELINE STATUS</h4><canvas id="pipelineChart" height="150"></canvas></div>
+          <div class="panel"><h4>SOURCE DISTRIBUTION</h4><canvas id="sourceChart" height="150"></canvas></div>
+          <div class="panel"><h4>UPCOMING ACTIONS</h4><div id="upcomingList" style="max-height:150px;overflow-y:auto"></div></div>
+        </div>
+      </section>
+
+      <!-- TRACKER -->
+      <section id="view-tracker" class="panel hidden">
+        <div class="toolbar">
+          <h2>⟨ TRACKER ⟩</h2>
+          <div class="right row" style="margin-left:auto"><button class="btn" id="toggleViewBtn">KANBAN</button><button class="btn brand" id="addJobBtn2">+ JOB</button></div>
+        </div>
+        <div id="listView">
+          <table class="table" id="trackerTable">
+            <thead><tr><th>Title</th><th>Company</th><th>Status</th><th>Follow-up</th><th class="salary-col">Salary</th><th>Source</th><th>Actions</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div id="kanbanView" class="kanban hidden">
+          <div class="col" data-col="Saved"><h5>◆ Saved</h5><div class="drop" data-status="Saved"></div></div>
+          <div class="col" data-col="Applied"><h5>◆ Applied</h5><div class="drop" data-status="Applied"></div></div>
+          <div class="col" data-col="Interview"><h5>◆ Interview</h5><div class="drop" data-status="Interview"></div></div>
+          <div class="col" data-col="Offer"><h5>◆ Offer</h5><div class="drop" data-status="Offer"></div></div>
+        </div>
+      </section>
+
+      <!-- AI TOOLS -->
+      <section id="view-ai" class="panel hidden">
+        <div class="toolbar"><h2>⟨ AI ANALYSIS ⟩</h2><span class="tag">Neural Net</span></div>
+        <div class="grid cols-2">
+          <div class="panel">
+            <h3>JD ↔ RESUME MATCHER</h3>
+            <textarea id="jdText" class="input" rows="6" placeholder="PASTE JOB DESCRIPTION..."></textarea>
+            <textarea id="resumeText" class="input" rows="6" placeholder="PASTE RESUME..."></textarea>
+            <div class="row" style="margin-top:10px"><button class="btn brand" id="analyzeBtn">ANALYZE</button><span class="chip">MATCH: <span id="matchScore">—</span>%</span></div>
+            <div class="grid cols-2" style="margin-top:12px">
+              <div><h4>MISSING KEYWORDS</h4><div id="missingList" class="muted" style="max-height:150px;overflow-y:auto"></div></div>
+              <div><h4>FOUND KEYWORDS</h4><div id="foundList" class="muted" style="max-height:150px;overflow-y:auto"></div></div>
+            </div>
+          </div>
+          <div class="panel">
+            <h3>GENERATORS</h3>
+            <div class="row" style="margin-bottom:12px"><button class="btn" id="createJobFromJd">JOB FROM JD</button><button class="btn" id="draftCoverLetter">COVER LETTER</button><a id="dlCover" class="btn ghost" download="cover-letter.txt">DOWNLOAD</a></div>
+            <textarea id="coverOut" class="input" rows="14" placeholder="OUTPUT APPEARS HERE..."></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESUME CENTER -->
+      <section id="view-resume" class="panel hidden">
+        <div class="toolbar">
+          <h2>⟨ RESUME CENTER ⟩</h2>
+          <div class="right row" style="margin-left:auto"><input id="resumeName" class="input" placeholder="Resume name"><button class="btn brand" id="addResume">ADD</button></div>
+        </div>
+        <table class="table" id="resumeTable"><thead><tr><th>Name</th><th>Actions</th></tr></thead><tbody></tbody></table>
+      </section>
+
+      <!-- COMPANIES -->
+      <section id="view-companies" class="panel hidden">
+        <div class="toolbar">
+          <h2>⟨ COMPANIES ⟩</h2>
+          <div class="right row" style="margin-left:auto"><input id="companyName" class="input" placeholder="Company name"><button class="btn" id="addCompany">ADD</button></div>
+        </div>
+        <table class="table" id="companyTable"><thead><tr><th>Name</th><th>Notes</th><th>Actions</th></tr></thead><tbody></tbody></table>
+      </section>
+
+      <!-- CONTACTS -->
+      <section id="view-contacts" class="panel hidden">
+        <div class="toolbar"><h2>⟨ CONTACTS ⟩</h2>
+          <div class="right row" style="margin-left:auto"><input id="contactName" class="input" placeholder="Name"><input id="contactEmail" class="input" placeholder="Email"><button class="btn" id="addContact">ADD</button></div>
+        </div>
+        <table class="table" id="contactsTable"><thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Notes</th><th>Actions</th></tr></thead><tbody></tbody></table>
+      </section>
+
+      <!-- INSIGHTS -->
+      <section id="view-insights" class="panel hidden">
+        <div class="toolbar"><h2>⟨ INSIGHTS ⟩</h2><span class="tag">Analytics</span></div>
+        <div class="grid cols-2">
+          <div class="panel"><h4>APPLICATION FUNNEL</h4><canvas id="funnelChart" height="200"></canvas></div>
+          <div class="panel"><h4>SOURCE BREAKDOWN</h4><canvas id="sourceBars" height="200"></canvas></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- ADD JOB MODAL -->
+<div class="modal" id="jobModal">
+  <div class="content">
+    <div class="toolbar"><h2>⟨ ADD JOB ⟩</h2><button class="btn right" id="closeModal">CLOSE</button></div>
+    <div class="grid cols-2">
+      <div class="panel">
+        <label style="display:block;margin:12px 0"><h4>TITLE</h4><input id="jobTitle" class="input" placeholder="e.g., Data Analyst" style="width:100%"></label>
+        <label style="display:block;margin:12px 0"><h4>COMPANY</h4><input id="jobCompany" class="input" placeholder="Company" style="width:100%"></label>
+        <label style="display:block;margin:12px 0"><h4>STATUS</h4>
+          <select id="jobStatus" class="input" style="width:100%"><option>Saved</option><option>Applied</option><option>Interview</option><option>Offer</option><option>Closed</option></select>
+        </label>
+      </div>
+      <div class="panel">
+        <label style="display:block;margin:12px 0"><h4>MAX SALARY</h4><input id="jobSalary" class="input" type="number" placeholder="e.g., 110000" style="width:100%"></label>
+        <label style="display:block;margin:12px 0"><h4>SOURCE</h4><input id="jobSource" class="input" placeholder="LinkedIn / Indeed / ..." style="width:100%"></label>
+        <label style="display:block;margin:12px 0"><h4>FOLLOW-UP</h4><input id="jobFollow" class="input" type="date" style="width:100%"></label>
+      </div>
+    </div>
+    <div class="toolbar" style="justify-content:center;margin-top:16px"><button class="btn brand" id="saveJob" style="padding:12px 32px">SAVE JOB</button></div>
+  </div>
+</div>
+
+<!-- MINIMAL IMPORT MODAL (jobs/companies) -->
+<div class="modal" id="importModal">
+  <div class="content">
+    <div class="toolbar"><h2 id="importModalTitle">⟨ IMPORT ⟩</h2><button class="btn right" id="closeImportModal">CLOSE</button></div>
+    <div class="panel" style="margin-bottom:12px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <label><strong>Type:</strong> <select id="importType" class="input"><option value="jobs">Jobs</option><option value="companies">Companies</option></select></label>
+        <label class="btn"><input id="importFileInput" type="file" accept=".csv" hidden>Choose CSV</label>
+        <button class="btn brand" id="startImportBtn">Start Import</button>
+      </div>
+      <div class="muted" style="margin-top:8px">CSV headers — Jobs: title,company,status,follow,salary,source • Companies: name,notes</div>
+    </div>
+    <div class="panel">
+      <h4>Progress</h4>
+      <div id="importStats" class="muted">Waiting for file…</div>
+      <div id="importLog" style="margin-top:8px;max-height:240px;overflow:auto;font-family:monospace;font-size:12px;border:1px solid var(--grid);padding:8px"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// =========================
+// Data Layer
+// =========================
+const DB_KEYS = {jobs:'tron_jobs',resumes:'tron_resumes',companies:'tron_companies',contacts:'tron_contacts',filters:'tron_filters',settings:'tron_settings'};
+const state = {
+  jobs: JSON.parse(localStorage.getItem(DB_KEYS.jobs) || '[]'),
+  resumes: JSON.parse(localStorage.getItem(DB_KEYS.resumes) || '[]'),
+  companies: JSON.parse(localStorage.getItem(DB_KEYS.companies) || '[]'),
+  contacts: JSON.parse(localStorage.getItem(DB_KEYS.contacts) || '[]'),
+  filters: JSON.parse(localStorage.getItem(DB_KEYS.filters) || '[]'),
+  settings: JSON.parse(localStorage.getItem(DB_KEYS.settings) || '{}'),
+  view:'dashboard', role:'Candidate', listView:true
+};
+function persist(){
+  localStorage.setItem(DB_KEYS.jobs, JSON.stringify(state.jobs));
+  localStorage.setItem(DB_KEYS.resumes, JSON.stringify(state.resumes));
+  localStorage.setItem(DB_KEYS.companies, JSON.stringify(state.companies));
+  localStorage.setItem(DB_KEYS.contacts, JSON.stringify(state.contacts));
+  localStorage.setItem(DB_KEYS.filters, JSON.stringify(state.filters));
+  localStorage.setItem(DB_KEYS.settings, JSON.stringify({role:state.role,...state.settings}));
+}
+
+// =========================
+// Utilities (qs/qsa)
+// =========================
+const qs  = (s)=>document.querySelector(s);
+const qsa = (s)=>Array.from(document.querySelectorAll(s));
+const uid = ()=>Math.random().toString(36).slice(2,9);
+function fmtDate(v){ if(!v) return ''; try{ return new Date(v).toISOString().slice(0,10);}catch{return ''} }
+function today(n=0){ const d=new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+function download(filename, text, type='text/plain'){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type})); a.download=filename; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000); }
+
+// =========================
+// Navigation & Role Gate
+// =========================
+qsa('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>{
+  qsa('.nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  state.view = btn.dataset.view;
+  qsa('main>section').forEach(s=>s.classList.add('hidden'));
+  qs('#view-'+state.view).classList.remove('hidden');
+  renderAll();
+}));
+qs('#roleSelect').addEventListener('change',e=>{ state.role=e.target.value; persist(); roleGate(); });
+function roleGate(){ const hide = state.role==='Auditor'; qsa('.salary-col').forEach(th=> th.style.display = hide?'none':''); qsa('.salary-cell').forEach(td=> td.style.display = hide?'none':''); }
+
+// =========================
+// Jobs CRUD
+// =========================
+function addJob(j){ state.jobs.push({id:uid(), title:'', company:'', status:'Saved', follow:'', salary:'', source:'', ...j}); persist(); renderAll(); }
+function updateJob(id,patch){ const j=state.jobs.find(x=>x.id===id); if(j){ Object.assign(j,patch); persist(); renderAll(); } }
+function removeJob(id){ state.jobs = state.jobs.filter(x=>x.id!==id); persist(); renderAll(); }
+
+// =========================
+// Tracker Table (fixed salary cell)
+// =========================
+function renderTrackerTable(){
+  const tb = qs('#trackerTable tbody');
+  const jobs = state.jobs;
+  tb.innerHTML = jobs.map(j=>`<tr draggable="true" data-id="${j.id}">
+    <td>${escapeHtml(j.title||'')}</td>
+    <td>${escapeHtml(j.company||'')}</td>
+    <td>
+      <select class="input small" data-act="chgStatus" data-id="${j.id}">
+        ${['Saved','Applied','Interview','Offer','Closed'].map(s=>`<option ${j.status===s?'selected':''}>${s}</option>`).join('')}
+      </select>
+    </td>
+    <td><input type="date" class="input" data-act="chgFollow" data-id="${j.id}" value="${fmtDate(j.follow)}"></td>
+    <td class="salary-cell">${j.salary ? Number(j.salary).toLocaleString() : ''}</td>
+    <td>${escapeHtml(j.source||'')}</td>
+    <td>
+      <button class="btn small" data-act="quickFollow" data-id="${j.id}">+3d</button>
+      <button class="btn small" data-act="quickFollow7" data-id="${j.id}">+7d</button>
+      <button class="btn danger small" data-act="del" data-id="${j.id}">DEL</button>
+    </td>
+  </tr>`).join('');
+  roleGate();
+}
+qs('#trackerTable').addEventListener('change',e=>{
+  const id = e.target.getAttribute('data-id');
+  const act = e.target.getAttribute('data-act');
+  if(act==='chgStatus') updateJob(id,{status:e.target.value});
+  if(act==='chgFollow') updateJob(id,{follow:e.target.value});
+});
+qs('#trackerTable').addEventListener('click',e=>{
+  const id = e.target.getAttribute('data-id');
+  const act = e.target.getAttribute('data-act');
+  if(!id||!act) return;
+  if(act==='del') removeJob(id);
+  if(act==='quickFollow') updateJob(id,{follow: today(3)});
+  if(act==='quickFollow7') updateJob(id,{follow: today(7)});
+});
+
+// =========================
+// Kanban
+// =========================
+function renderKanban(){
+  qsa('.drop').forEach(d=> d.innerHTML='');
+  state.jobs.forEach(j=>{
+    const el = document.createElement('div');
+    el.className='card'; el.draggable=true; el.dataset.id=j.id;
+    el.innerHTML=`<strong>${escapeHtml(j.title)}</strong><div class="muted">${escapeHtml(j.company)}</div>`;
+    el.addEventListener('dragstart',ev=>{ ev.dataTransfer.setData('text/plain', j.id) });
+    const col = qs(`.drop[data-status="${j.status}"]`) || qs(`.drop[data-status="Saved"]`);
+    col.appendChild(el);
+  });
+}
+qsa('.drop').forEach(d=>{
+  d.addEventListener('dragover',e=> e.preventDefault());
+  d.addEventListener('drop',e=>{ e.preventDefault(); const id=e.dataTransfer.getData('text/plain'); updateJob(id,{status:d.dataset.status}); });
+});
+qs('#toggleViewBtn').addEventListener('click',()=>{
+  state.listView = !state.listView;
+  qs('#listView').classList.toggle('hidden', !state.listView);
+  qs('#kanbanView').classList.toggle('hidden', state.listView);
+  qs('#toggleViewBtn').textContent = state.listView ? 'KANBAN' : 'LIST';
+  if(!state.listView) renderKanban();
+});
+
+// =========================
+// Charts & Insights (simple TRON canvas)
+// =========================
+function drawBars(ctx, data, labels, color='#ff0000'){
+  const w=ctx.canvas.width, h=ctx.canvas.height; ctx.clearRect(0,0,w,h);
+  const max=Math.max(1,...data), pad=30, bw=(w-pad*2)/Math.max(1,data.length)*0.6, step=(w-pad*2)/Math.max(1,data.length);
+  ctx.fillStyle='#0a0a0a'; ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle='#1a0000'; for(let i=0;i<5;i++){const y=pad+(h-pad*2)/4*i; ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(w-pad,y); ctx.stroke();}
+  labels.forEach((l,i)=>{const v=data[i]||0; const bh=Math.round((h-pad*2)*(v/max)); const x=pad+i*step+(step-bw)/2; const y=h-pad-bh; const g=ctx.createLinearGradient(x,y,x,h-pad); g.addColorStop(0,color); g.addColorStop(1,'rgba(255,0,0,0.2)'); ctx.fillStyle=g; ctx.fillRect(x,y,bw,bh); ctx.strokeStyle=color; ctx.lineWidth=2; ctx.shadowColor=color; ctx.shadowBlur=10; ctx.strokeRect(x,y,bw,bh); ctx.shadowBlur=0; ctx.fillStyle='#fff'; ctx.font='11px Orbitron'; ctx.textAlign='center'; ctx.fillText((l||'').slice(0,8), x+bw/2, h-10); if(v>0){ctx.font='bold 12px Orbitron'; ctx.fillText(v, x+bw/2, y-6);}});
+}
+function drawFunnel(ctx, stages){ const w=ctx.canvas.width, h=ctx.canvas.height; ctx.clearRect(0,0,w,h); ctx.fillStyle='#0a0a0a'; ctx.fillRect(0,0,w,h); const keys=['Saved','Applied','Interview','Offer','Closed']; const vals=keys.map(k=>stages[k]||0); const max=Math.max(1,...vals); const colors=['#ff0000','#ff1a1a','#ff3333','#ff4d4d','#ff6666']; keys.forEach((k,i)=>{ const top=20+i*(h-40)/keys.length; const width=(w-60)*((vals[i]||0)/max); const x=30+((w-60)-width)/2; const y=top; const barH=(h-50)/keys.length-8; const g=ctx.createLinearGradient(x,y,x+width,y); g.addColorStop(0,colors[i]); g.addColorStop(1,'rgba(255,0,0,0.3)'); ctx.fillStyle=g; ctx.fillRect(x,y,width,barH); ctx.strokeStyle=colors[i]; ctx.lineWidth=2; ctx.shadowColor=colors[i]; ctx.shadowBlur=15; ctx.strokeRect(x,y,width,barH); ctx.shadowBlur=0; ctx.fillStyle='#fff'; ctx.font='bold 12px Orbitron'; ctx.textAlign='left'; ctx.fillText(`${k} (${vals[i]||0})`, x+8, y+barH-10); }); }
+function computeStats(){ const byStatus={Saved:0,Applied:0,Interview:0,Offer:0,Closed:0}; const bySource={}; const upcoming=[]; state.jobs.forEach(j=>{ byStatus[j.status]=(byStatus[j.status]||0)+1; if(j.source) bySource[j.source]=(bySource[j.source]||0)+1; if(j.follow){ const d=new Date(j.follow), now=new Date(); const diff=(d-now)/(1000*3600*24); if(diff>=-1 && diff<=14) upcoming.push(j); } }); return {byStatus, bySource, upcoming: upcoming.sort((a,b)=> new Date(a.follow)-new Date(b.follow)).slice(0,8)}; }
+function renderDashboard(){ const {byStatus,bySource,upcoming} = computeStats(); const pctx=qs('#pipelineChart').getContext('2d'); drawFunnel(pctx, byStatus); const sctx=qs('#sourceChart').getContext('2d'); const labels=Object.keys(bySource).slice(0,8); const data=labels.map(k=>bySource[k]); drawBars(sctx,data,labels); qs('#upcomingList').innerHTML = upcoming.map(j=>`<div class="row" style="display:flex;align-items:center;justify-content:space-between;margin:10px 0;padding:8px;background:var(--orange-dim);border:1px solid var(--orange);border-radius:4px"><div><strong style="color:var(--orange-bright)">${escapeHtml(j.title)}</strong> <span class="muted">@ ${escapeHtml(j.company)}</span></div><span class="chip">${fmtDate(j.follow)}</span></div>`).join('') || '<div class="muted" style="padding:20px;text-align:center">No upcoming follow-ups</div>'; }
+function renderInsights(){ const {byStatus,bySource}=computeStats(); drawFunnel(qs('#funnelChart').getContext('2d'), byStatus); const labels=Object.keys(bySource).slice(0,10); const data=labels.map(k=>bySource[k]); drawBars(qs('#sourceBars').getContext('2d'), data, labels, '#ff2929'); }
+
+// =========================
+// AI Tools (simple keyword set match)
+// =========================
+function tokenize(s){ return (s||'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(Boolean); }
+function keyset(s){ const stop=new Set(['the','and','for','with','a','an','to','in','of','on','is','are','or','by','as','at','from']); const ks=new Set(); tokenize(s).forEach(w=>{ if(!stop.has(w) && w.length>2) ks.add(w) }); return ks; }
+qs('#analyzeBtn').addEventListener('click',()=>{ const jd=keyset(qs('#jdText').value); const rv=keyset(qs('#resumeText').value); const found=[...jd].filter(k=>rv.has(k)); const missing=[...jd].filter(k=>!rv.has(k)); const score=Math.round(100 * (found.length / Math.max(1,(found.length+missing.length)))); qs('#matchScore').textContent=score; qs('#foundList').innerHTML = found.map(k=>`<span class="chip" style="margin:4px">${k}</span>`).join(' '); qs('#missingList').innerHTML = missing.map(k=>`<span class="chip" style="margin:4px;background:rgba(255,0,0,0.1);border-color:#ff0000;color:#ff6666">${k}</span>`).join(' '); });
+qs('#createJobFromJd').addEventListener('click',()=>{ const jd=qs('#jdText').value; if(!jd) return alert('Paste a JD first'); const mTitle = jd.match(/Title\s*:\s*(.+)/i) || jd.match(/\b(Engineer|Analyst|Manager|Designer|Developer|Scientist)\b/i); const mComp = jd.match(/Company\s*:\s*(.+)/i) || jd.match(/\b(?:at|@)\s+([A-Z][A-Za-z0-9& ]{2,})/); addJob({ title: mTitle? (mTitle[1]||mTitle[0]) : 'Untitled Role', company: mComp? (mComp[1]||'') : '', status:'Saved', source:'Parsed JD', follow: today(3) }); alert('Job created from JD → Tracker'); });
+qs('#draftCoverLetter').addEventListener('click',()=>{ const name = state.settings?.name || 'Hiring Manager'; const role = (state.jobs[state.jobs.length-1]?.title) || 'the role'; const company = (state.jobs[state.jobs.length-1]?.company) || 'your company'; const body=`Dear ${name},\n\nI'm excited to apply for ${role} at ${company}. My experience aligns with the role's requirements, including [top skills]. I thrive in fast-moving teams and care deeply about measurable impact.\n\nHighlights:\n• Achievement 1 (quantified)\n• Achievement 2 (quantified)\n• Achievement 3 (quantified)\n\nI'd welcome the opportunity to discuss how I can contribute.\n\nBest,\nYour Name`; qs('#coverOut').value = body; const blob=new Blob([body],{type:'text/plain'}); qs('#dlCover').href=URL.createObjectURL(blob); });
+
+// =========================
+// Resume Center
+// =========================
+function renderResumes(){ const tb=qs('#resumeTable tbody'); if(state.resumes.length===0){ tb.innerHTML=`<tr><td colspan="2"><div class="empty-state"><div class="empty-state-icon">📄</div><h3>No resumes yet</h3><p>Create different versions of your resume for different roles</p><div style="margin-top:16px"><input id="quickResumeName" class="input" placeholder="Resume name (e.g., Software Engineer v1)" style="margin-right:8px"><button class="btn brand" onclick="document.getElementById('resumeName').value=document.getElementById('quickResumeName').value; document.getElementById('addResume').click()">CREATE RESUME</button></div></div></td></tr>`; return;} tb.innerHTML = state.resumes.map(r=>`<tr><td>${escapeHtml(r.name)}</td><td><button class="btn small" data-r="${r.id}" data-act="copy">COPY</button><button class="btn small" data-r="${r.id}" data-act="rename">RENAME</button><button class="btn danger small" data-r="${r.id}" data-act="del">DELETE</button></td></tr>`).join(''); }
+qs('#addResume').addEventListener('click',()=>{ const name=qs('#resumeName').value.trim(); if(!name) return; state.resumes.push({id:uid(), name}); qs('#resumeName').value=''; persist(); renderResumes(); });
+qs('#resumeTable').addEventListener('click',e=>{ const id=e.target.getAttribute('data-r'); const act=e.target.getAttribute('data-act'); if(!id||!act) return; if(act==='del') state.resumes = state.resumes.filter(x=>x.id!==id); if(act==='rename'){ const rec=state.resumes.find(x=>x.id===id); const nn=prompt('New name', rec?.name||''); if(nn){ rec.name=nn; } } if(act==='copy'){ const rec=state.resumes.find(x=>x.id===id); state.resumes.push({id:uid(), name:(rec?.name||'Untitled')+' Copy'}); } persist(); renderResumes(); });
+
+// =========================
+// Companies (restored empty state)
+// =========================
+function renderCompanies(){ const tb=qs('#companyTable tbody'); if(state.companies.length===0){ tb.innerHTML=`<tr><td colspan="3"><div class="empty-state"><div class="empty-state-icon">🏢</div><h3>No companies tracked</h3><p>Keep notes on companies you're interested in or interviewing with</p><div style="display:flex;gap:12px;justify-content:center;margin-top:16px;flex-wrap:wrap"><button class="btn brand" onclick="document.getElementById('companyName').focus()">+ ADD COMPANY</button><button class="btn" onclick="openImportModal('companies')">📥 IMPORT FROM CSV</button></div></div></td></tr>`; return; } tb.innerHTML = state.companies.map(c=>`<tr><td>${escapeHtml(c.name)}</td><td contenteditable data-cid="${c.id}" data-field="notes" style="min-width:200px">${escapeHtml(c.notes||'')}</td><td><button class="btn danger small" data-cid="${c.id}" data-act="del">DELETE</button></td></tr>`).join(''); }
+qs('#addCompany').addEventListener('click',()=>{ const n=qs('#companyName').value.trim(); if(!n) return; state.companies.push({id:uid(), name:n, notes:''}); qs('#companyName').value=''; persist(); renderCompanies(); });
+qs('#companyTable').addEventListener('click',e=>{ const id=e.target.getAttribute('data-cid'); const act=e.target.getAttribute('data-act'); if(act==='del'){ state.companies = state.companies.filter(x=>x.id!==id); persist(); renderCompanies(); } });
+qs('#companyTable').addEventListener('blur',e=>{ if(e.target.hasAttribute('contenteditable')){ const id=e.target.getAttribute('data-cid'); const field=e.target.getAttribute('data-field'); const rec=state.companies.find(x=>x.id===id); if(rec){ rec[field]=e.target.innerText; persist(); } } }, true);
+
+// =========================
+// Contacts
+// =========================
+function renderContacts(){ const tb=qs('#contactsTable tbody'); if(state.contacts.length===0){ tb.innerHTML=`<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">👥</div><h3>No contacts yet</h3><p>Track recruiters, hiring managers, and referrals you've connected with</p></div></td></tr>`; return; } tb.innerHTML = state.contacts.map(c=>`<tr><td contenteditable data-k="name" data-id="${c.id}">${escapeHtml(c.name||'')}</td><td contenteditable data-k="email" data-id="${c.id}">${escapeHtml(c.email||'')}</td><td contenteditable data-k="company" data-id="${c.id}">${escapeHtml(c.company||'')}</td><td contenteditable data-k="notes" data-id="${c.id}" style="min-width:150px">${escapeHtml(c.notes||'')}</td><td><button class="btn danger small" data-id="${c.id}" data-act="del">DELETE</button></td></tr>`).join(''); }
+qs('#addContact').addEventListener('click',()=>{ const n=qs('#contactName').value.trim(); const e=qs('#contactEmail').value.trim(); if(!n&&!e) return; state.contacts.push({id:uid(), name:n, email:e, company:'', notes:''}); qs('#contactName').value=''; qs('#contactEmail').value=''; persist(); renderContacts(); });
+qs('#contactsTable').addEventListener('click',e=>{ const id=e.target.getAttribute('data-id'); const act=e.target.getAttribute('data-act'); if(act==='del'){ state.contacts = state.contacts.filter(x=>x.id!==id); persist(); renderContacts(); } });
+qs('#contactsTable').addEventListener('blur',e=>{ if(e.target.hasAttribute('contenteditable')){ const id=e.target.getAttribute('data-id'); const k=e.target.getAttribute('data-k'); const rec=state.contacts.find(x=>x.id===id); if(rec){ rec[k]=e.target.innerText; persist(); } } }, true);
+
+// =========================
+// CSV Export
+// =========================
+qs('#exportBtn').addEventListener('click',()=>{ const cols=['id','title','company','status','follow','salary','source']; const rows=[cols.join(',')].concat(state.jobs.map(j=> cols.map(c=>`"${(j[c]??'').toString().replace(/"/g,'""')}"`).join(','))); download('tron-jobs.csv', rows.join('\n'), 'text/csv'); });
+
+// =========================
+// Minimal CSV Import (modal)
+// =========================
+const importModal = qs('#importModal');
+function openImportModal(type='jobs'){ qs('#importType').value = type; qs('#importModalTitle').textContent = type==='jobs' ? '⟨ IMPORT JOBS ⟩' : '⟨ IMPORT COMPANIES ⟩'; qs('#importStats').textContent='Waiting for file…'; qs('#importLog').innerHTML=''; importModal.classList.add('show'); }
+qs('#importJobsBtn').addEventListener('click',()=> openImportModal('jobs'));
+qs('#importCompaniesBtn').addEventListener('click',()=> openImportModal('companies'));
+qs('#closeImportModal').addEventListener('click',()=> importModal.classList.remove('show'));
+let lastFile=null; qs('#importFileInput').addEventListener('change',e=>{ lastFile=e.target.files[0]||null; });
+qs('#startImportBtn').addEventListener('click',()=>{ const type=qs('#importType').value; if(!lastFile){ alert('Choose a CSV file'); return; } qs('#importStats').textContent='Parsing…'; qs('#importLog').innerHTML=''; Papa.parse(lastFile, {header:true, skipEmptyLines:true, complete:(res)=>{ processImport(type, res); lastFile=null; qs('#importFileInput').value=''; }, error:(err)=>{ logImport(`Parse error: ${err.message}`, 'error'); }}); });
+function logImport(msg, kind='info'){ const log=qs('#importLog'); const div=document.createElement('div'); div.textContent=msg; div.style.color = kind==='error'? '#ff6666' : (kind==='success'? '#00ff00' : '#e0e0e0'); log.appendChild(div); log.scrollTop=log.scrollHeight; }
+function processImport(type, results){ const data=results.data||[]; let ok=0, bad=0; data.forEach((row,i)=>{ try{
+  if(type==='jobs'){
+    const title=(row.title||'').trim(); const company=(row.company||'').trim(); if(!title||!company){ bad++; logImport(`Row ${i+1}: missing title/company`, 'error'); return; }
+    state.jobs.push({id:uid(), title, company, status: (row.status||'Saved'), follow:(row.follow||''), salary:(row.salary||''), source:(row.source||'CSV Import')});
+    ok++; logImport(`Row ${i+1}: + Job "${title}" @ ${company}`, 'success');
+  } else {
+    const name=(row.name||'').trim(); if(!name){ bad++; logImport(`Row ${i+1}: missing name`, 'error'); return; }
+    state.companies.push({id:uid(), name, notes:(row.notes||'')}); ok++; logImport(`Row ${i+1}: + Company "${name}"`, 'success');
+  }
+ }catch(e){ bad++; logImport(`Row ${i+1}: ${e.message}`, 'error'); }});
+ persist(); renderAll(); qs('#importStats').textContent = `Done: ${ok} imported, ${bad} errors`;
+}
+
+// =========================
+// Seed Data
+// =========================
+qs('#seedBtn').addEventListener('click',()=>{ if(!confirm('Load sample data?')) return; const u=()=>Math.random().toString(36).slice(2,9); state.jobs=[{id:u(), title:'Senior Data Analyst', company:'ENCOM', status:'Saved', follow:today(2), salary:'125000', source:'LinkedIn'},{id:u(), title:'ML Engineer', company:'Flynn Lives', status:'Applied', follow:today(5), salary:'145000', source:'Indeed'},{id:u(), title:'Backend Developer', company:'Grid Systems', status:'Interview', follow:today(1), salary:'135000', source:'Greenhouse'},{id:u(), title:'Security Analyst', company:'MCP Corp', status:'Offer', follow:today(7), salary:'130000', source:'Lever'},{id:u(), title:'DevOps Engineer', company:'Digital Frontier', status:'Closed', follow:'', salary:'', source:'Referral'}]; state.resumes=[{id:u(), name:'General Tech - v1'},{id:u(), name:'Data Science Focus - v2'}]; state.companies=[{id:u(), name:'ENCOM', notes:'Legacy systems company, innovative culture'},{id:u(), name:'Flynn Lives', notes:'Startup, fast growth, AI-focused'}]; state.contacts=[{id:u(), name:'Kevin Flynn', email:'kevin@flynn.io', company:'Flynn Lives', notes:'CEO, met at conference'}]; persist(); renderAll(); });
+
+// =========================
+// Modal (Add Job)
+// =========================
+const modal = qs('#jobModal');
+function openModal(){ modal.classList.add('show'); }
+function closeModal(){ modal.classList.remove('show'); qs('#jobTitle').value=''; qs('#jobCompany').value=''; qs('#jobSalary').value=''; qs('#jobSource').value=''; qs('#jobFollow').value=''; qs('#jobStatus').value='Saved'; }
+qs('#addJobBtn').addEventListener('click',openModal); qs('#addJobBtn2').addEventListener('click',openModal); qs('#closeModal').addEventListener('click',closeModal);
+qs('#saveJob').addEventListener('click',()=>{ addJob({ title:qs('#jobTitle').value, company:qs('#jobCompany').value, status:qs('#jobStatus').value, salary:Number(qs('#jobSalary').value||'').toString(), source:qs('#jobSource').value, follow:qs('#jobFollow').value }); closeModal(); });
+
+// =========================
+// Render boot
+// =========================
+function renderAll(){ renderTrackerTable(); if(!state.listView) renderKanban(); renderDashboard(); renderInsights(); renderResumes(); renderCompanies(); renderContacts(); }
+state.role = (state.settings.role)||'Candidate'; qs('#roleSelect').value = state.role; roleGate(); renderAll();
+window.addEventListener('beforeunload', persist);
+</script>
+</body>
+</html>
