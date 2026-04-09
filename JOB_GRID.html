@@ -3,14 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TRON Job System — Clean</title>
+  <title>TRON Job System — Enhanced</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <style>
     :root{
-      --bg:#000000;--bg-secondary:#0a0a0a;--panel:#111111;--panel-border:#1a1a1a;--orange:#ff0000;--orange-bright:#ff2929;--orange-glow:rgba(255,0,0,0.5);--orange-dim:rgba(255,0,0,0.12);--white:#ffffff;--white-dim:#e0e0e0;--muted:#808080;--grid:#330000;
+      --bg:#000000;--bg-secondary:#0a0a0a;--panel:#111111;--panel-border:#1a1a1a;--orange:#ff0000;--orange-bright:#ff2929;--orange-glow:rgba(255,0,0,0.5);--orange-dim:rgba(255,0,0,0.12);--white:#ffffff;--white-dim:#e0e0e0;--muted:#808080;--grid:#330000;--green:#00ff41;--green-dim:rgba(0,255,65,0.12);--blue:#00bfff;--blue-dim:rgba(0,191,255,0.12);
     }
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%}
@@ -36,6 +40,8 @@
     .logo-text{font-weight:900;font-size:18px;color:var(--orange)}
     header h1{font-size:20px;font-weight:900;letter-spacing:2px;color:var(--white);text-shadow:0 0 10px var(--orange-glow)}
     .tag{font-size:11px;padding:4px 10px;background:var(--orange-dim);border:1px solid var(--orange);border-radius:20px;color:var(--orange-bright);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+    .tag.green{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+    .tag.blue{background:var(--blue-dim);border-color:var(--blue);color:var(--blue)}
     .role-sel{background:var(--panel);border:2px solid var(--orange);color:var(--white);padding:8px 12px;border-radius:6px;font-family:'Orbitron',sans-serif;font-weight:600;cursor:pointer;transition:all .3s}
     .role-sel:hover{box-shadow:0 0 15px var(--orange-glow)}
 
@@ -56,6 +62,7 @@
     .grid{display:grid;gap:16px}
     .grid.cols-2{grid-template-columns:1fr 1fr}
     .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+    .grid.cols-4{grid-template-columns:repeat(4,1fr)}
 
     .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
     h2{font-size:22px;font-weight:900;color:var(--orange);letter-spacing:1px;text-shadow:0 0 10px var(--orange-glow)}
@@ -70,8 +77,11 @@
     .btn.ghost{background:transparent;border:2px dashed var(--orange);color:var(--orange)}
     .btn.danger{border-color:#ff0000;color:#ff3333}
     .btn.small{padding:6px 10px;font-size:11px}
+    .btn.green{border-color:var(--green);color:var(--green)}
+    .btn.blue{border-color:var(--blue);color:var(--blue)}
+    .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
 
-    .input, select, textarea{background:var(--panel);border:2px solid var(--grid);color:var(--white);padding:10px 12px;border-radius:6px;font-family:'Orbitron',sans-serif;font-size:13px;transition:all .3s}
+    .input, select, textarea{background:var(--panel);border:2px solid var(--grid);color:var(--white);padding:10px 12px;border-radius:6px;font-family:'Orbitron',sans-serif;font-size:13px;transition:all .3s;width:100%}
     .input:focus, select:focus, textarea:focus{outline:none;border-color:var(--orange);box-shadow:0 0 15px var(--orange-glow)}
     textarea{resize:vertical;min-height:100px}
 
@@ -98,6 +108,35 @@
     .empty-state-icon{font-size:64px;margin-bottom:16px;opacity:.6}
 
     .hidden{display:none!important}
+
+    /* Job search results */
+    .search-result{background:var(--panel);border:1px solid var(--grid);border-radius:8px;padding:16px;margin:12px 0;transition:all .3s}
+    .search-result:hover{border-color:var(--orange);box-shadow:0 0 15px var(--orange-glow)}
+    .search-result h4{color:var(--orange-bright);margin-bottom:4px}
+    .search-result .company-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    .search-result .company-logo{width:24px;height:24px;border-radius:4px;object-fit:contain;background:#fff}
+    .search-result .meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+    .search-result .meta span{font-size:11px;color:var(--muted)}
+
+    /* Toast notifications */
+    .toast-container{position:fixed;top:80px;right:20px;z-index:300;display:flex;flex-direction:column;gap:8px}
+    .toast{background:var(--panel);border:2px solid var(--orange);border-radius:8px;padding:12px 16px;color:var(--white);font-family:'Orbitron',sans-serif;font-size:12px;box-shadow:0 0 20px var(--orange-glow);animation:slideIn .3s ease-out;max-width:350px}
+    .toast.success{border-color:var(--green);box-shadow:0 0 20px rgba(0,255,65,0.3)}
+    .toast.error{border-color:#ff0000;box-shadow:0 0 20px rgba(255,0,0,0.3)}
+    @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+    /* API status indicators */
+    .api-status{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+    .api-status.active{background:var(--green);box-shadow:0 0 8px var(--green)}
+    .api-status.inactive{background:#555}
+
+    /* Loading spinner */
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--grid);border-top-color:var(--orange);border-radius:50%;animation:spin .6s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* Salary benchmark bar */
+    .salary-bar{height:8px;background:var(--grid);border-radius:4px;margin-top:4px;overflow:hidden}
+    .salary-bar .fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--orange))}
   </style>
 </head>
 <body>
@@ -105,8 +144,9 @@
   <header>
     <div class="brand">
       <div class="logo"><div class="logo-text">T</div></div>
-      <h1>TRON JOB SYSTEM — Clean</h1>
-      <span class="tag">Local-Only</span>
+      <h1>TRON JOB SYSTEM</h1>
+      <span class="tag">Enhanced</span>
+      <span class="tag green" id="apiStatusTag" style="display:none">APIs Active</span>
     </div>
     <div class="row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <label class="muted" style="font-weight:600">ROLE:</label>
@@ -127,11 +167,16 @@
         <h4>Primary Systems</h4>
         <button class="nav-btn active" data-view="dashboard">◆ Dashboard</button>
         <button class="nav-btn" data-view="tracker">◆ Tracker</button>
+        <button class="nav-btn" data-view="search">◆ Job Search</button>
         <button class="nav-btn" data-view="ai">◆ AI Tools</button>
         <button class="nav-btn" data-view="resume">◆ Resume Center</button>
         <button class="nav-btn" data-view="companies">◆ Companies</button>
         <button class="nav-btn" data-view="contacts">◆ Contacts</button>
         <button class="nav-btn" data-view="insights">◆ Insights</button>
+      </div>
+      <div class="group">
+        <h4>Configuration</h4>
+        <button class="nav-btn" data-view="settings">◆ API Settings</button>
       </div>
     </nav>
 
@@ -140,9 +185,17 @@
       <section id="view-dashboard" class="panel">
         <div class="toolbar"><h2>⟨ DASHBOARD ⟩</h2><span class="tag">Pipeline</span></div>
         <div class="grid cols-3">
-          <div class="panel"><h4>PIPELINE STATUS</h4><canvas id="pipelineChart" height="150"></canvas></div>
-          <div class="panel"><h4>SOURCE DISTRIBUTION</h4><canvas id="sourceChart" height="150"></canvas></div>
-          <div class="panel"><h4>UPCOMING ACTIONS</h4><div id="upcomingList" style="max-height:150px;overflow-y:auto"></div></div>
+          <div class="panel"><h4>PIPELINE STATUS</h4><canvas id="pipelineChart" height="200"></canvas></div>
+          <div class="panel"><h4>SOURCE DISTRIBUTION</h4><canvas id="sourceChart" height="200"></canvas></div>
+          <div class="panel">
+            <h4>UPCOMING ACTIONS</h4>
+            <div id="upcomingList" style="max-height:200px;overflow-y:auto"></div>
+            <button class="btn small green" id="enableNotifBtn" style="margin-top:8px;width:100%">ENABLE NOTIFICATIONS</button>
+          </div>
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          <div class="panel"><h4>SALARY BENCHMARKS (BLS)</h4><div id="blsBenchmarks"><div class="muted" style="text-align:center;padding:20px">Configure BLS in API Settings or click LOAD below</div><button class="btn small blue" id="loadBlsBtn" style="margin-top:8px">LOAD BLS DATA</button></div></div>
+          <div class="panel"><h4>WEEKLY ACTIVITY</h4><canvas id="weeklyChart" height="150"></canvas></div>
         </div>
       </section>
 
@@ -166,15 +219,42 @@
         </div>
       </section>
 
+      <!-- JOB SEARCH (NEW) -->
+      <section id="view-search" class="panel hidden">
+        <div class="toolbar"><h2>⟨ JOB SEARCH ⟩</h2><span class="tag blue">API-Powered</span></div>
+        <div class="grid cols-3" style="margin-bottom:16px">
+          <div>
+            <label><h4>KEYWORDS</h4><input id="searchKeyword" class="input" placeholder="e.g., Data Analyst, Python"></label>
+          </div>
+          <div>
+            <label><h4>LOCATION</h4><input id="searchLocation" class="input" placeholder="e.g., Remote, New York"></label>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:8px">
+            <button class="btn brand" id="searchRemotiveBtn" style="flex:1">REMOTIVE</button>
+            <button class="btn blue" id="searchAdzunaBtn" style="flex:1">ADZUNA</button>
+          </div>
+        </div>
+        <div id="searchStatus" class="muted" style="margin-bottom:12px"></div>
+        <div id="searchResults"></div>
+      </section>
+
       <!-- AI TOOLS -->
       <section id="view-ai" class="panel hidden">
-        <div class="toolbar"><h2>⟨ AI ANALYSIS ⟩</h2><span class="tag">Neural Net</span></div>
+        <div class="toolbar"><h2>⟨ AI ANALYSIS ⟩</h2><span class="tag">Neural Net</span><span id="aiMode" class="tag blue" style="display:none">Gemini Active</span></div>
         <div class="grid cols-2">
           <div class="panel">
             <h3>JD ↔ RESUME MATCHER</h3>
             <textarea id="jdText" class="input" rows="6" placeholder="PASTE JOB DESCRIPTION..."></textarea>
-            <textarea id="resumeText" class="input" rows="6" placeholder="PASTE RESUME..."></textarea>
-            <div class="row" style="margin-top:10px"><button class="btn brand" id="analyzeBtn">ANALYZE</button><span class="chip">MATCH: <span id="matchScore">—</span>%</span></div>
+            <textarea id="resumeText" class="input" rows="6" placeholder="PASTE RESUME..." style="margin-top:8px"></textarea>
+            <div class="row" style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <button class="btn brand" id="analyzeBtn">ANALYZE (LOCAL)</button>
+              <button class="btn blue" id="analyzeAiBtn">ANALYZE (AI)</button>
+              <span class="chip">MATCH: <span id="matchScore">—</span>%</span>
+            </div>
+            <div id="aiMatchResult" style="margin-top:12px;display:none" class="panel">
+              <h4>AI ANALYSIS</h4>
+              <div id="aiMatchContent" class="muted" style="white-space:pre-wrap;font-size:12px;max-height:200px;overflow-y:auto"></div>
+            </div>
             <div class="grid cols-2" style="margin-top:12px">
               <div><h4>MISSING KEYWORDS</h4><div id="missingList" class="muted" style="max-height:150px;overflow-y:auto"></div></div>
               <div><h4>FOUND KEYWORDS</h4><div id="foundList" class="muted" style="max-height:150px;overflow-y:auto"></div></div>
@@ -182,7 +262,12 @@
           </div>
           <div class="panel">
             <h3>GENERATORS</h3>
-            <div class="row" style="margin-bottom:12px"><button class="btn" id="createJobFromJd">JOB FROM JD</button><button class="btn" id="draftCoverLetter">COVER LETTER</button><a id="dlCover" class="btn ghost" download="cover-letter.txt">DOWNLOAD</a></div>
+            <div class="row" style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn" id="createJobFromJd">JOB FROM JD</button>
+              <button class="btn" id="draftCoverLetter">COVER LETTER (LOCAL)</button>
+              <button class="btn blue" id="draftCoverLetterAi">COVER LETTER (AI)</button>
+              <a id="dlCover" class="btn ghost" download="cover-letter.txt">DOWNLOAD</a>
+            </div>
             <textarea id="coverOut" class="input" rows="14" placeholder="OUTPUT APPEARS HERE..."></textarea>
           </div>
         </div>
@@ -192,39 +277,95 @@
       <section id="view-resume" class="panel hidden">
         <div class="toolbar">
           <h2>⟨ RESUME CENTER ⟩</h2>
-          <div class="right row" style="margin-left:auto"><input id="resumeName" class="input" placeholder="Resume name"><button class="btn brand" id="addResume">ADD</button></div>
+          <div class="right row" style="margin-left:auto;display:flex;gap:8px;align-items:center">
+            <input id="resumeName" class="input" placeholder="Resume name" style="width:200px">
+            <button class="btn brand" id="addResume">ADD</button>
+            <label class="btn blue" style="cursor:pointer"><input id="resumeFileInput" type="file" accept=".pdf,.txt" hidden>PARSE PDF</label>
+          </div>
         </div>
-        <table class="table" id="resumeTable"><thead><tr><th>Name</th><th>Actions</th></tr></thead><tbody></tbody></table>
+        <table class="table" id="resumeTable"><thead><tr><th>Name</th><th>Skills Extracted</th><th>Actions</th></tr></thead><tbody></tbody></table>
+        <div id="resumeParseResult" class="panel" style="margin-top:16px;display:none">
+          <h4>PARSED RESUME CONTENT</h4>
+          <div id="resumeParseContent" class="muted" style="white-space:pre-wrap;font-size:12px;max-height:300px;overflow-y:auto"></div>
+          <div style="margin-top:8px"><h4>EXTRACTED SKILLS</h4><div id="resumeSkills"></div></div>
+        </div>
       </section>
 
       <!-- COMPANIES -->
       <section id="view-companies" class="panel hidden">
         <div class="toolbar">
           <h2>⟨ COMPANIES ⟩</h2>
-          <div class="right row" style="margin-left:auto"><input id="companyName" class="input" placeholder="Company name"><button class="btn" id="addCompany">ADD</button></div>
+          <div class="right row" style="margin-left:auto;display:flex;gap:8px;align-items:center"><input id="companyName" class="input" placeholder="Company name" style="width:200px"><button class="btn" id="addCompany">ADD</button></div>
         </div>
-        <table class="table" id="companyTable"><thead><tr><th>Name</th><th>Notes</th><th>Actions</th></tr></thead><tbody></tbody></table>
+        <table class="table" id="companyTable"><thead><tr><th>Logo</th><th>Name</th><th>Domain</th><th>Notes</th><th>Actions</th></tr></thead><tbody></tbody></table>
       </section>
 
       <!-- CONTACTS -->
       <section id="view-contacts" class="panel hidden">
         <div class="toolbar"><h2>⟨ CONTACTS ⟩</h2>
-          <div class="right row" style="margin-left:auto"><input id="contactName" class="input" placeholder="Name"><input id="contactEmail" class="input" placeholder="Email"><button class="btn" id="addContact">ADD</button></div>
+          <div class="right row" style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input id="contactName" class="input" placeholder="Name" style="width:140px">
+            <input id="contactEmail" class="input" placeholder="Email" style="width:180px">
+            <button class="btn" id="addContact">ADD</button>
+            <button class="btn blue" id="verifyEmailBtn">VERIFY EMAIL</button>
+          </div>
         </div>
-        <table class="table" id="contactsTable"><thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Notes</th><th>Actions</th></tr></thead><tbody></tbody></table>
+        <table class="table" id="contactsTable"><thead><tr><th>Name</th><th>Email</th><th>Verified</th><th>Company</th><th>Notes</th><th>Actions</th></tr></thead><tbody></tbody></table>
       </section>
 
       <!-- INSIGHTS -->
       <section id="view-insights" class="panel hidden">
         <div class="toolbar"><h2>⟨ INSIGHTS ⟩</h2><span class="tag">Analytics</span></div>
         <div class="grid cols-2">
-          <div class="panel"><h4>APPLICATION FUNNEL</h4><canvas id="funnelChart" height="200"></canvas></div>
-          <div class="panel"><h4>SOURCE BREAKDOWN</h4><canvas id="sourceBars" height="200"></canvas></div>
+          <div class="panel"><h4>APPLICATION FUNNEL</h4><canvas id="funnelChart" height="250"></canvas></div>
+          <div class="panel"><h4>SOURCE BREAKDOWN</h4><canvas id="sourceBars" height="250"></canvas></div>
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          <div class="panel"><h4>SALARY DISTRIBUTION</h4><canvas id="salaryChart" height="200"></canvas></div>
+          <div class="panel"><h4>STATUS TIMELINE</h4><canvas id="timelineChart" height="200"></canvas></div>
+        </div>
+      </section>
+
+      <!-- API SETTINGS -->
+      <section id="view-settings" class="panel hidden">
+        <div class="toolbar"><h2>⟨ API SETTINGS ⟩</h2><span class="tag">Configuration</span></div>
+        <div class="grid cols-2">
+          <div class="panel">
+            <h3>JOB SEARCH APIs</h3>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status active"></span>REMOTIVE (Free, No Key)</h4><div class="muted" style="font-size:11px">Remote job listings — always active</div></label>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="adzunaStatus"></span>ADZUNA</h4><input id="apiAdzunaId" class="input" placeholder="App ID" style="margin:4px 0"><input id="apiAdzunaKey" class="input" placeholder="App Key"><div class="muted" style="font-size:11px;margin-top:4px">Free: 250 req/day — <a href="https://developer.adzuna.com/" target="_blank" style="color:var(--blue)">Get keys</a></div></label>
+          </div>
+          <div class="panel">
+            <h3>AI / NLP</h3>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="geminiStatus"></span>GOOGLE GEMINI</h4><input id="apiGeminiKey" class="input" placeholder="API Key"><div class="muted" style="font-size:11px;margin-top:4px">Free: 15 req/min — <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--blue)">Get key</a></div></label>
+          </div>
+          <div class="panel">
+            <h3>EMAIL / CONTACTS</h3>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="emailjsStatus"></span>EMAILJS</h4>
+              <input id="apiEmailjsPublic" class="input" placeholder="Public Key" style="margin:4px 0">
+              <input id="apiEmailjsService" class="input" placeholder="Service ID" style="margin:4px 0">
+              <input id="apiEmailjsTemplate" class="input" placeholder="Template ID">
+              <div class="muted" style="font-size:11px;margin-top:4px">Free: 200 emails/mo — <a href="https://www.emailjs.com/" target="_blank" style="color:var(--blue)">Setup</a></div>
+            </label>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="hunterStatus"></span>HUNTER.IO</h4><input id="apiHunterKey" class="input" placeholder="API Key"><div class="muted" style="font-size:11px;margin-top:4px">Free: 25 verifications/mo — <a href="https://hunter.io/api" target="_blank" style="color:var(--blue)">Get key</a></div></label>
+          </div>
+          <div class="panel">
+            <h3>NOTIFICATIONS</h3>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="ntfyStatus"></span>NTFY.SH (Push)</h4><input id="apiNtfyTopic" class="input" placeholder="Your topic name (e.g., tron-jobs-allen)"><div class="muted" style="font-size:11px;margin-top:4px">Free, no account needed — <a href="https://ntfy.sh/" target="_blank" style="color:var(--blue)">Learn more</a></div></label>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="browserNotifStatus"></span>BROWSER NOTIFICATIONS</h4><button class="btn small green" id="requestNotifPerm">GRANT PERMISSION</button><div class="muted" style="font-size:11px;margin-top:4px">Desktop alerts for follow-up reminders</div></label>
+          </div>
+        </div>
+        <div class="toolbar" style="justify-content:center;margin-top:16px">
+          <button class="btn brand" id="saveApiSettings" style="padding:12px 32px">SAVE ALL SETTINGS</button>
+          <button class="btn danger" id="clearApiSettings">CLEAR ALL KEYS</button>
         </div>
       </section>
     </main>
   </div>
 </div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
 
 <!-- ADD JOB MODAL -->
 <div class="modal" id="jobModal">
@@ -232,29 +373,30 @@
     <div class="toolbar"><h2>⟨ ADD JOB ⟩</h2><button class="btn right" id="closeModal">CLOSE</button></div>
     <div class="grid cols-2">
       <div class="panel">
-        <label style="display:block;margin:12px 0"><h4>TITLE</h4><input id="jobTitle" class="input" placeholder="e.g., Data Analyst" style="width:100%"></label>
-        <label style="display:block;margin:12px 0"><h4>COMPANY</h4><input id="jobCompany" class="input" placeholder="Company" style="width:100%"></label>
+        <label style="display:block;margin:12px 0"><h4>TITLE</h4><input id="jobTitle" class="input" placeholder="e.g., Data Analyst"></label>
+        <label style="display:block;margin:12px 0"><h4>COMPANY</h4><input id="jobCompany" class="input" placeholder="Company"></label>
         <label style="display:block;margin:12px 0"><h4>STATUS</h4>
-          <select id="jobStatus" class="input" style="width:100%"><option>Saved</option><option>Applied</option><option>Interview</option><option>Offer</option><option>Closed</option></select>
+          <select id="jobStatus" class="input"><option>Saved</option><option>Applied</option><option>Interview</option><option>Offer</option><option>Closed</option></select>
         </label>
       </div>
       <div class="panel">
-        <label style="display:block;margin:12px 0"><h4>MAX SALARY</h4><input id="jobSalary" class="input" type="number" placeholder="e.g., 110000" style="width:100%"></label>
-        <label style="display:block;margin:12px 0"><h4>SOURCE</h4><input id="jobSource" class="input" placeholder="LinkedIn / Indeed / ..." style="width:100%"></label>
-        <label style="display:block;margin:12px 0"><h4>FOLLOW-UP</h4><input id="jobFollow" class="input" type="date" style="width:100%"></label>
+        <label style="display:block;margin:12px 0"><h4>MAX SALARY</h4><input id="jobSalary" class="input" type="number" placeholder="e.g., 110000"></label>
+        <label style="display:block;margin:12px 0"><h4>SOURCE</h4><input id="jobSource" class="input" placeholder="LinkedIn / Indeed / ..."></label>
+        <label style="display:block;margin:12px 0"><h4>FOLLOW-UP</h4><input id="jobFollow" class="input" type="date"></label>
+        <label style="display:block;margin:12px 0"><h4>URL</h4><input id="jobUrl" class="input" placeholder="Job posting URL"></label>
       </div>
     </div>
     <div class="toolbar" style="justify-content:center;margin-top:16px"><button class="btn brand" id="saveJob" style="padding:12px 32px">SAVE JOB</button></div>
   </div>
 </div>
 
-<!-- MINIMAL IMPORT MODAL (jobs/companies) -->
+<!-- IMPORT MODAL -->
 <div class="modal" id="importModal">
   <div class="content">
     <div class="toolbar"><h2 id="importModalTitle">⟨ IMPORT ⟩</h2><button class="btn right" id="closeImportModal">CLOSE</button></div>
     <div class="panel" style="margin-bottom:12px">
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <label><strong>Type:</strong> <select id="importType" class="input"><option value="jobs">Jobs</option><option value="companies">Companies</option></select></label>
+        <label><strong>Type:</strong> <select id="importType" class="input" style="width:auto"><option value="jobs">Jobs</option><option value="companies">Companies</option></select></label>
         <label class="btn"><input id="importFileInput" type="file" accept=".csv" hidden>Choose CSV</label>
         <button class="btn brand" id="startImportBtn">Start Import</button>
       </div>
@@ -269,9 +411,18 @@
 </div>
 
 <script>
-// =========================
+// ============================================================
+// API CONFIGURATION
+// ============================================================
+const API_KEYS_STORAGE = 'tron_api_keys';
+let apiKeys = JSON.parse(localStorage.getItem(API_KEYS_STORAGE) || '{}');
+
+function getApi(key) { return apiKeys[key] || ''; }
+function hasApi(key) { return !!apiKeys[key]; }
+
+// ============================================================
 // Data Layer
-// =========================
+// ============================================================
 const DB_KEYS = {jobs:'tron_jobs',resumes:'tron_resumes',companies:'tron_companies',contacts:'tron_contacts',filters:'tron_filters',settings:'tron_settings'};
 const state = {
   jobs: JSON.parse(localStorage.getItem(DB_KEYS.jobs) || '[]'),
@@ -291,9 +442,9 @@ function persist(){
   localStorage.setItem(DB_KEYS.settings, JSON.stringify({role:state.role,...state.settings}));
 }
 
-// =========================
-// Utilities (qs/qsa)
-// =========================
+// ============================================================
+// Utilities
+// ============================================================
 const qs  = (s)=>document.querySelector(s);
 const qsa = (s)=>Array.from(document.querySelectorAll(s));
 const uid = ()=>Math.random().toString(36).slice(2,9);
@@ -302,9 +453,18 @@ function today(n=0){ const d=new Date(); d.setDate(d.getDate()+n); return d.toIS
 function escapeHtml(s){ return (s||'').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
 function download(filename, text, type='text/plain'){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type})); a.download=filename; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000); }
 
-// =========================
+// Toast notification system
+function toast(msg, type='info', duration=4000){
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  qs('#toastContainer').appendChild(el);
+  setTimeout(()=> el.remove(), duration);
+}
+
+// ============================================================
 // Navigation & Role Gate
-// =========================
+// ============================================================
 qsa('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>{
   qsa('.nav-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
@@ -316,31 +476,30 @@ qsa('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>{
 qs('#roleSelect').addEventListener('change',e=>{ state.role=e.target.value; persist(); roleGate(); });
 function roleGate(){ const hide = state.role==='Auditor'; qsa('.salary-col').forEach(th=> th.style.display = hide?'none':''); qsa('.salary-cell').forEach(td=> td.style.display = hide?'none':''); }
 
-// =========================
+// ============================================================
 // Jobs CRUD
-// =========================
-function addJob(j){ state.jobs.push({id:uid(), title:'', company:'', status:'Saved', follow:'', salary:'', source:'', ...j}); persist(); renderAll(); }
+// ============================================================
+function addJob(j){ state.jobs.push({id:uid(), title:'', company:'', status:'Saved', follow:'', salary:'', source:'', url:'', ...j}); persist(); renderAll(); }
 function updateJob(id,patch){ const j=state.jobs.find(x=>x.id===id); if(j){ Object.assign(j,patch); persist(); renderAll(); } }
 function removeJob(id){ state.jobs = state.jobs.filter(x=>x.id!==id); persist(); renderAll(); }
 
-// =========================
-// Tracker Table (fixed salary cell)
-// =========================
+// ============================================================
+// Tracker Table
+// ============================================================
 function renderTrackerTable(){
   const tb = qs('#trackerTable tbody');
-  const jobs = state.jobs;
-  tb.innerHTML = jobs.map(j=>`<tr draggable="true" data-id="${j.id}">
-    <td>${escapeHtml(j.title||'')}</td>
+  tb.innerHTML = state.jobs.map(j=>`<tr draggable="true" data-id="${j.id}">
+    <td>${j.url ? `<a href="${escapeHtml(j.url)}" target="_blank" style="color:var(--orange-bright)">${escapeHtml(j.title||'')}</a>` : escapeHtml(j.title||'')}</td>
     <td>${escapeHtml(j.company||'')}</td>
     <td>
-      <select class="input small" data-act="chgStatus" data-id="${j.id}">
+      <select class="input small" data-act="chgStatus" data-id="${j.id}" style="width:auto">
         ${['Saved','Applied','Interview','Offer','Closed'].map(s=>`<option ${j.status===s?'selected':''}>${s}</option>`).join('')}
       </select>
     </td>
-    <td><input type="date" class="input" data-act="chgFollow" data-id="${j.id}" value="${fmtDate(j.follow)}"></td>
-    <td class="salary-cell">${j.salary ? Number(j.salary).toLocaleString() : ''}</td>
+    <td><input type="date" class="input" data-act="chgFollow" data-id="${j.id}" value="${fmtDate(j.follow)}" style="width:auto"></td>
+    <td class="salary-cell">${j.salary ? '$'+Number(j.salary).toLocaleString() : ''}</td>
     <td>${escapeHtml(j.source||'')}</td>
-    <td>
+    <td style="white-space:nowrap">
       <button class="btn small" data-act="quickFollow" data-id="${j.id}">+3d</button>
       <button class="btn small" data-act="quickFollow7" data-id="${j.id}">+7d</button>
       <button class="btn danger small" data-act="del" data-id="${j.id}">DEL</button>
@@ -363,9 +522,9 @@ qs('#trackerTable').addEventListener('click',e=>{
   if(act==='quickFollow7') updateJob(id,{follow: today(7)});
 });
 
-// =========================
+// ============================================================
 // Kanban
-// =========================
+// ============================================================
 function renderKanban(){
   qsa('.drop').forEach(d=> d.innerHTML='');
   state.jobs.forEach(j=>{
@@ -374,7 +533,7 @@ function renderKanban(){
     el.innerHTML=`<strong>${escapeHtml(j.title)}</strong><div class="muted">${escapeHtml(j.company)}</div>`;
     el.addEventListener('dragstart',ev=>{ ev.dataTransfer.setData('text/plain', j.id) });
     const col = qs(`.drop[data-status="${j.status}"]`) || qs(`.drop[data-status="Saved"]`);
-    col.appendChild(el);
+    if(col) col.appendChild(el);
   });
 }
 qsa('.drop').forEach(d=>{
@@ -389,101 +548,802 @@ qs('#toggleViewBtn').addEventListener('click',()=>{
   if(!state.listView) renderKanban();
 });
 
-// =========================
-// Charts & Insights (simple TRON canvas)
-// =========================
-function drawBars(ctx, data, labels, color='#ff0000'){
-  const w=ctx.canvas.width, h=ctx.canvas.height; ctx.clearRect(0,0,w,h);
-  const max=Math.max(1,...data), pad=30, bw=(w-pad*2)/Math.max(1,data.length)*0.6, step=(w-pad*2)/Math.max(1,data.length);
-  ctx.fillStyle='#0a0a0a'; ctx.fillRect(0,0,w,h);
-  ctx.strokeStyle='#1a0000'; for(let i=0;i<5;i++){const y=pad+(h-pad*2)/4*i; ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(w-pad,y); ctx.stroke();}
-  labels.forEach((l,i)=>{const v=data[i]||0; const bh=Math.round((h-pad*2)*(v/max)); const x=pad+i*step+(step-bw)/2; const y=h-pad-bh; const g=ctx.createLinearGradient(x,y,x,h-pad); g.addColorStop(0,color); g.addColorStop(1,'rgba(255,0,0,0.2)'); ctx.fillStyle=g; ctx.fillRect(x,y,bw,bh); ctx.strokeStyle=color; ctx.lineWidth=2; ctx.shadowColor=color; ctx.shadowBlur=10; ctx.strokeRect(x,y,bw,bh); ctx.shadowBlur=0; ctx.fillStyle='#fff'; ctx.font='11px Orbitron'; ctx.textAlign='center'; ctx.fillText((l||'').slice(0,8), x+bw/2, h-10); if(v>0){ctx.font='bold 12px Orbitron'; ctx.fillText(v, x+bw/2, y-6);}});
-}
-function drawFunnel(ctx, stages){ const w=ctx.canvas.width, h=ctx.canvas.height; ctx.clearRect(0,0,w,h); ctx.fillStyle='#0a0a0a'; ctx.fillRect(0,0,w,h); const keys=['Saved','Applied','Interview','Offer','Closed']; const vals=keys.map(k=>stages[k]||0); const max=Math.max(1,...vals); const colors=['#ff0000','#ff1a1a','#ff3333','#ff4d4d','#ff6666']; keys.forEach((k,i)=>{ const top=20+i*(h-40)/keys.length; const width=(w-60)*((vals[i]||0)/max); const x=30+((w-60)-width)/2; const y=top; const barH=(h-50)/keys.length-8; const g=ctx.createLinearGradient(x,y,x+width,y); g.addColorStop(0,colors[i]); g.addColorStop(1,'rgba(255,0,0,0.3)'); ctx.fillStyle=g; ctx.fillRect(x,y,width,barH); ctx.strokeStyle=colors[i]; ctx.lineWidth=2; ctx.shadowColor=colors[i]; ctx.shadowBlur=15; ctx.strokeRect(x,y,width,barH); ctx.shadowBlur=0; ctx.fillStyle='#fff'; ctx.font='bold 12px Orbitron'; ctx.textAlign='left'; ctx.fillText(`${k} (${vals[i]||0})`, x+8, y+barH-10); }); }
-function computeStats(){ const byStatus={Saved:0,Applied:0,Interview:0,Offer:0,Closed:0}; const bySource={}; const upcoming=[]; state.jobs.forEach(j=>{ byStatus[j.status]=(byStatus[j.status]||0)+1; if(j.source) bySource[j.source]=(bySource[j.source]||0)+1; if(j.follow){ const d=new Date(j.follow), now=new Date(); const diff=(d-now)/(1000*3600*24); if(diff>=-1 && diff<=14) upcoming.push(j); } }); return {byStatus, bySource, upcoming: upcoming.sort((a,b)=> new Date(a.follow)-new Date(b.follow)).slice(0,8)}; }
-function renderDashboard(){ const {byStatus,bySource,upcoming} = computeStats(); const pctx=qs('#pipelineChart').getContext('2d'); drawFunnel(pctx, byStatus); const sctx=qs('#sourceChart').getContext('2d'); const labels=Object.keys(bySource).slice(0,8); const data=labels.map(k=>bySource[k]); drawBars(sctx,data,labels); qs('#upcomingList').innerHTML = upcoming.map(j=>`<div class="row" style="display:flex;align-items:center;justify-content:space-between;margin:10px 0;padding:8px;background:var(--orange-dim);border:1px solid var(--orange);border-radius:4px"><div><strong style="color:var(--orange-bright)">${escapeHtml(j.title)}</strong> <span class="muted">@ ${escapeHtml(j.company)}</span></div><span class="chip">${fmtDate(j.follow)}</span></div>`).join('') || '<div class="muted" style="padding:20px;text-align:center">No upcoming follow-ups</div>'; }
-function renderInsights(){ const {byStatus,bySource}=computeStats(); drawFunnel(qs('#funnelChart').getContext('2d'), byStatus); const labels=Object.keys(bySource).slice(0,10); const data=labels.map(k=>bySource[k]); drawBars(qs('#sourceBars').getContext('2d'), data, labels, '#ff2929'); }
+// ============================================================
+// Chart.js — Dashboard & Insights
+// ============================================================
+const chartInstances = {};
+const chartColors = {
+  red: '#ff0000', redDim: 'rgba(255,0,0,0.3)',
+  green: '#00ff41', greenDim: 'rgba(0,255,65,0.3)',
+  blue: '#00bfff', blueDim: 'rgba(0,191,255,0.3)',
+  orange: '#ff6600', orangeDim: 'rgba(255,102,0,0.3)',
+  purple: '#bf00ff', purpleDim: 'rgba(191,0,255,0.3)',
+};
+const chartDefaults = { color:'#e0e0e0', borderColor:'#330000', backgroundColor:'rgba(0,0,0,0)' };
+Chart.defaults.color = '#e0e0e0';
+Chart.defaults.font.family = 'Orbitron, sans-serif';
+Chart.defaults.font.size = 11;
 
-// =========================
-// AI Tools (simple keyword set match)
-// =========================
+function makeChart(canvasId, config){
+  if(chartInstances[canvasId]) chartInstances[canvasId].destroy();
+  const ctx = qs('#'+canvasId)?.getContext('2d');
+  if(!ctx) return null;
+  chartInstances[canvasId] = new Chart(ctx, config);
+  return chartInstances[canvasId];
+}
+
+function computeStats(){
+  const byStatus={Saved:0,Applied:0,Interview:0,Offer:0,Closed:0};
+  const bySource={};
+  const upcoming=[];
+  state.jobs.forEach(j=>{
+    byStatus[j.status]=(byStatus[j.status]||0)+1;
+    if(j.source) bySource[j.source]=(bySource[j.source]||0)+1;
+    if(j.follow){
+      const d=new Date(j.follow), now=new Date();
+      const diff=(d-now)/(1000*3600*24);
+      if(diff>=-1 && diff<=14) upcoming.push(j);
+    }
+  });
+  return {byStatus, bySource, upcoming: upcoming.sort((a,b)=> new Date(a.follow)-new Date(b.follow)).slice(0,8)};
+}
+
+function renderDashboard(){
+  const {byStatus, bySource, upcoming} = computeStats();
+  // Pipeline donut
+  makeChart('pipelineChart', {
+    type:'doughnut',
+    data:{
+      labels:Object.keys(byStatus),
+      datasets:[{data:Object.values(byStatus), backgroundColor:['#ff0000','#ff3333','#ff6600','#00ff41','#555'], borderColor:'#000', borderWidth:2}]
+    },
+    options:{plugins:{legend:{position:'bottom',labels:{padding:10}}}}
+  });
+  // Source bar
+  const srcLabels = Object.keys(bySource).slice(0,10);
+  const srcData = srcLabels.map(k=>bySource[k]);
+  makeChart('sourceChart', {
+    type:'bar',
+    data:{labels:srcLabels, datasets:[{label:'Jobs', data:srcData, backgroundColor:'rgba(255,0,0,0.6)', borderColor:'#ff0000', borderWidth:1}]},
+    options:{indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{grid:{color:'#1a0000'}},y:{grid:{color:'#1a0000'}}}}
+  });
+  // Upcoming actions
+  qs('#upcomingList').innerHTML = upcoming.map(j=>`<div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0;padding:8px;background:var(--orange-dim);border:1px solid var(--orange);border-radius:4px"><div><strong style="color:var(--orange-bright)">${escapeHtml(j.title)}</strong> <span class="muted">@ ${escapeHtml(j.company)}</span></div><span class="chip">${fmtDate(j.follow)}</span></div>`).join('') || '<div class="muted" style="padding:20px;text-align:center">No upcoming follow-ups</div>';
+  // Weekly activity mini chart
+  const days = [];
+  for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); days.push(d.toISOString().slice(0,10)); }
+  const dailyCounts = days.map(d=> state.jobs.filter(j=> j.follow===d || (j._added && j._added===d)).length);
+  makeChart('weeklyChart', {
+    type:'line',
+    data:{labels:days.map(d=>d.slice(5)), datasets:[{label:'Activity', data:dailyCounts, borderColor:'#ff0000', backgroundColor:'rgba(255,0,0,0.1)', fill:true, tension:0.4}]},
+    options:{plugins:{legend:{display:false}}, scales:{x:{grid:{color:'#1a0000'}},y:{grid:{color:'#1a0000'},beginAtZero:true}}}
+  });
+}
+
+function renderInsights(){
+  const {byStatus, bySource} = computeStats();
+  // Funnel
+  const funnelLabels = ['Saved','Applied','Interview','Offer','Closed'];
+  const funnelData = funnelLabels.map(k=>byStatus[k]||0);
+  makeChart('funnelChart', {
+    type:'bar',
+    data:{labels:funnelLabels, datasets:[{label:'Count', data:funnelData, backgroundColor:['#ff0000','#ff3333','#ff6600','#00ff41','#555'], borderWidth:0}]},
+    options:{indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{grid:{color:'#1a0000'}},y:{grid:{color:'#1a0000'}}}}
+  });
+  // Source breakdown
+  const srcLabels = Object.keys(bySource).slice(0,10);
+  makeChart('sourceBars', {
+    type:'polarArea',
+    data:{labels:srcLabels, datasets:[{data:srcLabels.map(k=>bySource[k]), backgroundColor:['#ff0000','#ff3333','#ff6600','#00bfff','#00ff41','#bf00ff','#ffcc00','#ff00ff','#00ffff','#888']}]},
+    options:{plugins:{legend:{position:'right'}}}
+  });
+  // Salary distribution
+  const salaries = state.jobs.filter(j=>j.salary && Number(j.salary)>0).map(j=>Number(j.salary));
+  if(salaries.length > 0){
+    const buckets = {};
+    salaries.forEach(s=>{ const b = Math.floor(s/25000)*25000; const label = `$${(b/1000)}k-${((b+25000)/1000)}k`; buckets[label]=(buckets[label]||0)+1; });
+    makeChart('salaryChart', {
+      type:'bar',
+      data:{labels:Object.keys(buckets), datasets:[{label:'Jobs', data:Object.values(buckets), backgroundColor:'rgba(0,191,255,0.6)', borderColor:'#00bfff', borderWidth:1}]},
+      options:{plugins:{legend:{display:false}}, scales:{x:{grid:{color:'#1a0000'}},y:{grid:{color:'#1a0000'},beginAtZero:true}}}
+    });
+  }
+  // Timeline (jobs by month)
+  const months = {};
+  state.jobs.forEach(j=>{
+    const m = (j.follow||j._added||'unknown').slice(0,7);
+    if(m!=='unknown') months[m]=(months[m]||0)+1;
+  });
+  const mLabels = Object.keys(months).sort();
+  makeChart('timelineChart', {
+    type:'line',
+    data:{labels:mLabels, datasets:[{label:'Jobs', data:mLabels.map(m=>months[m]), borderColor:'#ff6600', backgroundColor:'rgba(255,102,0,0.1)', fill:true, tension:0.3}]},
+    options:{plugins:{legend:{display:false}}, scales:{x:{grid:{color:'#1a0000'}},y:{grid:{color:'#1a0000'},beginAtZero:true}}}
+  });
+}
+
+// ============================================================
+// JOB SEARCH — Remotive API (Free, No Key)
+// ============================================================
+qs('#searchRemotiveBtn').addEventListener('click', async ()=>{
+  const keyword = qs('#searchKeyword').value.trim();
+  qs('#searchStatus').innerHTML = '<span class="spinner"></span> Searching Remotive...';
+  qs('#searchResults').innerHTML = '';
+  try {
+    const url = `https://remotive.com/api/remote-jobs${keyword ? '?search='+encodeURIComponent(keyword) : ''}`;
+    const resp = await fetch(url);
+    const data = await resp.json();
+    const jobs = (data.jobs || []).slice(0, 20);
+    qs('#searchStatus').textContent = `Found ${data.jobs?.length || 0} remote jobs (showing ${jobs.length})`;
+    qs('#searchResults').innerHTML = jobs.map(j=>{
+      const domain = (j.company_name||'').toLowerCase().replace(/[^a-z0-9]/g,'')+'.com';
+      return `<div class="search-result">
+        <div class="company-row">
+          <img class="company-logo" src="https://logo.clearbit.com/${domain}" onerror="this.style.display='none'" alt="">
+          <span class="muted">${escapeHtml(j.company_name)}</span>
+          <span class="chip">${escapeHtml(j.job_type||'')}</span>
+        </div>
+        <h4>${escapeHtml(j.title)}</h4>
+        <div class="meta">
+          <span>📍 ${escapeHtml(j.candidate_required_location||'Remote')}</span>
+          <span>📅 ${(j.publication_date||'').slice(0,10)}</span>
+          <span>💼 ${escapeHtml(j.category||'')}</span>
+          ${j.salary ? `<span>💰 ${escapeHtml(j.salary)}</span>` : ''}
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button class="btn small brand" onclick="addJobFromSearch('${escapeHtml(j.title).replace(/'/g,"\\'")}','${escapeHtml(j.company_name).replace(/'/g,"\\'")}','${escapeHtml(j.url||'')}','Remotive','${escapeHtml(j.salary||'')}')">+ ADD TO TRACKER</button>
+          ${j.url ? `<a href="${escapeHtml(j.url)}" target="_blank" class="btn small ghost">VIEW</a>` : ''}
+        </div>
+      </div>`;
+    }).join('') || '<div class="muted" style="padding:20px;text-align:center">No results found</div>';
+  } catch(err) {
+    qs('#searchStatus').textContent = 'Error: '+err.message;
+    toast('Remotive search failed: '+err.message, 'error');
+  }
+});
+
+// ============================================================
+// JOB SEARCH — Adzuna API
+// ============================================================
+qs('#searchAdzunaBtn').addEventListener('click', async ()=>{
+  if(!hasApi('adzunaId') || !hasApi('adzunaKey')){
+    toast('Configure Adzuna API keys in Settings first', 'error');
+    return;
+  }
+  const keyword = qs('#searchKeyword').value.trim() || 'developer';
+  const location = qs('#searchLocation').value.trim() || 'us';
+  qs('#searchStatus').innerHTML = '<span class="spinner"></span> Searching Adzuna...';
+  qs('#searchResults').innerHTML = '';
+  try {
+    const country = location.toLowerCase().includes('uk') ? 'gb' : 'us';
+    const url = `https://api.adzuna.com/v1/api/jobs/${country}/search/1?app_id=${getApi('adzunaId')}&app_key=${getApi('adzunaKey')}&what=${encodeURIComponent(keyword)}&results_per_page=20`;
+    const resp = await fetch(url);
+    if(!resp.ok) throw new Error('Adzuna returned ' + resp.status);
+    const data = await resp.json();
+    const jobs = data.results || [];
+    qs('#searchStatus').textContent = `Found ${data.count||0} jobs (showing ${jobs.length})`;
+    qs('#searchResults').innerHTML = jobs.map(j=>{
+      const companyName = j.company?.display_name || '';
+      const domain = companyName.toLowerCase().replace(/[^a-z0-9]/g,'')+'.com';
+      return `<div class="search-result">
+        <div class="company-row">
+          <img class="company-logo" src="https://logo.clearbit.com/${domain}" onerror="this.style.display='none'" alt="">
+          <span class="muted">${escapeHtml(companyName)}</span>
+        </div>
+        <h4>${escapeHtml(j.title||'')}</h4>
+        <div class="meta">
+          <span>📍 ${escapeHtml(j.location?.display_name||'')}</span>
+          <span>📅 ${(j.created||'').slice(0,10)}</span>
+          ${j.salary_min ? `<span>💰 $${Number(j.salary_min).toLocaleString()} - $${Number(j.salary_max||j.salary_min).toLocaleString()}</span>` : ''}
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button class="btn small brand" onclick="addJobFromSearch('${escapeHtml(j.title||'').replace(/'/g,"\\'")}','${escapeHtml(companyName).replace(/'/g,"\\'")}','${escapeHtml(j.redirect_url||'')}','Adzuna','${j.salary_min||''}')">+ ADD TO TRACKER</button>
+          ${j.redirect_url ? `<a href="${escapeHtml(j.redirect_url)}" target="_blank" class="btn small ghost">VIEW</a>` : ''}
+        </div>
+      </div>`;
+    }).join('') || '<div class="muted" style="padding:20px;text-align:center">No results found</div>';
+    toast(`Adzuna: ${data.count} jobs found`, 'success');
+  } catch(err) {
+    qs('#searchStatus').textContent = 'Error: '+err.message;
+    toast('Adzuna search failed: '+err.message, 'error');
+  }
+});
+
+function addJobFromSearch(title, company, url, source, salary){
+  addJob({ title, company, url, source, salary: salary ? salary.replace(/[^0-9]/g,'') : '', status:'Saved', follow: today(3) });
+  toast(`Added "${title}" to tracker`, 'success');
+}
+
+// ============================================================
+// AI TOOLS — Local keyword matching (original)
+// ============================================================
 function tokenize(s){ return (s||'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(Boolean); }
 function keyset(s){ const stop=new Set(['the','and','for','with','a','an','to','in','of','on','is','are','or','by','as','at','from']); const ks=new Set(); tokenize(s).forEach(w=>{ if(!stop.has(w) && w.length>2) ks.add(w) }); return ks; }
-qs('#analyzeBtn').addEventListener('click',()=>{ const jd=keyset(qs('#jdText').value); const rv=keyset(qs('#resumeText').value); const found=[...jd].filter(k=>rv.has(k)); const missing=[...jd].filter(k=>!rv.has(k)); const score=Math.round(100 * (found.length / Math.max(1,(found.length+missing.length)))); qs('#matchScore').textContent=score; qs('#foundList').innerHTML = found.map(k=>`<span class="chip" style="margin:4px">${k}</span>`).join(' '); qs('#missingList').innerHTML = missing.map(k=>`<span class="chip" style="margin:4px;background:rgba(255,0,0,0.1);border-color:#ff0000;color:#ff6666">${k}</span>`).join(' '); });
-qs('#createJobFromJd').addEventListener('click',()=>{ const jd=qs('#jdText').value; if(!jd) return alert('Paste a JD first'); const mTitle = jd.match(/Title\s*:\s*(.+)/i) || jd.match(/\b(Engineer|Analyst|Manager|Designer|Developer|Scientist)\b/i); const mComp = jd.match(/Company\s*:\s*(.+)/i) || jd.match(/\b(?:at|@)\s+([A-Z][A-Za-z0-9& ]{2,})/); addJob({ title: mTitle? (mTitle[1]||mTitle[0]) : 'Untitled Role', company: mComp? (mComp[1]||'') : '', status:'Saved', source:'Parsed JD', follow: today(3) }); alert('Job created from JD → Tracker'); });
-qs('#draftCoverLetter').addEventListener('click',()=>{ const name = state.settings?.name || 'Hiring Manager'; const role = (state.jobs[state.jobs.length-1]?.title) || 'the role'; const company = (state.jobs[state.jobs.length-1]?.company) || 'your company'; const body=`Dear ${name},\n\nI'm excited to apply for ${role} at ${company}. My experience aligns with the role's requirements, including [top skills]. I thrive in fast-moving teams and care deeply about measurable impact.\n\nHighlights:\n• Achievement 1 (quantified)\n• Achievement 2 (quantified)\n• Achievement 3 (quantified)\n\nI'd welcome the opportunity to discuss how I can contribute.\n\nBest,\nYour Name`; qs('#coverOut').value = body; const blob=new Blob([body],{type:'text/plain'}); qs('#dlCover').href=URL.createObjectURL(blob); });
+qs('#analyzeBtn').addEventListener('click',()=>{
+  const jd=keyset(qs('#jdText').value); const rv=keyset(qs('#resumeText').value);
+  const found=[...jd].filter(k=>rv.has(k)); const missing=[...jd].filter(k=>!rv.has(k));
+  const score=Math.round(100 * (found.length / Math.max(1,(found.length+missing.length))));
+  qs('#matchScore').textContent=score;
+  qs('#foundList').innerHTML = found.map(k=>`<span class="chip" style="margin:4px">${k}</span>`).join(' ');
+  qs('#missingList').innerHTML = missing.map(k=>`<span class="chip" style="margin:4px;background:rgba(255,0,0,0.1);border-color:#ff0000;color:#ff6666">${k}</span>`).join(' ');
+  qs('#aiMatchResult').style.display='none';
+});
 
-// =========================
-// Resume Center
-// =========================
-function renderResumes(){ const tb=qs('#resumeTable tbody'); if(state.resumes.length===0){ tb.innerHTML=`<tr><td colspan="2"><div class="empty-state"><div class="empty-state-icon">📄</div><h3>No resumes yet</h3><p>Create different versions of your resume for different roles</p><div style="margin-top:16px"><input id="quickResumeName" class="input" placeholder="Resume name (e.g., Software Engineer v1)" style="margin-right:8px"><button class="btn brand" onclick="document.getElementById('resumeName').value=document.getElementById('quickResumeName').value; document.getElementById('addResume').click()">CREATE RESUME</button></div></div></td></tr>`; return;} tb.innerHTML = state.resumes.map(r=>`<tr><td>${escapeHtml(r.name)}</td><td><button class="btn small" data-r="${r.id}" data-act="copy">COPY</button><button class="btn small" data-r="${r.id}" data-act="rename">RENAME</button><button class="btn danger small" data-r="${r.id}" data-act="del">DELETE</button></td></tr>`).join(''); }
-qs('#addResume').addEventListener('click',()=>{ const name=qs('#resumeName').value.trim(); if(!name) return; state.resumes.push({id:uid(), name}); qs('#resumeName').value=''; persist(); renderResumes(); });
-qs('#resumeTable').addEventListener('click',e=>{ const id=e.target.getAttribute('data-r'); const act=e.target.getAttribute('data-act'); if(!id||!act) return; if(act==='del') state.resumes = state.resumes.filter(x=>x.id!==id); if(act==='rename'){ const rec=state.resumes.find(x=>x.id===id); const nn=prompt('New name', rec?.name||''); if(nn){ rec.name=nn; } } if(act==='copy'){ const rec=state.resumes.find(x=>x.id===id); state.resumes.push({id:uid(), name:(rec?.name||'Untitled')+' Copy'}); } persist(); renderResumes(); });
+// ============================================================
+// AI TOOLS — Gemini API
+// ============================================================
+async function callGemini(prompt){
+  const key = getApi('geminiKey');
+  if(!key) throw new Error('Gemini API key not configured — go to Settings');
+  const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+  });
+  if(!resp.ok){
+    const err = await resp.json().catch(()=>({}));
+    throw new Error(err.error?.message || 'Gemini API error '+resp.status);
+  }
+  const data = await resp.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated';
+}
 
-// =========================
-// Companies (restored empty state)
-// =========================
-function renderCompanies(){ const tb=qs('#companyTable tbody'); if(state.companies.length===0){ tb.innerHTML=`<tr><td colspan="3"><div class="empty-state"><div class="empty-state-icon">🏢</div><h3>No companies tracked</h3><p>Keep notes on companies you're interested in or interviewing with</p><div style="display:flex;gap:12px;justify-content:center;margin-top:16px;flex-wrap:wrap"><button class="btn brand" onclick="document.getElementById('companyName').focus()">+ ADD COMPANY</button><button class="btn" onclick="openImportModal('companies')">📥 IMPORT FROM CSV</button></div></div></td></tr>`; return; } tb.innerHTML = state.companies.map(c=>`<tr><td>${escapeHtml(c.name)}</td><td contenteditable data-cid="${c.id}" data-field="notes" style="min-width:200px">${escapeHtml(c.notes||'')}</td><td><button class="btn danger small" data-cid="${c.id}" data-act="del">DELETE</button></td></tr>`).join(''); }
-qs('#addCompany').addEventListener('click',()=>{ const n=qs('#companyName').value.trim(); if(!n) return; state.companies.push({id:uid(), name:n, notes:''}); qs('#companyName').value=''; persist(); renderCompanies(); });
-qs('#companyTable').addEventListener('click',e=>{ const id=e.target.getAttribute('data-cid'); const act=e.target.getAttribute('data-act'); if(act==='del'){ state.companies = state.companies.filter(x=>x.id!==id); persist(); renderCompanies(); } });
-qs('#companyTable').addEventListener('blur',e=>{ if(e.target.hasAttribute('contenteditable')){ const id=e.target.getAttribute('data-cid'); const field=e.target.getAttribute('data-field'); const rec=state.companies.find(x=>x.id===id); if(rec){ rec[field]=e.target.innerText; persist(); } } }, true);
+qs('#analyzeAiBtn').addEventListener('click', async ()=>{
+  const jd = qs('#jdText').value.trim();
+  const resume = qs('#resumeText').value.trim();
+  if(!jd || !resume){ toast('Paste both JD and Resume first', 'error'); return; }
+  qs('#analyzeAiBtn').disabled = true;
+  qs('#analyzeAiBtn').innerHTML = '<span class="spinner"></span>';
+  try {
+    const prompt = `You are a career advisor AI. Analyze the match between this job description and resume.
 
-// =========================
-// Contacts
-// =========================
-function renderContacts(){ const tb=qs('#contactsTable tbody'); if(state.contacts.length===0){ tb.innerHTML=`<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">👥</div><h3>No contacts yet</h3><p>Track recruiters, hiring managers, and referrals you've connected with</p></div></td></tr>`; return; } tb.innerHTML = state.contacts.map(c=>`<tr><td contenteditable data-k="name" data-id="${c.id}">${escapeHtml(c.name||'')}</td><td contenteditable data-k="email" data-id="${c.id}">${escapeHtml(c.email||'')}</td><td contenteditable data-k="company" data-id="${c.id}">${escapeHtml(c.company||'')}</td><td contenteditable data-k="notes" data-id="${c.id}" style="min-width:150px">${escapeHtml(c.notes||'')}</td><td><button class="btn danger small" data-id="${c.id}" data-act="del">DELETE</button></td></tr>`).join(''); }
-qs('#addContact').addEventListener('click',()=>{ const n=qs('#contactName').value.trim(); const e=qs('#contactEmail').value.trim(); if(!n&&!e) return; state.contacts.push({id:uid(), name:n, email:e, company:'', notes:''}); qs('#contactName').value=''; qs('#contactEmail').value=''; persist(); renderContacts(); });
-qs('#contactsTable').addEventListener('click',e=>{ const id=e.target.getAttribute('data-id'); const act=e.target.getAttribute('data-act'); if(act==='del'){ state.contacts = state.contacts.filter(x=>x.id!==id); persist(); renderContacts(); } });
-qs('#contactsTable').addEventListener('blur',e=>{ if(e.target.hasAttribute('contenteditable')){ const id=e.target.getAttribute('data-id'); const k=e.target.getAttribute('data-k'); const rec=state.contacts.find(x=>x.id===id); if(rec){ rec[k]=e.target.innerText; persist(); } } }, true);
+JOB DESCRIPTION:
+${jd.slice(0,3000)}
 
-// =========================
-// CSV Export
-// =========================
-qs('#exportBtn').addEventListener('click',()=>{ const cols=['id','title','company','status','follow','salary','source']; const rows=[cols.join(',')].concat(state.jobs.map(j=> cols.map(c=>`"${(j[c]??'').toString().replace(/"/g,'""')}"`).join(','))); download('tron-jobs.csv', rows.join('\n'), 'text/csv'); });
+RESUME:
+${resume.slice(0,3000)}
 
-// =========================
-// Minimal CSV Import (modal)
-// =========================
+Provide:
+1. Match score (0-100%)
+2. Top 5 matching strengths
+3. Top 5 gaps/missing skills
+4. 3 specific suggestions to improve the resume for this role
+5. Brief overall assessment (2-3 sentences)
+
+Format your response clearly with headers.`;
+
+    const result = await callGemini(prompt);
+    qs('#aiMatchResult').style.display='block';
+    qs('#aiMatchContent').textContent = result;
+    // Try to extract score
+    const scoreMatch = result.match(/(\d{1,3})\s*%/);
+    if(scoreMatch) qs('#matchScore').textContent = scoreMatch[1];
+    toast('AI analysis complete', 'success');
+  } catch(err) {
+    toast('AI error: '+err.message, 'error');
+  } finally {
+    qs('#analyzeAiBtn').disabled = false;
+    qs('#analyzeAiBtn').textContent = 'ANALYZE (AI)';
+  }
+});
+
+// Cover letter — local
+qs('#draftCoverLetter').addEventListener('click',()=>{
+  const name = state.settings?.name || 'Hiring Manager';
+  const role = (state.jobs[state.jobs.length-1]?.title) || 'the role';
+  const company = (state.jobs[state.jobs.length-1]?.company) || 'your company';
+  const body=`Dear ${name},\n\nI'm excited to apply for ${role} at ${company}. My experience aligns with the role's requirements, including [top skills]. I thrive in fast-moving teams and care deeply about measurable impact.\n\nHighlights:\n• Achievement 1 (quantified)\n• Achievement 2 (quantified)\n• Achievement 3 (quantified)\n\nI'd welcome the opportunity to discuss how I can contribute.\n\nBest,\nYour Name`;
+  qs('#coverOut').value = body;
+  const blob=new Blob([body],{type:'text/plain'}); qs('#dlCover').href=URL.createObjectURL(blob);
+});
+
+// Cover letter — AI
+qs('#draftCoverLetterAi').addEventListener('click', async ()=>{
+  const jd = qs('#jdText').value.trim();
+  const resume = qs('#resumeText').value.trim();
+  if(!jd){ toast('Paste a Job Description first', 'error'); return; }
+  qs('#draftCoverLetterAi').disabled = true;
+  qs('#draftCoverLetterAi').innerHTML = '<span class="spinner"></span>';
+  try {
+    const prompt = `Write a professional, compelling cover letter for this job. ${resume ? 'Use the resume details provided.' : 'Use placeholder achievements.'}
+
+JOB DESCRIPTION:
+${jd.slice(0,2000)}
+
+${resume ? 'RESUME:\n'+resume.slice(0,2000) : ''}
+
+Write a 3-4 paragraph cover letter that:
+- Opens with enthusiasm for the specific role
+- Highlights 2-3 relevant achievements with metrics
+- Shows knowledge of the company
+- Closes with a call to action
+Keep it under 300 words. Professional but personable tone.`;
+
+    const result = await callGemini(prompt);
+    qs('#coverOut').value = result;
+    const blob=new Blob([result],{type:'text/plain'}); qs('#dlCover').href=URL.createObjectURL(blob);
+    toast('AI cover letter generated', 'success');
+  } catch(err) {
+    toast('AI error: '+err.message, 'error');
+  } finally {
+    qs('#draftCoverLetterAi').disabled = false;
+    qs('#draftCoverLetterAi').textContent = 'COVER LETTER (AI)';
+  }
+});
+
+// Job from JD
+qs('#createJobFromJd').addEventListener('click',()=>{
+  const jd=qs('#jdText').value;
+  if(!jd) return toast('Paste a JD first', 'error');
+  const mTitle = jd.match(/Title\s*:\s*(.+)/i) || jd.match(/\b(Engineer|Analyst|Manager|Designer|Developer|Scientist)\b/i);
+  const mComp = jd.match(/Company\s*:\s*(.+)/i) || jd.match(/\b(?:at|@)\s+([A-Z][A-Za-z0-9& ]{2,})/);
+  addJob({ title: mTitle? (mTitle[1]||mTitle[0]).trim() : 'Untitled Role', company: mComp? (mComp[1]||'').trim() : '', status:'Saved', source:'Parsed JD', follow: today(3) });
+  toast('Job created from JD', 'success');
+});
+
+// ============================================================
+// Resume Center — PDF.js Parsing
+// ============================================================
+function renderResumes(){
+  const tb=qs('#resumeTable tbody');
+  if(state.resumes.length===0){
+    tb.innerHTML=`<tr><td colspan="3"><div class="empty-state"><div class="empty-state-icon">📄</div><h3>No resumes yet</h3><p>Add resume names or parse a PDF to extract skills</p></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = state.resumes.map(r=>`<tr>
+    <td>${escapeHtml(r.name)}</td>
+    <td>${(r.skills||[]).map(s=>`<span class="chip" style="margin:2px">${escapeHtml(s)}</span>`).join(' ') || '<span class="muted">—</span>'}</td>
+    <td style="white-space:nowrap">
+      <button class="btn small" data-r="${r.id}" data-act="copy">COPY</button>
+      <button class="btn small" data-r="${r.id}" data-act="rename">RENAME</button>
+      <button class="btn danger small" data-r="${r.id}" data-act="del">DEL</button>
+    </td>
+  </tr>`).join('');
+}
+qs('#addResume').addEventListener('click',()=>{ const name=qs('#resumeName').value.trim(); if(!name) return; state.resumes.push({id:uid(), name, skills:[], text:''}); qs('#resumeName').value=''; persist(); renderResumes(); });
+qs('#resumeTable').addEventListener('click',e=>{
+  const id=e.target.getAttribute('data-r'); const act=e.target.getAttribute('data-act');
+  if(!id||!act) return;
+  if(act==='del') state.resumes = state.resumes.filter(x=>x.id!==id);
+  if(act==='rename'){ const rec=state.resumes.find(x=>x.id===id); const nn=prompt('New name', rec?.name||''); if(nn) rec.name=nn; }
+  if(act==='copy'){ const rec=state.resumes.find(x=>x.id===id); state.resumes.push({id:uid(), name:(rec?.name||'Untitled')+' Copy', skills:[...(rec?.skills||[])], text:rec?.text||''}); }
+  persist(); renderResumes();
+});
+
+// PDF parsing
+qs('#resumeFileInput').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  toast('Parsing PDF...', 'info');
+  try {
+    const arrayBuf = await file.arrayBuffer();
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+    const pdf = await pdfjsLib.getDocument({data: arrayBuf}).promise;
+    let fullText = '';
+    for(let i=1; i<=pdf.numPages; i++){
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      fullText += content.items.map(item=>item.str).join(' ') + '\n';
+    }
+    // Extract skills using common tech keywords
+    const skillPatterns = /\b(python|javascript|typescript|react|angular|vue|node\.?js|sql|nosql|mongodb|postgresql|aws|azure|gcp|docker|kubernetes|git|ci\/cd|machine learning|deep learning|nlp|tensorflow|pytorch|pandas|numpy|scikit|tableau|power bi|excel|agile|scrum|jira|figma|html|css|sass|graphql|rest|api|java|c\+\+|c#|\.net|ruby|go|rust|swift|kotlin|flutter|redux|next\.?js|webpack|linux|bash|terraform|jenkins|datadog|spark|hadoop|kafka|redis|elasticsearch|microservices|devops|data analysis|data science|product management|project management|leadership|communication)\b/gi;
+    const foundSkills = [...new Set((fullText.match(skillPatterns)||[]).map(s=>s.toLowerCase()))];
+
+    // Save as resume
+    const name = file.name.replace(/\.pdf$/i,'');
+    state.resumes.push({id:uid(), name, skills:foundSkills, text:fullText.slice(0,5000)});
+    persist(); renderResumes();
+
+    // Show parsed content
+    qs('#resumeParseResult').style.display='block';
+    qs('#resumeParseContent').textContent = fullText.slice(0,2000) + (fullText.length>2000 ? '\n...[truncated]' : '');
+    qs('#resumeSkills').innerHTML = foundSkills.map(s=>`<span class="chip" style="margin:4px">${s}</span>`).join(' ') || '<span class="muted">No tech skills detected</span>';
+    toast(`Parsed "${name}" — ${foundSkills.length} skills found`, 'success');
+  } catch(err) {
+    toast('PDF parse error: '+err.message, 'error');
+  }
+  e.target.value='';
+});
+
+// ============================================================
+// Companies — Clearbit Logo enrichment
+// ============================================================
+function renderCompanies(){
+  const tb=qs('#companyTable tbody');
+  if(state.companies.length===0){
+    tb.innerHTML=`<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">🏢</div><h3>No companies tracked</h3><p>Add companies to auto-fetch logos via Clearbit</p></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = state.companies.map(c=>{
+    const domain = c.domain || (c.name||'').toLowerCase().replace(/[^a-z0-9]/g,'')+'.com';
+    return `<tr>
+      <td><img src="https://logo.clearbit.com/${escapeHtml(domain)}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22><rect fill=%22%23333%22 width=%2224%22 height=%2224%22 rx=%224%22/><text x=%2212%22 y=%2217%22 text-anchor=%22middle%22 fill=%22%23888%22 font-size=%2214%22>${escapeHtml((c.name||'?')[0])}</text></svg>'" style="width:32px;height:32px;border-radius:4px;background:#fff;object-fit:contain"></td>
+      <td><strong>${escapeHtml(c.name)}</strong></td>
+      <td contenteditable data-cid="${c.id}" data-field="domain" style="min-width:120px;color:var(--blue)">${escapeHtml(c.domain||domain)}</td>
+      <td contenteditable data-cid="${c.id}" data-field="notes" style="min-width:200px">${escapeHtml(c.notes||'')}</td>
+      <td><button class="btn danger small" data-cid="${c.id}" data-act="del">DEL</button></td>
+    </tr>`;
+  }).join('');
+}
+qs('#addCompany').addEventListener('click',()=>{
+  const n=qs('#companyName').value.trim();
+  if(!n) return;
+  const domain = n.toLowerCase().replace(/[^a-z0-9]/g,'')+'.com';
+  state.companies.push({id:uid(), name:n, domain, notes:''});
+  qs('#companyName').value='';
+  persist(); renderCompanies();
+});
+qs('#companyTable').addEventListener('click',e=>{
+  const id=e.target.getAttribute('data-cid'); const act=e.target.getAttribute('data-act');
+  if(act==='del'){ state.companies = state.companies.filter(x=>x.id!==id); persist(); renderCompanies(); }
+});
+qs('#companyTable').addEventListener('blur',e=>{
+  if(e.target.hasAttribute('contenteditable')){
+    const id=e.target.getAttribute('data-cid'); const field=e.target.getAttribute('data-field');
+    const rec=state.companies.find(x=>x.id===id);
+    if(rec){ rec[field]=e.target.innerText.trim(); persist(); }
+  }
+}, true);
+
+// ============================================================
+// Contacts — Hunter.io Verification + EmailJS
+// ============================================================
+function renderContacts(){
+  const tb=qs('#contactsTable tbody');
+  if(state.contacts.length===0){
+    tb.innerHTML=`<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">👥</div><h3>No contacts yet</h3><p>Track recruiters and hiring managers — verify emails with Hunter.io</p></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = state.contacts.map(c=>`<tr>
+    <td contenteditable data-k="name" data-id="${c.id}">${escapeHtml(c.name||'')}</td>
+    <td contenteditable data-k="email" data-id="${c.id}">${escapeHtml(c.email||'')}</td>
+    <td>${c.verified===true ? '<span class="tag green" style="font-size:10px">Verified</span>' : c.verified===false ? '<span class="tag" style="font-size:10px;border-color:#ff0000;color:#ff3333">Invalid</span>' : '<span class="muted" style="font-size:10px">—</span>'}</td>
+    <td contenteditable data-k="company" data-id="${c.id}">${escapeHtml(c.company||'')}</td>
+    <td contenteditable data-k="notes" data-id="${c.id}" style="min-width:150px">${escapeHtml(c.notes||'')}</td>
+    <td style="white-space:nowrap">
+      <button class="btn small blue" data-id="${c.id}" data-act="email" title="Send email">EMAIL</button>
+      <button class="btn small" data-id="${c.id}" data-act="verify" title="Verify email">VERIFY</button>
+      <button class="btn danger small" data-id="${c.id}" data-act="del">DEL</button>
+    </td>
+  </tr>`).join('');
+}
+qs('#addContact').addEventListener('click',()=>{
+  const n=qs('#contactName').value.trim(); const e=qs('#contactEmail').value.trim();
+  if(!n&&!e) return;
+  state.contacts.push({id:uid(), name:n, email:e, company:'', notes:'', verified:null});
+  qs('#contactName').value=''; qs('#contactEmail').value='';
+  persist(); renderContacts();
+});
+qs('#contactsTable').addEventListener('click', async e=>{
+  const id=e.target.getAttribute('data-id'); const act=e.target.getAttribute('data-act');
+  if(!id||!act) return;
+  if(act==='del'){ state.contacts = state.contacts.filter(x=>x.id!==id); persist(); renderContacts(); }
+  if(act==='verify'){ await verifyEmail(id); }
+  if(act==='email'){ await sendEmailToContact(id); }
+});
+qs('#contactsTable').addEventListener('blur',e=>{
+  if(e.target.hasAttribute('contenteditable')){
+    const id=e.target.getAttribute('data-id'); const k=e.target.getAttribute('data-k');
+    const rec=state.contacts.find(x=>x.id===id);
+    if(rec){ rec[k]=e.target.innerText.trim(); persist(); }
+  }
+}, true);
+
+// Hunter.io email verification
+async function verifyEmail(contactId){
+  const contact = state.contacts.find(c=>c.id===contactId);
+  if(!contact?.email){ toast('No email to verify', 'error'); return; }
+  if(!hasApi('hunterKey')){ toast('Configure Hunter.io API key in Settings', 'error'); return; }
+  toast('Verifying email...', 'info');
+  try {
+    const resp = await fetch(`https://api.hunter.io/v2/email-verifier?email=${encodeURIComponent(contact.email)}&api_key=${getApi('hunterKey')}`);
+    const data = await resp.json();
+    if(data.data){
+      contact.verified = data.data.result === 'deliverable';
+      persist(); renderContacts();
+      toast(`Email ${contact.email}: ${data.data.result}`, contact.verified ? 'success' : 'error');
+    }
+  } catch(err) {
+    toast('Verification failed: '+err.message, 'error');
+  }
+}
+
+// Bulk verify from toolbar
+qs('#verifyEmailBtn').addEventListener('click', async ()=>{
+  if(!hasApi('hunterKey')){ toast('Configure Hunter.io key first', 'error'); return; }
+  const unverified = state.contacts.filter(c=>c.email && c.verified===null);
+  if(unverified.length===0){ toast('No unverified emails', 'info'); return; }
+  toast(`Verifying ${unverified.length} emails...`, 'info');
+  for(const c of unverified){
+    await verifyEmail(c.id);
+    await new Promise(r=>setTimeout(r, 1500)); // rate limit
+  }
+});
+
+// EmailJS send
+async function sendEmailToContact(contactId){
+  const contact = state.contacts.find(c=>c.id===contactId);
+  if(!contact?.email){ toast('No email address', 'error'); return; }
+  if(!hasApi('emailjsPublic') || !hasApi('emailjsService') || !hasApi('emailjsTemplate')){
+    toast('Configure EmailJS in Settings first', 'error'); return;
+  }
+  const subject = prompt('Email subject:', `Following up on our conversation`);
+  if(!subject) return;
+  const message = prompt('Email message:', `Hi ${contact.name || 'there'},\n\nI wanted to follow up on...`);
+  if(!message) return;
+  try {
+    emailjs.init(getApi('emailjsPublic'));
+    await emailjs.send(getApi('emailjsService'), getApi('emailjsTemplate'), {
+      to_email: contact.email,
+      to_name: contact.name || '',
+      subject: subject,
+      message: message,
+    });
+    toast(`Email sent to ${contact.email}`, 'success');
+  } catch(err) {
+    toast('Email failed: '+(err.text||err.message||err), 'error');
+  }
+}
+
+// ============================================================
+// BLS API — Salary Benchmarks
+// ============================================================
+qs('#loadBlsBtn').addEventListener('click', async ()=>{
+  qs('#loadBlsBtn').disabled = true;
+  qs('#loadBlsBtn').innerHTML = '<span class="spinner"></span>';
+  try {
+    // BLS series for common occupations — median weekly earnings
+    const seriesIds = [
+      'LEU0254530800', // All workers median
+    ];
+    const resp = await fetch('https://api.bls.gov/publicAPI/v2/timeseries/data/', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ seriesid: seriesIds, startyear: '2023', endyear: '2025' })
+    });
+    const data = await resp.json();
+    if(data.status === 'REQUEST_SUCCEEDED' && data.Results?.series?.length > 0){
+      const series = data.Results.series[0];
+      const latest = series.data?.[0];
+      const avgSalary = state.jobs.filter(j=>j.salary).reduce((a,j)=>a+Number(j.salary),0) / Math.max(1,state.jobs.filter(j=>j.salary).length);
+      const blsWeekly = Number(latest?.value || 1145);
+      const blsAnnual = blsWeekly * 52;
+      qs('#blsBenchmarks').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="panel" style="text-align:center">
+            <div class="muted" style="font-size:11px">BLS NATIONAL MEDIAN</div>
+            <div style="font-size:24px;font-weight:900;color:var(--blue);margin:8px 0">$${blsAnnual.toLocaleString()}</div>
+            <div class="muted" style="font-size:10px">${latest?.year} Q${latest?.period?.replace('Q','')||'?'} — $${blsWeekly}/week</div>
+          </div>
+          <div class="panel" style="text-align:center">
+            <div class="muted" style="font-size:11px">YOUR AVG TARGET</div>
+            <div style="font-size:24px;font-weight:900;color:${avgSalary > blsAnnual ? 'var(--green)' : 'var(--orange)'};margin:8px 0">$${avgSalary ? Math.round(avgSalary).toLocaleString() : '—'}</div>
+            <div class="muted" style="font-size:10px">${avgSalary > blsAnnual ? 'Above' : 'Below'} national median</div>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="muted" style="font-size:11px;margin-bottom:4px">YOUR TARGET vs MEDIAN</div>
+          <div class="salary-bar"><div class="fill" style="width:${Math.min(100,Math.round(avgSalary/blsAnnual*100))}%"></div></div>
+          <div class="muted" style="font-size:10px;margin-top:4px">${Math.round(avgSalary/blsAnnual*100)}% of national median</div>
+        </div>`;
+      toast('BLS salary data loaded', 'success');
+    } else {
+      throw new Error(data.message?.[0] || 'BLS returned no data');
+    }
+  } catch(err) {
+    qs('#blsBenchmarks').innerHTML = `<div class="muted" style="text-align:center;padding:12px">BLS Error: ${escapeHtml(err.message)}<br><span style="font-size:10px">The BLS API may be temporarily unavailable or may block browser requests. Data will show when available.</span></div>`;
+  } finally {
+    qs('#loadBlsBtn').disabled = false;
+    qs('#loadBlsBtn').textContent = 'LOAD BLS DATA';
+  }
+});
+
+// ============================================================
+// NOTIFICATIONS — Browser + Ntfy.sh
+// ============================================================
+// Browser notifications
+qs('#enableNotifBtn').addEventListener('click', requestNotifPermission);
+qs('#requestNotifPerm').addEventListener('click', requestNotifPermission);
+
+function requestNotifPermission(){
+  if(!('Notification' in window)){ toast('Browser notifications not supported', 'error'); return; }
+  Notification.requestPermission().then(perm=>{
+    if(perm === 'granted'){
+      toast('Notifications enabled!', 'success');
+      updateApiStatuses();
+      scheduleFollowUpChecks();
+    } else {
+      toast('Notification permission denied', 'error');
+    }
+  });
+}
+
+function scheduleFollowUpChecks(){
+  // Check every 30 minutes for upcoming follow-ups
+  setInterval(checkFollowUps, 30*60*1000);
+  checkFollowUps(); // initial check
+}
+
+function checkFollowUps(){
+  const todayStr = today();
+  const dueJobs = state.jobs.filter(j=> j.follow && j.follow <= todayStr && j.status !== 'Closed');
+  dueJobs.forEach(j=>{
+    if(Notification.permission === 'granted'){
+      new Notification('TRON Job Follow-Up', {
+        body: `${j.title} @ ${j.company} — follow-up due ${j.follow}`,
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><circle cx="32" cy="32" r="30" fill="%23000" stroke="%23f00" stroke-width="3"/><text x="32" y="42" text-anchor="middle" fill="%23f00" font-size="32" font-weight="bold">T</text></svg>',
+        tag: 'tron-followup-'+j.id
+      });
+    }
+    // Also send ntfy if configured
+    sendNtfy(`Follow-up due: ${j.title} @ ${j.company} (${j.follow})`);
+  });
+}
+
+// Ntfy.sh push notifications
+async function sendNtfy(message){
+  const topic = getApi('ntfyTopic');
+  if(!topic) return;
+  try {
+    await fetch(`https://ntfy.sh/${topic}`, {
+      method:'POST',
+      body: message,
+      headers: {'Title': 'TRON Job System', 'Priority': '3', 'Tags': 'briefcase'}
+    });
+  } catch(err) { /* silent fail for push */ }
+}
+
+// ============================================================
+// CSV Export / Import
+// ============================================================
+qs('#exportBtn').addEventListener('click',()=>{
+  const cols=['id','title','company','status','follow','salary','source','url'];
+  const rows=[cols.join(',')].concat(state.jobs.map(j=> cols.map(c=>`"${(j[c]??'').toString().replace(/"/g,'""')}"`).join(',')));
+  download('tron-jobs.csv', rows.join('\n'), 'text/csv');
+  toast('Exported '+state.jobs.length+' jobs', 'success');
+});
+
 const importModal = qs('#importModal');
 function openImportModal(type='jobs'){ qs('#importType').value = type; qs('#importModalTitle').textContent = type==='jobs' ? '⟨ IMPORT JOBS ⟩' : '⟨ IMPORT COMPANIES ⟩'; qs('#importStats').textContent='Waiting for file…'; qs('#importLog').innerHTML=''; importModal.classList.add('show'); }
 qs('#importJobsBtn').addEventListener('click',()=> openImportModal('jobs'));
 qs('#importCompaniesBtn').addEventListener('click',()=> openImportModal('companies'));
 qs('#closeImportModal').addEventListener('click',()=> importModal.classList.remove('show'));
 let lastFile=null; qs('#importFileInput').addEventListener('change',e=>{ lastFile=e.target.files[0]||null; });
-qs('#startImportBtn').addEventListener('click',()=>{ const type=qs('#importType').value; if(!lastFile){ alert('Choose a CSV file'); return; } qs('#importStats').textContent='Parsing…'; qs('#importLog').innerHTML=''; Papa.parse(lastFile, {header:true, skipEmptyLines:true, complete:(res)=>{ processImport(type, res); lastFile=null; qs('#importFileInput').value=''; }, error:(err)=>{ logImport(`Parse error: ${err.message}`, 'error'); }}); });
-function logImport(msg, kind='info'){ const log=qs('#importLog'); const div=document.createElement('div'); div.textContent=msg; div.style.color = kind==='error'? '#ff6666' : (kind==='success'? '#00ff00' : '#e0e0e0'); log.appendChild(div); log.scrollTop=log.scrollHeight; }
-function processImport(type, results){ const data=results.data||[]; let ok=0, bad=0; data.forEach((row,i)=>{ try{
-  if(type==='jobs'){
-    const title=(row.title||'').trim(); const company=(row.company||'').trim(); if(!title||!company){ bad++; logImport(`Row ${i+1}: missing title/company`, 'error'); return; }
-    state.jobs.push({id:uid(), title, company, status: (row.status||'Saved'), follow:(row.follow||''), salary:(row.salary||''), source:(row.source||'CSV Import')});
-    ok++; logImport(`Row ${i+1}: + Job "${title}" @ ${company}`, 'success');
-  } else {
-    const name=(row.name||'').trim(); if(!name){ bad++; logImport(`Row ${i+1}: missing name`, 'error'); return; }
-    state.companies.push({id:uid(), name, notes:(row.notes||'')}); ok++; logImport(`Row ${i+1}: + Company "${name}"`, 'success');
-  }
- }catch(e){ bad++; logImport(`Row ${i+1}: ${e.message}`, 'error'); }});
- persist(); renderAll(); qs('#importStats').textContent = `Done: ${ok} imported, ${bad} errors`;
+qs('#startImportBtn').addEventListener('click',()=>{
+  const type=qs('#importType').value;
+  if(!lastFile){ toast('Choose a CSV file','error'); return; }
+  qs('#importStats').textContent='Parsing…'; qs('#importLog').innerHTML='';
+  Papa.parse(lastFile, {header:true, skipEmptyLines:true, complete:(res)=>{ processImport(type, res); lastFile=null; qs('#importFileInput').value=''; }, error:(err)=>{ logImport(`Parse error: ${err.message}`, 'error'); }});
+});
+function logImport(msg, kind='info'){ const log=qs('#importLog'); const div=document.createElement('div'); div.textContent=msg; div.style.color = kind==='error'? '#ff6666' : (kind==='success'? '#00ff41' : '#e0e0e0'); log.appendChild(div); log.scrollTop=log.scrollHeight; }
+function processImport(type, results){
+  const data=results.data||[]; let ok=0, bad=0;
+  data.forEach((row,i)=>{ try{
+    if(type==='jobs'){
+      const title=(row.title||'').trim(); const company=(row.company||'').trim();
+      if(!title||!company){ bad++; logImport(`Row ${i+1}: missing title/company`, 'error'); return; }
+      state.jobs.push({id:uid(), title, company, status:(row.status||'Saved'), follow:(row.follow||''), salary:(row.salary||''), source:(row.source||'CSV Import'), url:''});
+      ok++; logImport(`Row ${i+1}: + Job "${title}" @ ${company}`, 'success');
+    } else {
+      const name=(row.name||'').trim(); if(!name){ bad++; logImport(`Row ${i+1}: missing name`, 'error'); return; }
+      state.companies.push({id:uid(), name, domain:'', notes:(row.notes||'')}); ok++; logImport(`Row ${i+1}: + Company "${name}"`, 'success');
+    }
+  }catch(e){ bad++; logImport(`Row ${i+1}: ${e.message}`, 'error'); }});
+  persist(); renderAll(); qs('#importStats').textContent = `Done: ${ok} imported, ${bad} errors`;
+  toast(`Imported ${ok} ${type}`, 'success');
 }
 
-// =========================
+// ============================================================
 // Seed Data
-// =========================
-qs('#seedBtn').addEventListener('click',()=>{ if(!confirm('Load sample data?')) return; const u=()=>Math.random().toString(36).slice(2,9); state.jobs=[{id:u(), title:'Senior Data Analyst', company:'ENCOM', status:'Saved', follow:today(2), salary:'125000', source:'LinkedIn'},{id:u(), title:'ML Engineer', company:'Flynn Lives', status:'Applied', follow:today(5), salary:'145000', source:'Indeed'},{id:u(), title:'Backend Developer', company:'Grid Systems', status:'Interview', follow:today(1), salary:'135000', source:'Greenhouse'},{id:u(), title:'Security Analyst', company:'MCP Corp', status:'Offer', follow:today(7), salary:'130000', source:'Lever'},{id:u(), title:'DevOps Engineer', company:'Digital Frontier', status:'Closed', follow:'', salary:'', source:'Referral'}]; state.resumes=[{id:u(), name:'General Tech - v1'},{id:u(), name:'Data Science Focus - v2'}]; state.companies=[{id:u(), name:'ENCOM', notes:'Legacy systems company, innovative culture'},{id:u(), name:'Flynn Lives', notes:'Startup, fast growth, AI-focused'}]; state.contacts=[{id:u(), name:'Kevin Flynn', email:'kevin@flynn.io', company:'Flynn Lives', notes:'CEO, met at conference'}]; persist(); renderAll(); });
+// ============================================================
+qs('#seedBtn').addEventListener('click',()=>{
+  if(!confirm('Load sample data?')) return;
+  const u=()=>Math.random().toString(36).slice(2,9);
+  state.jobs=[
+    {id:u(), title:'Senior Data Analyst', company:'ENCOM', status:'Saved', follow:today(2), salary:'125000', source:'LinkedIn', url:''},
+    {id:u(), title:'ML Engineer', company:'Flynn Lives', status:'Applied', follow:today(5), salary:'145000', source:'Indeed', url:''},
+    {id:u(), title:'Backend Developer', company:'Grid Systems', status:'Interview', follow:today(1), salary:'135000', source:'Greenhouse', url:''},
+    {id:u(), title:'Security Analyst', company:'MCP Corp', status:'Offer', follow:today(7), salary:'130000', source:'Lever', url:''},
+    {id:u(), title:'DevOps Engineer', company:'Digital Frontier', status:'Closed', follow:'', salary:'', source:'Referral', url:''},
+    {id:u(), title:'Frontend Developer', company:'Tron Industries', status:'Applied', follow:today(3), salary:'115000', source:'Remotive', url:''},
+  ];
+  state.resumes=[{id:u(), name:'General Tech - v1', skills:['python','javascript','sql','aws'], text:''},{id:u(), name:'Data Science Focus - v2', skills:['python','machine learning','pandas','tensorflow'], text:''}];
+  state.companies=[{id:u(), name:'ENCOM', domain:'encom.com', notes:'Legacy systems company, innovative culture'},{id:u(), name:'Flynn Lives', domain:'flynnlives.com', notes:'Startup, fast growth, AI-focused'}];
+  state.contacts=[{id:u(), name:'Kevin Flynn', email:'kevin@flynn.io', company:'Flynn Lives', notes:'CEO, met at conference', verified:null}];
+  persist(); renderAll();
+  toast('Sample data loaded', 'success');
+});
 
-// =========================
+// ============================================================
 // Modal (Add Job)
-// =========================
+// ============================================================
 const modal = qs('#jobModal');
 function openModal(){ modal.classList.add('show'); }
-function closeModal(){ modal.classList.remove('show'); qs('#jobTitle').value=''; qs('#jobCompany').value=''; qs('#jobSalary').value=''; qs('#jobSource').value=''; qs('#jobFollow').value=''; qs('#jobStatus').value='Saved'; }
-qs('#addJobBtn').addEventListener('click',openModal); qs('#addJobBtn2').addEventListener('click',openModal); qs('#closeModal').addEventListener('click',closeModal);
-qs('#saveJob').addEventListener('click',()=>{ addJob({ title:qs('#jobTitle').value, company:qs('#jobCompany').value, status:qs('#jobStatus').value, salary:Number(qs('#jobSalary').value||'').toString(), source:qs('#jobSource').value, follow:qs('#jobFollow').value }); closeModal(); });
+function closeModalFn(){ modal.classList.remove('show'); qs('#jobTitle').value=''; qs('#jobCompany').value=''; qs('#jobSalary').value=''; qs('#jobSource').value=''; qs('#jobFollow').value=''; qs('#jobStatus').value='Saved'; qs('#jobUrl').value=''; }
+qs('#addJobBtn').addEventListener('click',openModal); qs('#addJobBtn2').addEventListener('click',openModal); qs('#closeModal').addEventListener('click',closeModalFn);
+qs('#saveJob').addEventListener('click',()=>{
+  addJob({ title:qs('#jobTitle').value, company:qs('#jobCompany').value, status:qs('#jobStatus').value, salary:Number(qs('#jobSalary').value||'').toString(), source:qs('#jobSource').value, follow:qs('#jobFollow').value, url:qs('#jobUrl').value });
+  closeModalFn();
+  toast('Job added', 'success');
+});
 
-// =========================
+// ============================================================
+// API Settings — Save/Load/Clear
+// ============================================================
+function loadApiSettings(){
+  qs('#apiAdzunaId').value = getApi('adzunaId');
+  qs('#apiAdzunaKey').value = getApi('adzunaKey');
+  qs('#apiGeminiKey').value = getApi('geminiKey');
+  qs('#apiEmailjsPublic').value = getApi('emailjsPublic');
+  qs('#apiEmailjsService').value = getApi('emailjsService');
+  qs('#apiEmailjsTemplate').value = getApi('emailjsTemplate');
+  qs('#apiHunterKey').value = getApi('hunterKey');
+  qs('#apiNtfyTopic').value = getApi('ntfyTopic');
+  updateApiStatuses();
+}
+
+function updateApiStatuses(){
+  qs('#adzunaStatus').className = 'api-status ' + (hasApi('adzunaId')&&hasApi('adzunaKey') ? 'active':'inactive');
+  qs('#geminiStatus').className = 'api-status ' + (hasApi('geminiKey') ? 'active':'inactive');
+  qs('#emailjsStatus').className = 'api-status ' + (hasApi('emailjsPublic') ? 'active':'inactive');
+  qs('#hunterStatus').className = 'api-status ' + (hasApi('hunterKey') ? 'active':'inactive');
+  qs('#ntfyStatus').className = 'api-status ' + (getApi('ntfyTopic') ? 'active':'inactive');
+  qs('#browserNotifStatus').className = 'api-status ' + (typeof Notification !== 'undefined' && Notification.permission==='granted' ? 'active':'inactive');
+  // Header tag
+  const activeCount = [hasApi('adzunaId'),hasApi('geminiKey'),hasApi('emailjsPublic'),hasApi('hunterKey'),!!getApi('ntfyTopic')].filter(Boolean).length;
+  const tag = qs('#apiStatusTag');
+  if(activeCount > 0){ tag.style.display=''; tag.textContent=`${activeCount+1} APIs Active`; } // +1 for Remotive (always active)
+  // AI mode indicator
+  qs('#aiMode').style.display = hasApi('geminiKey') ? '' : 'none';
+}
+
+qs('#saveApiSettings').addEventListener('click',()=>{
+  apiKeys = {
+    adzunaId: qs('#apiAdzunaId').value.trim(),
+    adzunaKey: qs('#apiAdzunaKey').value.trim(),
+    geminiKey: qs('#apiGeminiKey').value.trim(),
+    emailjsPublic: qs('#apiEmailjsPublic').value.trim(),
+    emailjsService: qs('#apiEmailjsService').value.trim(),
+    emailjsTemplate: qs('#apiEmailjsTemplate').value.trim(),
+    hunterKey: qs('#apiHunterKey').value.trim(),
+    ntfyTopic: qs('#apiNtfyTopic').value.trim(),
+  };
+  localStorage.setItem(API_KEYS_STORAGE, JSON.stringify(apiKeys));
+  updateApiStatuses();
+  toast('API settings saved!', 'success');
+});
+
+qs('#clearApiSettings').addEventListener('click',()=>{
+  if(!confirm('Clear all API keys?')) return;
+  apiKeys = {};
+  localStorage.removeItem(API_KEYS_STORAGE);
+  loadApiSettings();
+  toast('All API keys cleared', 'info');
+});
+
+// ============================================================
 // Render boot
-// =========================
-function renderAll(){ renderTrackerTable(); if(!state.listView) renderKanban(); renderDashboard(); renderInsights(); renderResumes(); renderCompanies(); renderContacts(); }
-state.role = (state.settings.role)||'Candidate'; qs('#roleSelect').value = state.role; roleGate(); renderAll();
+// ============================================================
+function renderAll(){
+  renderTrackerTable();
+  if(!state.listView) renderKanban();
+  renderDashboard();
+  renderInsights();
+  renderResumes();
+  renderCompanies();
+  renderContacts();
+}
+state.role = (state.settings.role)||'Candidate';
+qs('#roleSelect').value = state.role;
+roleGate();
+loadApiSettings();
+renderAll();
+
+// Start notification checks if permission already granted
+if(typeof Notification !== 'undefined' && Notification.permission === 'granted'){
+  scheduleFollowUpChecks();
+}
+
 window.addEventListener('beforeunload', persist);
 </script>
 </body>
