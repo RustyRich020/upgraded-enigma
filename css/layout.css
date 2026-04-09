@@ -1,0 +1,122 @@
+/* ============================================================
+   JobGrid Pro — Layout
+   App grid, header, sidebar, main content area
+   ============================================================ */
+
+/* App shell */
+.app {
+  display: grid;
+  grid-template-rows: var(--header-height) 1fr;
+  position: relative;
+  z-index: var(--z-base);
+  min-height: 100vh;
+}
+
+/* Header */
+header {
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 2px solid var(--color-primary);
+  box-shadow: var(--shadow-glow);
+  background: linear-gradient(180deg, rgba(10,10,10,0.95), rgba(0,0,0,0.98));
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  gap: 16px;
+}
+
+header .brand {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.logo {
+  width: 40px; height: 40px;
+  border: 2px solid var(--color-primary);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle, var(--color-primary-dim), transparent);
+  box-shadow: 0 0 25px var(--color-primary-glow), inset 0 0 15px rgba(255,0,0,0.4);
+  animation: pulse 3s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.logo-text { font-weight: 900; font-size: 18px; color: var(--color-primary); }
+
+header h1 {
+  font-size: 20px; font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--color-text);
+  text-shadow: 0 0 10px var(--color-primary-glow);
+  white-space: nowrap;
+}
+
+.header-actions {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* Layout: sidebar + main */
+.layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  gap: 0;
+  min-height: calc(100vh - var(--header-height));
+}
+
+/* Sidebar */
+nav {
+  border-right: 2px solid var(--color-primary);
+  padding: 20px 16px;
+  position: sticky;
+  top: var(--header-height);
+  height: calc(100vh - var(--header-height));
+  overflow-y: auto;
+  background: linear-gradient(180deg, rgba(10,10,10,0.95), rgba(0,0,0,0.98));
+  box-shadow: var(--shadow-glow-lg);
+  z-index: var(--z-sidebar);
+  transition: width var(--transition-normal), padding var(--transition-normal);
+}
+
+nav .group { margin-bottom: 24px; }
+
+nav h4 {
+  margin: 12px 8px 10px;
+  color: var(--color-primary);
+  font-weight: 700; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 2px;
+  border-bottom: 1px solid var(--color-primary);
+  padding-bottom: 6px;
+}
+
+/* Hamburger button (mobile only) */
+.hamburger {
+  display: none;
+  background: none; border: none;
+  color: var(--color-primary);
+  font-size: 24px; cursor: pointer;
+  padding: 8px;
+}
+
+/* Sidebar overlay backdrop (mobile) */
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: calc(var(--z-sidebar) - 1);
+}
+
+/* Main content */
+main {
+  padding: 24px;
+  background:
+    radial-gradient(ellipse at top right, var(--color-primary-dim), transparent 60%),
+    radial-gradient(ellipse at bottom left, rgba(255,0,0,0.03), transparent 50%);
+  overflow-y: auto;
+}

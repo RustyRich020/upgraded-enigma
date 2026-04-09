@@ -1,0 +1,91 @@
+/* ============================================================
+   JobGrid Pro — Light Theme
+   Clean professional light mode
+   ============================================================ */
+[data-theme="light"] {
+  --color-bg: #f0f2f5;
+  --color-bg-secondary: #e8eaed;
+  --color-surface: #ffffff;
+  --color-surface-border: #d1d5db;
+  --color-grid: #e5e7eb;
+  --color-primary: #dc2626;
+  --color-primary-bright: #ef4444;
+  --color-primary-glow: rgba(220, 38, 38, 0.25);
+  --color-primary-dim: rgba(220, 38, 38, 0.08);
+  --color-success: #16a34a;
+  --color-success-dim: rgba(22, 163, 74, 0.1);
+  --color-info: #2563eb;
+  --color-info-dim: rgba(37, 99, 235, 0.1);
+  --color-danger: #dc2626;
+  --color-warning: #ea580c;
+  --color-warning-dim: rgba(234, 88, 12, 0.1);
+  --color-text: #111827;
+  --color-text-dim: #374151;
+  --color-muted: #6b7280;
+  --grid-opacity: 0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-glow: 0 0 0 transparent;
+  --shadow-glow-lg: 0 0 0 transparent;
+}
+
+/* Light theme panel override */
+[data-theme="light"] .panel {
+  background: var(--color-surface);
+  border-color: var(--color-surface-border);
+}
+[data-theme="light"] .panel::before { opacity: 0; }
+
+/* Light theme header */
+[data-theme="light"] header {
+  background: var(--color-surface);
+  border-bottom-color: var(--color-surface-border);
+  box-shadow: var(--shadow-md);
+}
+
+/* Light theme sidebar */
+[data-theme="light"] nav {
+  background: var(--color-surface);
+  border-right-color: var(--color-surface-border);
+  box-shadow: var(--shadow-md);
+}
+
+/* Light theme table */
+[data-theme="light"] .table td {
+  background: var(--color-surface);
+  border-color: var(--color-surface-border);
+}
+[data-theme="light"] .table tr:hover td {
+  background: var(--color-primary-dim);
+}
+
+/* Light theme search results */
+[data-theme="light"] .search-result {
+  background: var(--color-surface);
+  border-color: var(--color-surface-border);
+}
+
+/* Light theme cards */
+[data-theme="light"] .card {
+  background: var(--color-surface);
+  border-color: var(--color-surface-border);
+}
+[data-theme="light"] .card:hover {
+  border-color: var(--color-primary);
+}
+
+/* Light theme toast */
+[data-theme="light"] .toast {
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+}
+
+/* Light theme logo adjustments */
+[data-theme="light"] .logo {
+  box-shadow: 0 0 15px var(--color-primary-glow);
+}
+
+/* Light scrollbar */
+[data-theme="light"] ::-webkit-scrollbar-track { background: var(--color-bg); }
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: var(--color-surface-border); }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }

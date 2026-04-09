@@ -1,0 +1,16 @@
+{
+  "name": "jobgrid-pro",
+  "version": "2.0.0",
+  "description": "Professional job tracking and career management system with AI-powered analysis, real-time job search, and Firebase backend.",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve . -p 3000",
+    "deploy": "firebase deploy --only hosting"
+  },
+  "keywords": ["job-tracker", "career", "pwa", "firebase", "ai"],
+  "author": "R2D2THERAGEN",
+  "license": "MIT",
+  "devDependencies": {
+    "firebase-tools": "^13.0.0"
+  }
+}

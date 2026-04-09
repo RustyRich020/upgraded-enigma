@@ -1,0 +1,118 @@
+/* ============================================================
+   JobGrid Pro — Responsive Breakpoints
+   Tablet (1024px), Mobile (768px), Small (480px)
+   ============================================================ */
+
+/* ---- Tablet ---- */
+@media (max-width: 1024px) {
+  .grid.cols-4 { grid-template-columns: 1fr 1fr; }
+  .grid.cols-3 { grid-template-columns: 1fr 1fr; }
+  .kanban { grid-template-columns: 1fr 1fr; }
+  .landing-features { grid-template-columns: 1fr 1fr; }
+
+  nav {
+    width: var(--sidebar-collapsed);
+    padding: 16px 8px;
+  }
+  nav h4 { font-size: 0; border: 0; margin: 4px 0; padding: 0; height: 0; overflow: hidden; }
+  .nav-btn { justify-content: center; padding: 12px 8px; }
+  .nav-btn .nav-label { display: none; }
+  .nav-btn .nav-icon { font-size: 20px; }
+  .layout { grid-template-columns: var(--sidebar-collapsed) 1fr; }
+}
+
+/* ---- Mobile ---- */
+@media (max-width: 768px) {
+  .hamburger { display: flex; }
+
+  .layout { grid-template-columns: 1fr; }
+
+  nav {
+    position: fixed;
+    top: 0; left: -300px; bottom: 0;
+    width: 280px; padding: 20px 16px;
+    z-index: var(--z-modal);
+    transition: left var(--transition-normal);
+    padding-top: calc(var(--header-height) + 20px);
+  }
+  nav.open { left: 0; }
+  nav.open + .sidebar-overlay { display: block; }
+  nav h4 { font-size: 11px; border-bottom: 1px solid var(--color-primary); margin: 12px 8px 10px; padding-bottom: 6px; height: auto; overflow: visible; }
+  .nav-btn { justify-content: flex-start; padding: 12px; }
+  .nav-btn .nav-label { display: inline; }
+
+  .sidebar-overlay.show { display: block; }
+
+  header h1 { font-size: 16px; letter-spacing: 1px; }
+  header .brand .tag { display: none; }
+
+  main { padding: 16px; }
+
+  .grid.cols-2,
+  .grid.cols-3,
+  .grid.cols-4 { grid-template-columns: 1fr; }
+
+  .kanban {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .col { min-height: 150px; }
+
+  .modal .content { padding: 16px; border-radius: var(--radius-lg); }
+
+  .toolbar { flex-direction: column; align-items: stretch; }
+  .toolbar h2 { font-size: 18px; }
+
+  .header-actions { gap: 4px; }
+  .header-actions .btn { padding: 6px 10px; font-size: 10px; }
+
+  .landing-title { font-size: 28px; letter-spacing: 2px; }
+  .landing-subtitle { font-size: 14px; }
+  .landing-features { grid-template-columns: 1fr; gap: 16px; }
+  .landing-logo { width: 80px; height: 80px; }
+  .landing-logo .logo-text { font-size: 32px; }
+
+  .table th, .table td { padding: 8px; font-size: 11px; }
+  .btn.small { padding: 4px 8px; font-size: 10px; }
+}
+
+/* ---- Small Mobile ---- */
+@media (max-width: 480px) {
+  header { padding: 0 12px; height: 56px; }
+  header h1 { font-size: 14px; }
+  .logo { width: 32px; height: 32px; }
+  .logo-text { font-size: 14px; }
+
+  .header-actions .role-sel { display: none; }
+  .header-actions .btn:not(.brand) { display: none; }
+
+  main { padding: 12px; }
+
+  .landing-title { font-size: 22px; }
+  .landing-subtitle { font-size: 12px; margin-bottom: 32px; }
+  .landing-actions { flex-direction: column; width: 100%; }
+  .landing-actions .btn { width: 100%; }
+
+  .setup-container { padding: 0 8px; }
+
+  .tour-tooltip { max-width: 280px; padding: 16px; }
+}
+
+/* ---- Touch targets ---- */
+@media (pointer: coarse) {
+  .btn { min-height: 44px; min-width: 44px; }
+  .btn.small { min-height: 36px; }
+  .nav-btn { min-height: 48px; }
+  .input, select, textarea { min-height: 44px; }
+}
+
+/* ---- Print ---- */
+@media print {
+  body::before, body::after { display: none; }
+  header, nav, .toast-container { display: none; }
+  .layout { grid-template-columns: 1fr; }
+  main { padding: 0; }
+  .panel { border: 1px solid #ccc; box-shadow: none; }
+  .panel::before { display: none; }
+  .btn { display: none; }
+}

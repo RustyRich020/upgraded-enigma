@@ -1,0 +1,20 @@
+/* ============================================================
+   JobGrid Pro — TRON Theme (Default)
+   Red/black cyberpunk with animated grid
+   ============================================================ */
+[data-theme="tron"],
+:root {
+  --color-bg: #000000;
+  --color-bg-secondary: #0a0a0a;
+  --color-surface: #111111;
+  --color-surface-border: #1a1a1a;
+  --color-grid: #330000;
+  --color-primary: #ff0000;
+  --color-primary-bright: #ff2929;
+  --color-primary-glow: rgba(255, 0, 0, 0.5);
+  --color-primary-dim: rgba(255, 0, 0, 0.12);
+  --color-text: #ffffff;
+  --color-text-dim: #e0e0e0;
+  --color-muted: #808080;
+  --grid-opacity: 1;
+}
