@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JobGrid Pro — Track. Analyze. Land the Role.</title>
+  <meta name="description" content="Professional job tracking and career management system with AI-powered analysis, real-time job search, and Firebase backend.">
+  <meta name="theme-color" content="#ff0000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="JobGrid Pro">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.svg">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/views.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/themes/tron.css">
+  <link rel="stylesheet" href="css/themes/light.css">
+
+  <!-- CDN Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+  <!-- Firebase CDN (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+</head>
+<body data-theme="tron">
+<div class="app">
+  <!-- ======== HEADER ======== -->
+  <header>
+    <div class="brand">
+      <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">&#9776;</button>
+      <div class="logo"><div class="logo-text">T</div></div>
+      <h1>JOBGRID PRO</h1>
+      <span class="tag">v2.0</span>
+      <span class="tag green" id="apiStatusTag" style="display:none">APIs Active</span>
+    </div>
+    <div class="header-actions">
+      <label class="muted" style="font-weight:600;font-size:11px">ROLE:</label>
+      <select id="roleSelect" class="role-sel">
+        <option>Candidate</option><option>Manager</option><option>Executive</option><option>Auditor</option>
+      </select>
+      <button class="btn small" id="seedBtn">SEED</button>
+      <button class="btn small" id="exportBtn">EXPORT</button>
+      <button class="btn small" id="importJobsBtn">IMPORT</button>
+      <button class="btn small brand" id="addJobBtn">+ JOB</button>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">☀</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- ======== SIDEBAR ======== -->
+    <nav id="sidebar">
+      <div class="group">
+        <h4>Primary Systems</h4>
+        <button class="nav-btn" data-view="dashboard"><span class="nav-icon">◆</span><span class="nav-label">Dashboard</span></button>
+        <button class="nav-btn" data-view="tracker"><span class="nav-icon">◆</span><span class="nav-label">Tracker</span></button>
+        <button class="nav-btn" data-view="search"><span class="nav-icon">◆</span><span class="nav-label">Job Search</span></button>
+        <button class="nav-btn" data-view="ai"><span class="nav-icon">◆</span><span class="nav-label">AI Tools</span></button>
+        <button class="nav-btn" data-view="resume"><span class="nav-icon">◆</span><span class="nav-label">Resume Center</span></button>
+        <button class="nav-btn" data-view="companies"><span class="nav-icon">◆</span><span class="nav-label">Companies</span></button>
+        <button class="nav-btn" data-view="contacts"><span class="nav-icon">◆</span><span class="nav-label">Contacts</span></button>
+        <button class="nav-btn" data-view="insights"><span class="nav-icon">◆</span><span class="nav-label">Insights</span></button>
+      </div>
+      <div class="group">
+        <h4>Configuration</h4>
+        <button class="nav-btn" data-view="settings"><span class="nav-icon">◆</span><span class="nav-label">API Settings</span></button>
+      </div>
+    </nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ======== MAIN CONTENT ======== -->
+    <main>
+      <!-- LANDING -->
+      <section id="view-landing" class="hidden">
+        <div class="landing-hero">
+          <div class="landing-logo"><div class="logo-text">T</div></div>
+          <h1 class="landing-title">JOBGRID PRO</h1>
+          <p class="landing-subtitle">Track. Analyze. Land the Role.</p>
+          <div class="landing-features">
+            <div class="feature-card">
+              <div class="feature-icon">◆</div>
+              <h3>SMART TRACKING</h3>
+              <p>Kanban boards, pipeline analytics, automated follow-up reminders, and CSV import/export.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">◆</div>
+              <h3>AI-POWERED ANALYSIS</h3>
+              <p>Resume-to-JD matching via Google Gemini, AI cover letter generation, and skill gap detection.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">◆</div>
+              <h3>REAL-TIME JOB SEARCH</h3>
+              <p>Search Remotive and Adzuna APIs, auto-add listings to your tracker with one click.</p>
+            </div>
+          </div>
+          <div class="landing-actions">
+            <button class="btn brand large" id="getStartedBtn">GET STARTED</button>
+            <button class="btn ghost large" id="skipToAppBtn">SKIP TO DASHBOARD</button>
+          </div>
+          <a class="landing-skip" id="returningUserLink">I've been here before — take me to my dashboard</a>
+        </div>
+      </section>
+
+      <!-- PROFILE SETUP -->
+      <section id="view-profile" class="panel hidden">
+        <div class="setup-container">
+          <div class="toolbar" style="justify-content:center"><h2>⟨ PROFILE SETUP ⟩</h2></div>
+          <div class="setup-steps" id="setupSteps">
+            <div class="setup-step active"></div>
+            <div class="setup-step"></div>
+            <div class="setup-step"></div>
+          </div>
+          <div id="setupContent"></div>
+        </div>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section id="view-dashboard" class="panel hidden">
+        <div class="toolbar"><h2>⟨ DASHBOARD ⟩</h2><span class="tag">Pipeline</span></div>
+        <div class="grid cols-3">
+          <div class="panel"><h4>PIPELINE STATUS</h4><canvas id="pipelineChart" height="200"></canvas></div>
+          <div class="panel"><h4>SOURCE DISTRIBUTION</h4><canvas id="sourceChart" height="200"></canvas></div>
+          <div class="panel">
+            <h4>UPCOMING ACTIONS</h4>
+            <div id="upcomingList" style="max-height:200px;overflow-y:auto"></div>
+            <button class="btn small green" id="enableNotifBtn" style="margin-top:8px;width:100%">ENABLE NOTIFICATIONS</button>
+          </div>
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          <div class="panel"><h4>SALARY BENCHMARKS (BLS)</h4><div id="blsBenchmarks"><div class="muted" style="text-align:center;padding:20px">Click below to load national salary data</div><button class="btn small blue" id="loadBlsBtn" style="margin-top:8px">LOAD BLS DATA</button></div></div>
+          <div class="panel"><h4>WEEKLY ACTIVITY</h4><canvas id="weeklyChart" height="150"></canvas></div>
+        </div>
+      </section>
+
+      <!-- TRACKER -->
+      <section id="view-tracker" class="panel hidden">
+        <div class="toolbar">
+          <h2>⟨ TRACKER ⟩</h2>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button class="btn" id="toggleViewBtn">KANBAN</button>
+            <button class="btn brand" id="addJobBtn2">+ JOB</button>
+          </div>
+        </div>
+        <div id="listView" class="table-wrapper">
+          <table class="table" id="trackerTable">
+            <thead><tr><th>Title</th><th>Company</th><th>Status</th><th>Follow-up</th><th class="salary-col">Salary</th><th>Source</th><th>Actions</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div id="kanbanView" class="kanban hidden">
+          <div class="col" data-col="Saved"><h5>◆ Saved</h5><div class="drop" data-status="Saved"></div></div>
+          <div class="col" data-col="Applied"><h5>◆ Applied</h5><div class="drop" data-status="Applied"></div></div>
+          <div class="col" data-col="Interview"><h5>◆ Interview</h5><div class="drop" data-status="Interview"></div></div>
+          <div class="col" data-col="Offer"><h5>◆ Offer</h5><div class="drop" data-status="Offer"></div></div>
+        </div>
+      </section>
+
+      <!-- JOB SEARCH -->
+      <section id="view-search" class="panel hidden">
+        <div class="toolbar"><h2>⟨ JOB SEARCH ⟩</h2><span class="tag blue">API-Powered</span></div>
+        <div class="grid cols-3" style="margin-bottom:16px">
+          <div><label><h4>KEYWORDS</h4><input id="searchKeyword" class="input" placeholder="e.g., Data Analyst, Python"></label></div>
+          <div><label><h4>LOCATION</h4><input id="searchLocation" class="input" placeholder="e.g., Remote, New York"></label></div>
+          <div style="display:flex;align-items:flex-end;gap:8px">
+            <button class="btn brand" id="searchRemotiveBtn" style="flex:1">REMOTIVE</button>
+            <button class="btn blue" id="searchAdzunaBtn" style="flex:1">ADZUNA</button>
+          </div>
+        </div>
+        <div id="searchStatus" class="muted" style="margin-bottom:12px"></div>
+        <div id="searchResults"></div>
+      </section>
+
+      <!-- AI TOOLS -->
+      <section id="view-ai" class="panel hidden">
+        <div class="toolbar"><h2>⟨ AI ANALYSIS ⟩</h2><span class="tag">Neural Net</span><span id="aiMode" class="tag blue" style="display:none">Gemini Active</span></div>
+        <div class="grid cols-2">
+          <div class="panel">
+            <h3>JD ↔ RESUME MATCHER</h3>
+            <textarea id="jdText" class="input" rows="6" placeholder="PASTE JOB DESCRIPTION..."></textarea>
+            <textarea id="resumeText" class="input" rows="6" placeholder="PASTE RESUME..." style="margin-top:8px"></textarea>
+            <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <button class="btn brand" id="analyzeBtn">ANALYZE (LOCAL)</button>
+              <button class="btn blue" id="analyzeAiBtn">ANALYZE (AI)</button>
+              <span class="chip">MATCH: <span id="matchScore">—</span>%</span>
+            </div>
+            <div id="aiMatchResult" class="panel" style="margin-top:12px;display:none">
+              <h4>AI ANALYSIS</h4>
+              <div id="aiMatchContent" class="muted" style="white-space:pre-wrap;font-size:12px;max-height:200px;overflow-y:auto"></div>
+            </div>
+            <div class="grid cols-2" style="margin-top:12px">
+              <div><h4>MISSING KEYWORDS</h4><div id="missingList" class="muted" style="max-height:150px;overflow-y:auto"></div></div>
+              <div><h4>FOUND KEYWORDS</h4><div id="foundList" class="muted" style="max-height:150px;overflow-y:auto"></div></div>
+            </div>
+          </div>
+          <div class="panel">
+            <h3>GENERATORS</h3>
+            <div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn" id="createJobFromJd">JOB FROM JD</button>
+              <button class="btn" id="draftCoverLetter">COVER LETTER</button>
+              <button class="btn blue" id="draftCoverLetterAi">AI COVER LETTER</button>
+              <a id="dlCover" class="btn ghost" download="cover-letter.txt">DOWNLOAD</a>
+            </div>
+            <textarea id="coverOut" class="input" rows="14" placeholder="OUTPUT APPEARS HERE..."></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESUME CENTER -->
+      <section id="view-resume" class="panel hidden">
+        <div class="toolbar">
+          <h2>⟨ RESUME CENTER ⟩</h2>
+          <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+            <input id="resumeName" class="input" placeholder="Resume name" style="width:200px">
+            <button class="btn brand" id="addResume">ADD</button>
+            <label class="btn blue" style="cursor:pointer"><input id="resumeFileInput" type="file" accept=".pdf,.txt" hidden>PARSE PDF</label>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="table" id="resumeTable"><thead><tr><th>Name</th><th>Skills Extracted</th><th>Actions</th></tr></thead><tbody></tbody></table>
+        </div>
+        <div id="resumeParseResult" class="panel" style="margin-top:16px;display:none">
+          <h4>PARSED RESUME CONTENT</h4>
+          <div id="resumeParseContent" class="muted" style="white-space:pre-wrap;font-size:12px;max-height:300px;overflow-y:auto"></div>
+          <div style="margin-top:8px"><h4>EXTRACTED SKILLS</h4><div id="resumeSkills"></div></div>
+        </div>
+      </section>
+
+      <!-- COMPANIES -->
+      <section id="view-companies" class="panel hidden">
+        <div class="toolbar">
+          <h2>⟨ COMPANIES ⟩</h2>
+          <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+            <input id="companyName" class="input" placeholder="Company name" style="width:200px">
+            <button class="btn" id="addCompany">ADD</button>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="table" id="companyTable"><thead><tr><th>Logo</th><th>Name</th><th>Domain</th><th>Notes</th><th>Actions</th></tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <!-- CONTACTS -->
+      <section id="view-contacts" class="panel hidden">
+        <div class="toolbar">
+          <h2>⟨ CONTACTS ⟩</h2>
+          <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input id="contactName" class="input" placeholder="Name" style="width:140px">
+            <input id="contactEmail" class="input" placeholder="Email" style="width:180px">
+            <button class="btn" id="addContact">ADD</button>
+            <button class="btn blue" id="verifyEmailBtn">VERIFY ALL</button>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="table" id="contactsTable"><thead><tr><th>Name</th><th>Email</th><th>Verified</th><th>Company</th><th>Notes</th><th>Actions</th></tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <!-- INSIGHTS -->
+      <section id="view-insights" class="panel hidden">
+        <div class="toolbar"><h2>⟨ INSIGHTS ⟩</h2><span class="tag">Analytics</span></div>
+        <div class="grid cols-2">
+          <div class="panel"><h4>APPLICATION FUNNEL</h4><canvas id="funnelChart" height="250"></canvas></div>
+          <div class="panel"><h4>SOURCE BREAKDOWN</h4><canvas id="sourceBars" height="250"></canvas></div>
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          <div class="panel"><h4>SALARY DISTRIBUTION</h4><canvas id="salaryChart" height="200"></canvas></div>
+          <div class="panel"><h4>STATUS TIMELINE</h4><canvas id="timelineChart" height="200"></canvas></div>
+        </div>
+      </section>
+
+      <!-- API SETTINGS -->
+      <section id="view-settings" class="panel hidden">
+        <div class="toolbar"><h2>⟨ API SETTINGS ⟩</h2><span class="tag">Configuration</span></div>
+        <div class="grid cols-2">
+          <div class="panel">
+            <h3>JOB SEARCH APIs</h3>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status active"></span>REMOTIVE (Free)</h4><div class="muted" style="font-size:11px">Always active — no key needed</div></label>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="adzunaStatus"></span>ADZUNA</h4><input id="apiAdzunaId" class="input" placeholder="App ID" style="margin:4px 0"><input id="apiAdzunaKey" class="input" placeholder="App Key"><div class="muted" style="font-size:11px;margin-top:4px">Free: 250 req/day — <a href="https://developer.adzuna.com/" target="_blank" rel="noopener" style="color:var(--color-info)">Get keys</a></div></label>
+          </div>
+          <div class="panel">
+            <h3>AI / NLP</h3>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="geminiStatus"></span>GOOGLE GEMINI</h4><input id="apiGeminiKey" class="input" placeholder="API Key"><div class="muted" style="font-size:11px;margin-top:4px">Free: 15 req/min — <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:var(--color-info)">Get key</a></div></label>
+          </div>
+          <div class="panel">
+            <h3>EMAIL / CONTACTS</h3>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="emailjsStatus"></span>EMAILJS</h4>
+              <input id="apiEmailjsPublic" class="input" placeholder="Public Key" style="margin:4px 0">
+              <input id="apiEmailjsService" class="input" placeholder="Service ID" style="margin:4px 0">
+              <input id="apiEmailjsTemplate" class="input" placeholder="Template ID">
+              <div class="muted" style="font-size:11px;margin-top:4px">Free: 200 emails/mo — <a href="https://www.emailjs.com/" target="_blank" rel="noopener" style="color:var(--color-info)">Setup</a></div>
+            </label>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="hunterStatus"></span>HUNTER.IO</h4><input id="apiHunterKey" class="input" placeholder="API Key"><div class="muted" style="font-size:11px;margin-top:4px">Free: 25 verifications/mo — <a href="https://hunter.io/api" target="_blank" rel="noopener" style="color:var(--color-info)">Get key</a></div></label>
+          </div>
+          <div class="panel">
+            <h3>NOTIFICATIONS</h3>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="ntfyStatus"></span>NTFY.SH (Push)</h4><input id="apiNtfyTopic" class="input" placeholder="Your topic name"><div class="muted" style="font-size:11px;margin-top:4px">Free, no account — <a href="https://ntfy.sh/" target="_blank" rel="noopener" style="color:var(--color-info)">Learn more</a></div></label>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="browserNotifStatus"></span>BROWSER NOTIFICATIONS</h4><button class="btn small green" id="requestNotifPerm">GRANT PERMISSION</button></label>
+          </div>
+        </div>
+        <div class="grid cols-2" style="margin-top:16px">
+          <div class="panel">
+            <h3>FIREBASE</h3>
+            <div class="muted" style="font-size:11px;margin-bottom:8px">Configure in js/config.js to enable cloud sync. Anonymous auth is used by default.</div>
+            <div id="firebaseStatus" class="muted">Not configured</div>
+          </div>
+          <div class="panel" style="display:flex;align-items:center;justify-content:center;gap:16px">
+            <button class="btn brand" id="saveApiSettings" style="padding:12px 32px">SAVE ALL</button>
+            <button class="btn danger" id="clearApiSettings">CLEAR KEYS</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ADD JOB MODAL -->
+<div class="modal" id="jobModal">
+  <div class="content">
+    <div class="toolbar"><h2>⟨ ADD JOB ⟩</h2><button class="btn" id="closeModal">CLOSE</button></div>
+    <div class="grid cols-2">
+      <div class="panel">
+        <label style="display:block;margin:12px 0"><h4>TITLE</h4><input id="jobTitle" class="input" placeholder="e.g., Data Analyst"></label>
+        <label style="display:block;margin:12px 0"><h4>COMPANY</h4><input id="jobCompany" class="input" placeholder="Company"></label>
+        <label style="display:block;margin:12px 0"><h4>STATUS</h4><select id="jobStatus" class="input"><option>Saved</option><option>Applied</option><option>Interview</option><option>Offer</option><option>Closed</option></select></label>
+      </div>
+      <div class="panel">
+        <label style="display:block;margin:12px 0"><h4>MAX SALARY</h4><input id="jobSalary" class="input" type="number" placeholder="e.g., 110000"></label>
+        <label style="display:block;margin:12px 0"><h4>SOURCE</h4><input id="jobSource" class="input" placeholder="LinkedIn / Indeed / ..."></label>
+        <label style="display:block;margin:12px 0"><h4>FOLLOW-UP</h4><input id="jobFollow" class="input" type="date"></label>
+        <label style="display:block;margin:12px 0"><h4>URL</h4><input id="jobUrl" class="input" placeholder="Job posting URL"></label>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:16px"><button class="btn brand large" id="saveJob">SAVE JOB</button></div>
+  </div>
+</div>
+
+<!-- IMPORT MODAL -->
+<div class="modal" id="importModal">
+  <div class="content">
+    <div class="toolbar"><h2 id="importModalTitle">⟨ IMPORT ⟩</h2><button class="btn" id="closeImportModal">CLOSE</button></div>
+    <div class="panel" style="margin-bottom:12px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <label><strong>Type:</strong> <select id="importType" class="input" style="width:auto"><option value="jobs">Jobs</option><option value="companies">Companies</option></select></label>
+        <label class="btn"><input id="importFileInput" type="file" accept=".csv" hidden>Choose CSV</label>
+        <button class="btn brand" id="startImportBtn">Start Import</button>
+      </div>
+      <div class="muted" style="margin-top:8px;font-size:11px">CSV headers — Jobs: title,company,status,follow,salary,source | Companies: name,notes</div>
+    </div>
+    <div class="panel">
+      <h4>Progress</h4>
+      <div id="importStats" class="muted">Waiting for file…</div>
+      <div id="importLog" style="margin-top:8px;max-height:240px;overflow:auto;font-family:monospace;font-size:12px;border:1px solid var(--color-grid);padding:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- App Entry -->
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
