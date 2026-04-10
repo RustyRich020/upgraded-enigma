@@ -42,6 +42,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-functions-compat.js"></script>
 </head>
 <body data-theme="tron">
+<a href="#main-content" class="skip-link">Skip to content</a>
 <div class="app">
   <!-- ======== HEADER ======== -->
   <header>
@@ -84,7 +85,7 @@
 
   <div class="layout">
     <!-- ======== SIDEBAR ======== -->
-    <nav id="sidebar">
+    <nav id="sidebar" role="navigation" aria-label="Main navigation">
       <div class="group">
         <h4>Primary Systems</h4>
         <button class="nav-btn" data-view="dashboard"><span class="nav-icon">•</span><span class="nav-label">Dashboard</span></button>
@@ -134,7 +135,7 @@
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <!-- ======== MAIN CONTENT ======== -->
-    <main>
+    <main id="main-content" role="main">
       <!-- LANDING -->
       <section id="view-landing" class="hidden">
 <!-- populated by js/views/landing.js -->
