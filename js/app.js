@@ -51,6 +51,8 @@ import { renderSalaryTool } from './views/salary-tool.js';
 import { renderWeeklyReport } from './views/weekly-report.js';
 import { initJdStorage } from './components/jd-storage.js';
 import { completeChecklistItem } from './components/getting-started.js';
+import { renderAgentDashboard } from './views/agent-dashboard.js';
+import { initAgent, recordRefinementSignal } from './services/job-agent.js';
 
 /* ============================================================
    Job CRUD helpers
@@ -68,6 +70,10 @@ function updateJob(id, patch) {
   const jobs = state.get('jobs') || [];
   const j = jobs.find(x => x.id === id);
   if (j) {
+    // Track refinement signal for agent-added jobs
+    if (patch.status && ['Applied', 'Interview'].includes(patch.status) && j._agentAdded) {
+      recordRefinementSignal(id, 'kept');
+    }
     Object.assign(j, patch);
     state.set('jobs', jobs);
     renderCurrentView();
@@ -75,7 +81,10 @@ function updateJob(id, patch) {
 }
 
 function removeJob(id) {
-  state.set('jobs', (state.get('jobs') || []).filter(x => x.id !== id));
+  const jobs = state.get('jobs') || [];
+  const job = jobs.find(x => x.id === id);
+  if (job && job._agentAdded) recordRefinementSignal(id, 'deleted');
+  state.set('jobs', jobs.filter(x => x.id !== id));
   renderCurrentView();
 }
 
@@ -97,6 +106,7 @@ function renderCurrentView() {
     contacts: () => renderContacts(getSection('contacts'), state),
     insights: () => renderInsights(getSection('insights'), state),
     settings: () => renderSettings(getSection('settings'), null, null, null),
+    agent: () => renderAgentDashboard(getSection('agent'), state, addJob),
     interviews: () => renderInterviews(getSection('interviews'), state),
     timeline: () => renderTimeline(getSection('timeline'), state),
     networking: () => renderNetworking(getSection('networking'), state),
@@ -366,6 +376,11 @@ async function boot() {
   initSidebar();
   initJdStorage(state);
 
+  // Initialize job agent (background search)
+  if (FEATURES.jobAgent) {
+    initAgent(state, addJob);
+  }
+
   // Collapsible sidebar "More Tools" section
   const navExpandBtn = document.getElementById('navExpandMore');
   const navMoreSection = document.getElementById('navMoreSection');
@@ -417,6 +432,7 @@ async function boot() {
   router.registerView('dashboard', () => renderDashboard(getSection('dashboard'), state));
   router.registerView('tracker', () => renderTracker(getSection('tracker'), state, { addJob, updateJob, removeJob }));
   router.registerView('search', () => renderJobSearch(getSection('search'), state, addJob));
+  router.registerView('agent', () => renderAgentDashboard(getSection('agent'), state, addJob));
   router.registerView('ai', () => renderAiTools(getSection('ai'), state, addJob));
   router.registerView('resume', () => renderResumeCenter(getSection('resume'), state));
   router.registerView('companies', () => renderCompanies(getSection('companies'), state));

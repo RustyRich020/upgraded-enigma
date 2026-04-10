@@ -35,7 +35,9 @@ export const STORAGE_KEYS = {
   theme: 'tron_theme',
   onboarded: 'tron_onboarded',
   tourDone: 'tron_tour_done',
-  authUser: 'tron_auth_user'
+  authUser: 'tron_auth_user',
+  agentConfig: 'tron_agent_config',
+  agentRuns: 'tron_agent_runs'
 };
 
 // Job statuses
@@ -71,7 +73,8 @@ export const FEATURES = {
   jsearch: true,
   careerOneStop: true,
   companyEnrichment: true,
-  groqAi: true
+  groqAi: true,
+  jobAgent: true
 };
 
 // API endpoints
