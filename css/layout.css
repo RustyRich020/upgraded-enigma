@@ -112,6 +112,11 @@ nav h4 {
   z-index: calc(var(--z-sidebar) - 1);
 }
 
+/* Auth mode: collapse sidebar column */
+body.auth-mode .layout {
+  grid-template-columns: 1fr;
+}
+
 /* Main content */
 main {
   padding: 24px;
