@@ -13,6 +13,7 @@ import { ENDPOINTS } from '../config.js';
 import { checkLimit, recordUsage } from '../services/usage-tracker.js';
 import { showUpgradeBanner, showUsageMeter } from '../components/upgrade-banner.js';
 import { uid, today } from '../utils.js';
+import { completeChecklistItem } from '../components/getting-started.js';
 
 /**
  * Render the job search view.
@@ -40,6 +41,7 @@ export function renderJobSearch(container, state, addJob) {
       try {
         const jobs = await searchRemotive(keyword);
         recordUsage('remotive');
+        completeChecklistItem('firstSearch');
         const shown = jobs.slice(0, 20);
         if (statusEl) statusEl.textContent = `Found ${jobs.length} remote jobs (showing ${shown.length})`;
         if (resultsEl) resultsEl.innerHTML = renderResults(shown, addJob);

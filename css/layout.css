@@ -116,6 +116,14 @@ nav h4 {
   border-bottom: none;
 }
 
+/* Sidebar expand/collapse */
+.nav-expand-btn {
+  background: none; border: none; cursor: pointer;
+  width: 100%; padding: 4px 12px; text-align: left;
+}
+.nav-expand-btn:hover h4 { color: var(--color-text-dim); }
+.nav-collapsible { animation: fadeIn 0.2s ease-out; }
+
 /* Hamburger button (mobile only) */
 .hamburger {
   display: none;

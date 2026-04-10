@@ -8,6 +8,7 @@ import { fetchBlsData } from '../services/bls-service.js';
 import { toast } from '../components/toast.js';
 import { requestPermission, scheduleChecks } from '../services/notifications.js';
 import { getApi } from '../services/api-keys.js';
+import { renderChecklistHTML, bindChecklistEvents, isChecklistDismissed } from '../components/getting-started.js';
 
 function computeStats(jobs) {
   const byStatus = { Saved: 0, Applied: 0, Interview: 0, Offer: 0, Closed: 0 };
@@ -43,6 +44,19 @@ export function renderDashboard(container, state) {
   const { byStatus, bySource, upcoming } = computeStats(jobs);
   const colors = getThemeColors();
   const p = colors.pipeline;
+
+  // Render Getting Started checklist at top of dashboard
+  const checklistContainer = document.getElementById('dashboardChecklist');
+  if (checklistContainer && !isChecklistDismissed()) {
+    const userName = state.get('settings')?.name || '';
+    checklistContainer.innerHTML = renderChecklistHTML(userName);
+    bindChecklistEvents(checklistContainer, () => {
+      // Re-render dashboard without checklist
+      renderDashboard(container, state);
+    });
+  } else if (checklistContainer) {
+    checklistContainer.innerHTML = '';
+  }
 
   // Pipeline donut chart — theme-aware colors
   const statusLabels = ['Saved', 'Applied', 'Interview', 'Offer', 'Closed'];

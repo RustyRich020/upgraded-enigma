@@ -50,6 +50,7 @@ import { renderNetworking } from './views/networking.js';
 import { renderSalaryTool } from './views/salary-tool.js';
 import { renderWeeklyReport } from './views/weekly-report.js';
 import { initJdStorage } from './components/jd-storage.js';
+import { completeChecklistItem } from './components/getting-started.js';
 
 /* ============================================================
    Job CRUD helpers
@@ -58,6 +59,7 @@ function addJob(j) {
   const jobs = state.get('jobs') || [];
   jobs.push({ id: uid(), title: '', company: '', status: 'Saved', follow: '', salary: '', source: '', url: '', _added: today(), ...j });
   state.set('jobs', jobs);
+  completeChecklistItem('firstJobAdded');
   renderCurrentView();
   toast('Job added', 'success');
 }
@@ -363,6 +365,18 @@ async function boot() {
   // 3. Initialize sidebar + UI components
   initSidebar();
   initJdStorage(state);
+
+  // Collapsible sidebar "More Tools" section
+  const navExpandBtn = document.getElementById('navExpandMore');
+  const navMoreSection = document.getElementById('navMoreSection');
+  const navExpandIcon = document.getElementById('navExpandIcon');
+  if (navExpandBtn && navMoreSection) {
+    navExpandBtn.addEventListener('click', () => {
+      const isOpen = navMoreSection.style.display !== 'none';
+      navMoreSection.style.display = isOpen ? 'none' : 'block';
+      if (navExpandIcon) navExpandIcon.style.transform = isOpen ? '' : 'rotate(90deg)';
+    });
+  }
   initJobForm(job => addJob(job));
   setupImportModal();
 
