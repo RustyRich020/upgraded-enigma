@@ -205,7 +205,9 @@
           <div><label><h4>LOCATION</h4><input id="searchLocation" class="input" placeholder="e.g., Remote, New York"></label></div>
           <div style="display:flex;align-items:flex-end;gap:8px">
             <button class="btn brand" id="searchRemotiveBtn" style="flex:1">REMOTIVE</button>
+            <button class="btn" id="searchArbeitnowBtn" style="flex:1">ARBEITNOW</button>
             <button class="btn blue" id="searchAdzunaBtn" style="flex:1">ADZUNA</button>
+            <button class="btn green" id="searchJSearchBtn" style="flex:1">JSEARCH</button>
           </div>
         </div>
         <div id="searchStatus" class="muted" style="margin-bottom:12px"></div>
@@ -312,19 +314,32 @@
 
       <!-- API SETTINGS -->
       <section id="view-settings" class="panel hidden">
-        <div class="toolbar"><h2>⟨ API SETTINGS ⟩</h2><span class="tag">Configuration</span></div>
+        <div class="toolbar"><h2>⟨ API SETTINGS ⟩</h2><span class="tag">Configuration</span><span class="tag green">13 APIs Available</span></div>
         <div class="grid cols-2">
           <div class="panel">
-            <h3>JOB SEARCH APIs</h3>
-            <label style="display:block;margin:12px 0"><h4><span class="api-status active"></span>REMOTIVE (Free)</h4><div class="muted" style="font-size:11px">Always active — no key needed</div></label>
+            <h3>JOB SEARCH (4 APIs)</h3>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status active"></span>REMOTIVE (Free)</h4><div class="muted" style="font-size:11px">Remote jobs — always active, no key</div></label>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status active"></span>ARBEITNOW (Free)</h4><div class="muted" style="font-size:11px">European + remote jobs — always active, no key — <a href="https://www.arbeitnow.com/blog/job-board-api" target="_blank" rel="noopener" style="color:var(--color-info)">Docs</a></div></label>
             <label style="display:block;margin:12px 0"><h4><span class="api-status" id="adzunaStatus"></span>ADZUNA</h4><input id="apiAdzunaId" class="input" placeholder="App ID" style="margin:4px 0"><input id="apiAdzunaKey" class="input" placeholder="App Key"><div class="muted" style="font-size:11px;margin-top:4px">Free: 250 req/day — <a href="https://developer.adzuna.com/" target="_blank" rel="noopener" style="color:var(--color-info)">Get keys</a></div></label>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="jsearchStatus"></span>JSEARCH (RapidAPI)</h4><input id="apiJSearchKey" class="input" placeholder="RapidAPI Key"><div class="muted" style="font-size:11px;margin-top:4px">Free: 500 req/mo — aggregates LinkedIn, Indeed — <a href="https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch" target="_blank" rel="noopener" style="color:var(--color-info)">Get key</a></div></label>
           </div>
           <div class="panel">
-            <h3>AI / NLP</h3>
+            <h3>AI / NLP (2 APIs)</h3>
             <label style="display:block;margin:12px 0"><h4><span class="api-status" id="geminiStatus"></span>GOOGLE GEMINI</h4><input id="apiGeminiKey" class="input" placeholder="API Key"><div class="muted" style="font-size:11px;margin-top:4px">Free: 15 req/min — <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:var(--color-info)">Get key</a></div></label>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="groqStatus"></span>GROQ (Fast LLM)</h4><input id="apiGroqKey" class="input" placeholder="API Key"><div class="muted" style="font-size:11px;margin-top:4px">Free tier — Llama 3.3 70B — <a href="https://console.groq.com/keys" target="_blank" rel="noopener" style="color:var(--color-info)">Get key</a></div></label>
           </div>
           <div class="panel">
-            <h3>EMAIL / CONTACTS</h3>
+            <h3>COMPANY DATA (2 APIs)</h3>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status active"></span>CLEARBIT LOGOS (Free)</h4><div class="muted" style="font-size:11px">Company logos by domain — always active, no key</div></label>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="abstractStatus"></span>ABSTRACT COMPANY</h4><input id="apiAbstractKey" class="input" placeholder="API Key"><div class="muted" style="font-size:11px;margin-top:4px">Free: 100 req/mo — industry, size, HQ data — <a href="https://www.abstractapi.com/api/company-enrichment" target="_blank" rel="noopener" style="color:var(--color-info)">Get key</a></div></label>
+          </div>
+          <div class="panel">
+            <h3>SALARY DATA (2 APIs)</h3>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status active"></span>BLS (Free)</h4><div class="muted" style="font-size:11px">Bureau of Labor Statistics — national salary benchmarks, no key</div></label>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="careerOneStopStatus"></span>CAREERONESTOP</h4><input id="apiCareerOneStopKey" class="input" placeholder="API Token" style="margin:4px 0"><input id="apiCareerOneStopUser" class="input" placeholder="User ID"><div class="muted" style="font-size:11px;margin-top:4px">Free (gov) — salary by occupation + location — <a href="https://www.careeronestop.org/Developers/WebAPI/registration.aspx" target="_blank" rel="noopener" style="color:var(--color-info)">Register</a></div></label>
+          </div>
+          <div class="panel">
+            <h3>EMAIL / CONTACTS (2 APIs)</h3>
             <label style="display:block;margin:12px 0"><h4><span class="api-status" id="emailjsStatus"></span>EMAILJS</h4>
               <input id="apiEmailjsPublic" class="input" placeholder="Public Key" style="margin:4px 0">
               <input id="apiEmailjsService" class="input" placeholder="Service ID" style="margin:4px 0">
@@ -334,8 +349,8 @@
             <label style="display:block;margin:12px 0"><h4><span class="api-status" id="hunterStatus"></span>HUNTER.IO</h4><input id="apiHunterKey" class="input" placeholder="API Key"><div class="muted" style="font-size:11px;margin-top:4px">Free: 25 verifications/mo — <a href="https://hunter.io/api" target="_blank" rel="noopener" style="color:var(--color-info)">Get key</a></div></label>
           </div>
           <div class="panel">
-            <h3>NOTIFICATIONS</h3>
-            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="ntfyStatus"></span>NTFY.SH (Push)</h4><input id="apiNtfyTopic" class="input" placeholder="Your topic name"><div class="muted" style="font-size:11px;margin-top:4px">Free, no account — <a href="https://ntfy.sh/" target="_blank" rel="noopener" style="color:var(--color-info)">Learn more</a></div></label>
+            <h3>NOTIFICATIONS (2 APIs)</h3>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="ntfyStatus"></span>NTFY.SH (Push)</h4><input id="apiNtfyTopic" class="input" placeholder="Your topic name (e.g., jobgrid-alerts)"><div class="muted" style="font-size:11px;margin-top:4px">Free, no account — <a href="https://ntfy.sh/" target="_blank" rel="noopener" style="color:var(--color-info)">Learn more</a></div></label>
             <label style="display:block;margin:12px 0"><h4><span class="api-status" id="browserNotifStatus"></span>BROWSER NOTIFICATIONS</h4><button class="btn small green" id="requestNotifPerm">GRANT PERMISSION</button></label>
           </div>
         </div>
