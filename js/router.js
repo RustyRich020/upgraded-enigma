@@ -4,7 +4,9 @@
 
 const views = [
   'landing', 'auth', 'profile', 'dashboard', 'tracker', 'search',
-  'ai', 'resume', 'companies', 'contacts', 'insights', 'settings'
+  'ai', 'resume', 'companies', 'contacts', 'insights',
+  'interviews', 'timeline', 'networking', 'salary', 'report',
+  'settings'
 ];
 
 const PUBLIC_ROUTES = new Set(['landing', 'auth']);

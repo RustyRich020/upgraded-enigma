@@ -84,6 +84,14 @@
         <button class="nav-btn" data-view="insights"><span class="nav-icon">◆</span><span class="nav-label">Insights</span></button>
       </div>
       <div class="group">
+        <h4>Advanced Tools</h4>
+        <button class="nav-btn" data-view="interviews"><span class="nav-icon">◆</span><span class="nav-label">Interviews</span></button>
+        <button class="nav-btn" data-view="timeline"><span class="nav-icon">◆</span><span class="nav-label">Timeline</span></button>
+        <button class="nav-btn" data-view="networking"><span class="nav-icon">◆</span><span class="nav-label">Networking</span></button>
+        <button class="nav-btn" data-view="salary"><span class="nav-icon">◆</span><span class="nav-label">Salary Tool</span></button>
+        <button class="nav-btn" data-view="report"><span class="nav-icon">◆</span><span class="nav-label">Weekly Report</span></button>
+      </div>
+      <div class="group">
         <h4>Configuration</h4>
         <button class="nav-btn" data-view="settings"><span class="nav-icon">◆</span><span class="nav-label">API Settings</span></button>
       </div>
@@ -310,6 +318,31 @@
           <div class="panel"><h4>SALARY DISTRIBUTION</h4><canvas id="salaryChart" height="200"></canvas></div>
           <div class="panel"><h4>STATUS TIMELINE</h4><canvas id="timelineChart" height="200"></canvas></div>
         </div>
+      </section>
+
+      <!-- INTERVIEWS -->
+      <section id="view-interviews" class="panel hidden">
+        <div id="interviewsContent"></div>
+      </section>
+
+      <!-- TIMELINE -->
+      <section id="view-timeline" class="panel hidden">
+        <div id="timelineContent"></div>
+      </section>
+
+      <!-- NETWORKING -->
+      <section id="view-networking" class="panel hidden">
+        <div id="networkingContent"></div>
+      </section>
+
+      <!-- SALARY TOOL -->
+      <section id="view-salary" class="panel hidden">
+        <div id="salaryContent"></div>
+      </section>
+
+      <!-- WEEKLY REPORT -->
+      <section id="view-report" class="panel hidden">
+        <div id="reportContent"></div>
       </section>
 
       <!-- API SETTINGS -->

@@ -44,6 +44,12 @@ import { renderCompanies } from './views/companies.js';
 import { renderContacts } from './views/contacts.js';
 import { renderInsights } from './views/insights.js';
 import { renderSettings } from './views/settings.js';
+import { renderInterviews } from './views/interviews.js';
+import { renderTimeline } from './views/timeline.js';
+import { renderNetworking } from './views/networking.js';
+import { renderSalaryTool } from './views/salary-tool.js';
+import { renderWeeklyReport } from './views/weekly-report.js';
+import { initJdStorage } from './components/jd-storage.js';
 
 /* ============================================================
    Job CRUD helpers
@@ -88,7 +94,12 @@ function renderCurrentView() {
     companies: () => renderCompanies(getSection('companies'), state),
     contacts: () => renderContacts(getSection('contacts'), state),
     insights: () => renderInsights(getSection('insights'), state),
-    settings: () => renderSettings(getSection('settings'), null, null, null)
+    settings: () => renderSettings(getSection('settings'), null, null, null),
+    interviews: () => renderInterviews(getSection('interviews'), state),
+    timeline: () => renderTimeline(getSection('timeline'), state),
+    networking: () => renderNetworking(getSection('networking'), state),
+    salary: () => renderSalaryTool(getSection('salary'), state),
+    report: () => renderWeeklyReport(getSection('report'), state)
   };
   if (renderers[view]) {
     try { renderers[view](); } catch (e) { console.error(`Render error (${view}):`, e); }
@@ -340,6 +351,7 @@ async function boot() {
 
   // 3. Initialize sidebar + UI components
   initSidebar();
+  initJdStorage(state);
   initJobForm(job => addJob(job));
   setupImportModal();
 
@@ -386,6 +398,11 @@ async function boot() {
   router.registerView('contacts', () => renderContacts(getSection('contacts'), state));
   router.registerView('insights', () => renderInsights(getSection('insights'), state));
   router.registerView('settings', () => renderSettings(getSection('settings'), null, null, null));
+  router.registerView('interviews', () => renderInterviews(getSection('interviews'), state));
+  router.registerView('timeline', () => renderTimeline(getSection('timeline'), state));
+  router.registerView('networking', () => renderNetworking(getSection('networking'), state));
+  router.registerView('salary', () => renderSalaryTool(getSection('salary'), state));
+  router.registerView('report', () => renderWeeklyReport(getSection('report'), state));
 
   // 8. Set auth guard
   router.setAuthGuard(() => {
