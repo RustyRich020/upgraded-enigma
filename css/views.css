@@ -417,3 +417,99 @@ body.auth-mode .header-actions .user-info { display: none !important; }
   .checklist-header { flex-direction: column; }
   .checklist-item { padding: 6px 8px; }
 }
+
+/* ---- Unified Search Result Cards ---- */
+.search-result-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  transition: border-color var(--transition-fast);
+}
+.search-result-card:hover {
+  border-color: rgba(212,135,77,0.25);
+}
+.src-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.src-card-logo {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-md);
+  object-fit: contain;
+  background: #fff;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.src-card-info { flex: 1; min-width: 0; }
+.src-card-company {
+  font-size: 13px;
+  color: var(--color-text-dim);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.src-card-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-text-heading);
+  margin-bottom: 0;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1.3;
+}
+.src-card-source {
+  font-size: 11px;
+  color: var(--color-muted);
+  background: var(--color-bg);
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.src-card-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+.src-card-detail {
+  font-size: 14px;
+  color: var(--color-text-dim);
+}
+.src-card-salary {
+  font-weight: 600;
+  color: var(--color-success);
+}
+.src-card-desc {
+  font-size: 13px;
+  color: var(--color-muted);
+  line-height: 1.5;
+  margin-bottom: 10px;
+  max-height: 40px;
+  overflow: hidden;
+}
+.src-card-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Search form styling */
+.search-form {
+  background: var(--color-bg-secondary) !important;
+  border-color: var(--color-surface-border) !important;
+}
+
+@media (max-width: 768px) {
+  .src-card-header { flex-wrap: wrap; }
+  .src-card-details { gap: 8px; }
+  .src-card-detail { font-size: 13px; }
+  .src-card-title { font-size: 15px; }
+  .search-result-card { padding: 14px; }
+}

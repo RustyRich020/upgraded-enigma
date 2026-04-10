@@ -1,5 +1,7 @@
 /* ============================================================
-   views/job-search.js — Job search (Remotive + Adzuna)
+   views/job-search.js — Unified Job Search
+   Single "Search All" button, persistent results database,
+   rich result cards, filtering and sorting.
    ============================================================ */
 
 import { escapeHtml } from '../utils.js';
@@ -11,167 +13,253 @@ import { getApi, hasApi } from '../services/api-keys.js';
 import { toast } from '../components/toast.js';
 import { ENDPOINTS } from '../config.js';
 import { checkLimit, recordUsage } from '../services/usage-tracker.js';
-import { showUpgradeBanner, showUsageMeter } from '../components/upgrade-banner.js';
-import { uid, today } from '../utils.js';
+import { showUpgradeBanner } from '../components/upgrade-banner.js';
 import { completeChecklistItem } from '../components/getting-started.js';
+import { uid, today } from '../utils.js';
+
+const SEARCH_DB_KEY = 'tron_search_results';
 
 /**
- * Render the job search view.
- * @param {HTMLElement} container — section element
- * @param {object} state — state store
- * @param {Function} addJob — callback to add a job to tracker
+ * Load persistent search results from localStorage.
+ */
+function loadSearchDB() {
+  try { return JSON.parse(localStorage.getItem(SEARCH_DB_KEY) || '[]'); } catch { return []; }
+}
+
+/**
+ * Save search results to persistent database.
+ */
+function saveSearchDB(results) {
+  // Cap at 500 results to prevent localStorage overflow
+  const capped = results.slice(0, 500);
+  localStorage.setItem(SEARCH_DB_KEY, JSON.stringify(capped));
+}
+
+/**
+ * Render the unified job search view.
  */
 export function renderJobSearch(container, state, addJob) {
-  const searchBtn = container.querySelector('#searchRemotiveBtn');
-  const arbeitnowBtn = container.querySelector('#searchArbeitnowBtn');
-  const adzunaBtn = container.querySelector('#searchAdzunaBtn');
-  const jsearchBtn = container.querySelector('#searchJSearchBtn');
   const statusEl = container.querySelector('#searchStatus');
   const resultsEl = container.querySelector('#searchResults');
 
-  if (searchBtn) {
-    searchBtn.onclick = async () => {
-      const { allowed } = checkLimit('remotive');
-      if (!allowed) { showUpgradeBanner(container, 'remotive'); return; }
+  // Pre-fill from saved search preferences
+  const settings = state.get('settings') || {};
+  const keywordInput = container.querySelector('#searchKeyword');
+  const locationInput = container.querySelector('#searchLocation');
+  if (keywordInput && !keywordInput.value && settings.searchKeywords) keywordInput.value = settings.searchKeywords;
+  if (locationInput && !locationInput.value && settings.searchLocation) locationInput.value = settings.searchLocation;
+  const filterBar = container.querySelector('#searchFilterBar');
+  const sourceFilter = container.querySelector('#searchSourceFilter');
+  const sortBy = container.querySelector('#searchSortBy');
+  const resultCount = container.querySelector('#searchResultCount');
+  const searchAllBtn = container.querySelector('#searchAllBtn');
 
-      const keyword = (container.querySelector('#searchKeyword')?.value || '').trim();
-      if (statusEl) statusEl.innerHTML = '<span class="spinner"></span> Searching Remotive...';
-      if (resultsEl) resultsEl.innerHTML = '';
-
-      try {
-        const jobs = await searchRemotive(keyword);
-        recordUsage('remotive');
-        completeChecklistItem('firstSearch');
-        const shown = jobs.slice(0, 20);
-        if (statusEl) statusEl.textContent = `Found ${jobs.length} remote jobs (showing ${shown.length})`;
-        if (resultsEl) resultsEl.innerHTML = renderResults(shown, addJob);
-        bindAddButtons(resultsEl, addJob);
-      } catch (err) {
-        if (statusEl) statusEl.textContent = 'Error: ' + err.message;
-        toast('Remotive search failed: ' + err.message, 'error');
-      }
-    };
+  // Load persisted results on render
+  let allResults = loadSearchDB();
+  if (allResults.length > 0) {
+    try {
+      displayResults(allResults, null, null, null, addJob, '', 'date');
+    } catch (e) {
+      console.error('displayResults init error:', e);
+    }
   }
 
-  // Arbeitnow — free, no key
-  if (arbeitnowBtn) {
-    arbeitnowBtn.onclick = async () => {
-      const { allowed } = checkLimit('arbeitnow');
-      if (!allowed) { showUpgradeBanner(container, 'arbeitnow'); return; }
-
+  // Unified Search All button
+  if (searchAllBtn) {
+    searchAllBtn.onclick = async () => {
       const keyword = (container.querySelector('#searchKeyword')?.value || '').trim();
-      if (statusEl) statusEl.innerHTML = '<span class="spinner"></span> Searching Arbeitnow...';
-      if (resultsEl) resultsEl.innerHTML = '';
-      try {
-        const jobs = await searchArbeitnow(keyword);
-        recordUsage('arbeitnow');
-        if (statusEl) statusEl.textContent = `Found ${jobs.length} European/remote jobs`;
-        if (resultsEl) resultsEl.innerHTML = renderResults(jobs);
-        bindAddButtons(resultsEl, addJob);
-      } catch (err) {
-        if (statusEl) statusEl.textContent = 'Error: ' + err.message;
-        toast('Arbeitnow search failed: ' + err.message, 'error');
-      }
-    };
-  }
-
-  // JSearch — requires RapidAPI key
-  if (jsearchBtn) {
-    jsearchBtn.onclick = async () => {
-      const { allowed: jsAllowed } = checkLimit('jsearch');
-      if (!jsAllowed) { showUpgradeBanner(container, 'jsearch'); return; }
-      if (!hasApi('jsearchKey')) {
-        toast('Configure JSearch RapidAPI key in Settings first', 'error');
-        return;
-      }
-      const keyword = (container.querySelector('#searchKeyword')?.value || '').trim() || 'developer';
       const location = (container.querySelector('#searchLocation')?.value || '').trim();
-      const query = location ? `${keyword} in ${location}` : keyword;
-      if (statusEl) statusEl.innerHTML = '<span class="spinner"></span> Searching JSearch (LinkedIn, Indeed)...';
+      const minSalary = parseInt(container.querySelector('#searchMinSalary')?.value) || 0;
+      const remoteFilter = container.querySelector('#searchRemoteFilter')?.value || '';
+
+      if (!keyword) { toast('Enter keywords to search', 'error'); return; }
+
+      searchAllBtn.disabled = true;
+      searchAllBtn.innerHTML = '<span class="spinner"></span> Searching...';
+      if (statusEl) statusEl.innerHTML = '<span class="spinner"></span> Searching across all sources...';
       if (resultsEl) resultsEl.innerHTML = '';
-      try {
-        const jobs = await searchJSearch(query, getApi('jsearchKey'));
-        recordUsage('jsearch');
-        if (statusEl) statusEl.textContent = `Found ${jobs.length} jobs from LinkedIn, Indeed, etc.`;
-        if (resultsEl) resultsEl.innerHTML = renderResults(jobs);
-        bindAddButtons(resultsEl, addJob);
-        toast(`JSearch: ${jobs.length} jobs found`, 'success');
-      } catch (err) {
-        if (statusEl) statusEl.textContent = 'Error: ' + err.message;
-        toast('JSearch failed: ' + err.message, 'error');
+
+      const collected = [];
+      const sources = { Remotive: 0, Arbeitnow: 0, Adzuna: 0, JSearch: 0 };
+      const errors = [];
+
+      // 1. Remotive (free)
+      if (checkLimit('remotive').allowed) {
+        try {
+          const jobs = await searchRemotive(keyword);
+          recordUsage('remotive');
+          sources.Remotive = jobs.length;
+          collected.push(...jobs);
+          updateStatus(statusEl, collected.length, sources);
+        } catch (e) { errors.push('Remotive: ' + e.message); }
       }
+
+      // 2. Arbeitnow (free)
+      if (checkLimit('arbeitnow').allowed) {
+        try {
+          const jobs = await searchArbeitnow(keyword);
+          recordUsage('arbeitnow');
+          sources.Arbeitnow = jobs.length;
+          collected.push(...jobs);
+          updateStatus(statusEl, collected.length, sources);
+        } catch (e) { errors.push('Arbeitnow: ' + e.message); }
+      }
+
+      // 3. Adzuna (keyed)
+      if (hasApi('adzunaId') && hasApi('adzunaKey') && checkLimit('adzuna').allowed) {
+        try {
+          const jobs = await searchAdzuna(keyword, location || 'us', getApi('adzunaId'), getApi('adzunaKey'));
+          recordUsage('adzuna');
+          sources.Adzuna = jobs.length;
+          collected.push(...jobs);
+          updateStatus(statusEl, collected.length, sources);
+        } catch (e) { errors.push('Adzuna: ' + e.message); }
+      }
+
+      // 4. JSearch (keyed)
+      if (hasApi('jsearchKey') && checkLimit('jsearch').allowed) {
+        try {
+          const query = location ? `${keyword} in ${location}` : keyword;
+          const jobs = await searchJSearch(query, getApi('jsearchKey'));
+          recordUsage('jsearch');
+          sources.JSearch = jobs.length;
+          collected.push(...jobs);
+          updateStatus(statusEl, collected.length, sources);
+        } catch (e) { errors.push('JSearch: ' + e.message); }
+      }
+
+      // Deduplicate
+      const seen = new Set();
+      const unique = [];
+      for (const job of collected) {
+        const key = `${(job.title || '').toLowerCase().trim()}|${(job.company || '').toLowerCase().trim()}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        // Apply filters
+        if (minSalary > 0 && job.salary) {
+          const salNum = parseInt((job.salary || '').replace(/[^0-9]/g, ''));
+          if (salNum > 0 && salNum < minSalary) continue;
+        }
+        if (remoteFilter === 'remote' && !job.remote && !(job.location || '').toLowerCase().includes('remote')) continue;
+        unique.push({ ...job, _searchedAt: new Date().toISOString(), _keyword: keyword });
+      }
+
+      // Merge with existing DB (prepend new, dedup against old)
+      const existingDB = loadSearchDB();
+      const existingKeys = new Set(existingDB.map(j => `${(j.title||'').toLowerCase()}|${(j.company||'').toLowerCase()}`));
+      const newOnly = unique.filter(j => !existingKeys.has(`${(j.title||'').toLowerCase()}|${(j.company||'').toLowerCase()}`));
+      allResults = [...newOnly, ...existingDB];
+      saveSearchDB(allResults);
+
+      // Final status
+      const sourceStr = Object.entries(sources).filter(([_, v]) => v > 0).map(([k, v]) => `${k}: ${v}`).join(' · ');
+      if (statusEl) {
+        statusEl.innerHTML = `<strong>${unique.length} results</strong> from ${sourceStr} · ${collected.length - unique.length} duplicates removed` +
+          (newOnly.length < unique.length ? ` · ${unique.length - newOnly.length} already in database` : '') +
+          (errors.length > 0 ? `<br><span style="color:var(--color-warning);font-size:12px;">${errors.join(', ')}</span>` : '');
+      }
+
+      completeChecklistItem('firstSearch');
+      displayResults(allResults, null, null, null, addJob, sourceFilter?.value, sortBy?.value);
+
+      searchAllBtn.disabled = false;
+      searchAllBtn.innerHTML = 'SEARCH ALL SOURCES';
+      toast(`Found ${unique.length} jobs across ${Object.values(sources).filter(v => v > 0).length} sources`, 'success');
     };
   }
 
-  if (adzunaBtn) {
-    adzunaBtn.onclick = async () => {
-      const { allowed: azAllowed } = checkLimit('adzuna');
-      if (!azAllowed) { showUpgradeBanner(container, 'adzuna'); return; }
-      if (!hasApi('adzunaId') || !hasApi('adzunaKey')) {
-        toast('Configure Adzuna API keys in Settings first', 'error');
-        return;
-      }
-      const keyword = (container.querySelector('#searchKeyword')?.value || '').trim() || 'developer';
-      const location = (container.querySelector('#searchLocation')?.value || '').trim() || 'us';
-      if (statusEl) statusEl.innerHTML = '<span class="spinner"></span> Searching Adzuna...';
-      if (resultsEl) resultsEl.innerHTML = '';
-
-      try {
-        const jobs = await searchAdzuna(keyword, location, getApi('adzunaId'), getApi('adzunaKey'));
-        recordUsage('adzuna');
-        const shown = jobs.slice(0, 20);
-        if (statusEl) statusEl.textContent = `Found ${jobs[0]?.totalResults || jobs.length} jobs (showing ${shown.length})`;
-        if (resultsEl) resultsEl.innerHTML = renderResults(shown, addJob);
-        bindAddButtons(resultsEl, addJob);
-        toast(`Adzuna: ${jobs[0]?.totalResults || jobs.length} jobs found`, 'success');
-      } catch (err) {
-        if (statusEl) statusEl.textContent = 'Error: ' + err.message;
-        toast('Adzuna search failed: ' + err.message, 'error');
-      }
-    };
+  // Filter/Sort handlers
+  if (sourceFilter) {
+    sourceFilter.onchange = () => displayResults(allResults, resultsEl, filterBar, resultCount, addJob, sourceFilter.value, sortBy?.value);
+  }
+  if (sortBy) {
+    sortBy.onchange = () => displayResults(allResults, resultsEl, filterBar, resultCount, addJob, sourceFilter?.value, sortBy.value);
   }
 }
 
-function renderResults(jobs) {
-  if (!jobs.length) {
-    return '<div class="muted" style="padding:20px;text-align:center">No results found</div>';
+function updateStatus(el, count, sources) {
+  if (!el) return;
+  const active = Object.entries(sources).filter(([_, v]) => v > 0).map(([k, v]) => `${k}: ${v}`).join(' · ');
+  el.innerHTML = `<span class="spinner" style="margin-right:6px;"></span> ${count} results so far... ${active}`;
+}
+
+function displayResults(allResults, resultsEl, filterBar, resultCount, addJob, sourceFilterVal, sortVal) {
+  // Re-query in case references are stale
+  if (!resultsEl) resultsEl = document.getElementById('searchResults');
+  if (!filterBar) filterBar = document.getElementById('searchFilterBar');
+  if (!resultCount) resultCount = document.getElementById('searchResultCount');
+  if (!resultsEl) return;
+
+  let filtered = [...allResults];
+
+  // Apply source filter
+  if (sourceFilterVal) {
+    filtered = filtered.filter(j => j.source === sourceFilterVal);
   }
 
-  return jobs.map((j, i) => {
-    const domain = j.domain || (j.company || '').toLowerCase().replace(/[^a-z0-9]/g, '') + '.com';
+  // Apply sort
+  if (sortVal === 'salary') {
+    filtered.sort((a, b) => {
+      const sa = parseInt((a.salary || '').replace(/[^0-9]/g, '')) || 0;
+      const sb = parseInt((b.salary || '').replace(/[^0-9]/g, '')) || 0;
+      return sb - sa;
+    });
+  } else if (sortVal === 'source') {
+    filtered.sort((a, b) => (a.source || '').localeCompare(b.source || ''));
+  } else {
+    filtered.sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+  }
+
+  // Show filter bar
+  if (filterBar) filterBar.style.display = allResults.length > 0 ? 'flex' : 'none';
+  if (resultCount) resultCount.textContent = `${filtered.length} of ${allResults.length} results`;
+
+  if (filtered.length === 0) {
+    resultsEl.innerHTML = allResults.length === 0
+      ? '<div style="text-align:center;padding:40px;color:var(--color-muted);">Enter keywords and click Search All Sources to find jobs.</div>'
+      : '<div style="text-align:center;padding:40px;color:var(--color-muted);">No results match this filter.</div>';
+    return;
+  }
+
+  // Render rich result cards (max 50 visible)
+  resultsEl.innerHTML = filtered.slice(0, 50).map((j, i) => {
+    const domain = (j.company || '').toLowerCase().replace(/[^a-z0-9]/g, '') + '.com';
+    const salaryDisplay = j.salary ? formatSalary(j.salary) : '';
+
     return `
-      <div class="search-result">
-        <div class="company-row">
-          <img class="company-logo" src="${ENDPOINTS.clearbitLogo}/${domain}" onerror="this.style.display='none'" alt="">
-          <span class="muted">${escapeHtml(j.company)}</span>
-          ${j.type ? `<span class="chip">${escapeHtml(j.type)}</span>` : ''}
+      <div class="search-result-card" data-idx="${i}">
+        <div class="src-card-header">
+          <img class="src-card-logo" src="${ENDPOINTS.clearbitLogo}/${domain}" onerror="this.style.display='none'" alt="">
+          <div class="src-card-info">
+            <div class="src-card-company">${escapeHtml(j.company || 'Unknown Company')}</div>
+            <h3 class="src-card-title">${escapeHtml(j.title || 'Untitled Position')}</h3>
+          </div>
+          <span class="src-card-source">${escapeHtml(j.source || '')}</span>
         </div>
-        <h4>${escapeHtml(j.title)}</h4>
-        <div class="meta">
-          <span>${escapeHtml(j.location || 'Remote')}</span>
-          <span>${escapeHtml(j.date || '')}</span>
-          ${j.category ? `<span>${escapeHtml(j.category)}</span>` : ''}
-          ${j.salary ? `<span>${escapeHtml(j.salary)}</span>` : ''}
+        <div class="src-card-details">
+          ${j.location ? `<span class="src-card-detail">📍 ${escapeHtml(String(j.location))}</span>` : ''}
+          ${j.date ? `<span class="src-card-detail">📅 ${escapeHtml(String(j.date).slice(0, 10))}</span>` : ''}
+          ${salaryDisplay ? `<span class="src-card-detail src-card-salary">💰 ${salaryDisplay}</span>` : ''}
+          ${j.remote ? `<span class="src-card-detail" style="color:var(--color-accent)">🏠 Remote</span>` : ''}
         </div>
-        <div style="margin-top:10px;display:flex;gap:8px">
-          <button class="btn small brand search-add-btn"
-            data-title="${escapeHtml(j.title)}"
-            data-company="${escapeHtml(j.company)}"
-            data-url="${escapeHtml(j.url)}"
-            data-source="${escapeHtml(j.source)}"
-            data-salary="${escapeHtml(j.salary ? j.salary.replace(/[^0-9]/g, '') : '')}">
-            + ADD TO TRACKER
+        ${j.description ? `<p class="src-card-desc">${escapeHtml(String(j.description))}</p>` : ''}
+        <div class="src-card-actions">
+          <button class="btn brand small search-add-btn"
+            data-title="${escapeHtml(String(j.title || ''))}"
+            data-company="${escapeHtml(String(j.company || ''))}"
+            data-url="${escapeHtml(String(j.url || ''))}"
+            data-source="${escapeHtml(String(j.source || ''))}"
+            data-salary="${escapeHtml(String(j.salary || '').toString().replace(/[^0-9]/g, ''))}">
+            + Add to Tracker
           </button>
-          ${j.url ? `<a href="${escapeHtml(j.url)}" target="_blank" class="btn small ghost">VIEW</a>` : ''}
+          ${j.url ? `<a href="${escapeHtml(j.url)}" target="_blank" rel="noopener" class="btn small ghost">View Posting</a>` : ''}
         </div>
       </div>
     `;
   }).join('');
-}
 
-function bindAddButtons(container, addJob) {
-  if (!container) return;
-  container.querySelectorAll('.search-add-btn').forEach(btn => {
+  // Bind add buttons
+  resultsEl.querySelectorAll('.search-add-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       addJob({
         title: btn.dataset.title || '',
@@ -184,9 +272,17 @@ function bindAddButtons(container, addJob) {
       });
       toast(`Added "${btn.dataset.title}" to tracker`, 'success');
       btn.disabled = true;
-      btn.textContent = 'ADDED';
+      btn.textContent = 'Added ✓';
     });
   });
+}
+
+function formatSalary(sal) {
+  const s = (sal || '').toString();
+  const num = parseInt(s.replace(/[^0-9]/g, ''));
+  if (!num || num < 100) return s;
+  if (num > 1000000) return '$' + Math.round(num / 1000).toLocaleString(); // Fix Adzuna inflated salaries
+  return '$' + num.toLocaleString();
 }
 
 export default { renderJobSearch };

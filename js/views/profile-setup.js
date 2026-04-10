@@ -58,6 +58,14 @@ export function renderProfileSetup(container, state, onComplete) {
           </div>
         </div>
 
+        <div style="border-top:1px solid var(--color-surface-border);padding-top:14px;margin-bottom:14px;">
+          <h4>JOB SEARCH PREFERENCES</h4>
+          <div class="grid cols-2" style="gap:10px;margin-top:6px;">
+            <input id="setupSearchKeywords" class="input" placeholder="Keywords (e.g., Security Analyst, SQL)" style="font-size:14px;">
+            <input id="setupSearchLocation" class="input" placeholder="Location (e.g., Jacksonville FL)" style="font-size:14px;">
+          </div>
+        </div>
+
         <label style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--color-primary-subtle);border:1px solid var(--color-surface-border);border-radius:var(--radius-md);cursor:pointer;margin-bottom:8px;">
           <input type="checkbox" id="setupDemoData" checked style="width:18px;height:18px;accent-color:var(--color-primary);flex-shrink:0;">
           <div>
@@ -96,11 +104,15 @@ export function renderProfileSetup(container, state, onComplete) {
     const role = container.querySelector('#setupRole')?.value || 'Candidate';
     const loadDemo = container.querySelector('#setupDemoData')?.checked ?? true;
     const theme = document.body.getAttribute('data-theme') || 'tron';
+    const searchKeywords = container.querySelector('#setupSearchKeywords')?.value?.trim() || '';
+    const searchLocation = container.querySelector('#setupSearchLocation')?.value?.trim() || '';
 
     // Save to state
     const settings = state.get('settings') || {};
     settings.name = name;
     settings.role = role;
+    settings.searchKeywords = searchKeywords;
+    settings.searchLocation = searchLocation;
     state.set('settings', settings);
     state.set('role', role);
 
