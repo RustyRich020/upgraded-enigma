@@ -24,7 +24,7 @@ import { scheduleChecks } from './services/notifications.js';
 
 // Components
 import { toast } from './components/toast.js';
-import { initTheme } from './components/theme-toggle.js';
+import { initTheme, toggleTheme, getCurrentTheme } from './components/theme-toggle.js';
 import { initSidebar } from './components/sidebar.js';
 import { initJobForm } from './components/job-form.js';
 import { showModal, hideModal } from './components/modal.js';
@@ -312,8 +312,21 @@ function setupUpgradeButton() {
    Boot sequence
    ============================================================ */
 async function boot() {
-  // 1. Initialize theme
+  // 1. Initialize theme + wire toggle button
   initTheme();
+  const themeBtn = document.getElementById('themeToggle');
+  if (themeBtn) {
+    function updateThemeIcon() {
+      themeBtn.textContent = getCurrentTheme() === 'light' ? '🌙' : '☀';
+    }
+    updateThemeIcon();
+    themeBtn.addEventListener('click', () => {
+      toggleTheme();
+      updateThemeIcon();
+      // Re-render current view to update chart colors
+      renderCurrentView();
+    });
+  }
 
   // 2. Try Firebase init (but do NOT auto sign-in)
   let firebaseReady = false;
