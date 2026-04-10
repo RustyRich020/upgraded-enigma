@@ -7,6 +7,8 @@ import { callGemini } from '../services/ai-gemini.js';
 import { getApi, hasApi } from '../services/api-keys.js';
 import { toast } from '../components/toast.js';
 import { download } from '../utils.js';
+import { checkLimit, recordUsage } from '../services/usage-tracker.js';
+import { showUpgradeBanner } from '../components/upgrade-banner.js';
 
 /**
  * Render the AI tools view.
@@ -55,6 +57,8 @@ export function renderAiTools(container, state, addJob) {
   const analyzeAiBtn = container.querySelector('#analyzeAiBtn');
   if (analyzeAiBtn) {
     analyzeAiBtn.onclick = async () => {
+      const { allowed } = checkLimit('gemini');
+      if (!allowed) { showUpgradeBanner(container, 'gemini'); return; }
       const jdText = (container.querySelector('#jdText')?.value || '').trim();
       const resumeText = (container.querySelector('#resumeText')?.value || '').trim();
       if (!jdText || !resumeText) { toast('Paste both JD and Resume first', 'error'); return; }
@@ -80,6 +84,7 @@ Provide:
 Format your response clearly with headers.`;
 
         const result = await callGemini(prompt, getApi('geminiKey'));
+        recordUsage('gemini');
         const aiResult = container.querySelector('#aiMatchResult');
         const aiContent = container.querySelector('#aiMatchContent');
         if (aiResult) aiResult.style.display = 'block';
@@ -123,6 +128,8 @@ Format your response clearly with headers.`;
   const draftAiBtn = container.querySelector('#draftCoverLetterAi');
   if (draftAiBtn) {
     draftAiBtn.onclick = async () => {
+      const { allowed } = checkLimit('gemini');
+      if (!allowed) { showUpgradeBanner(container, 'gemini'); return; }
       const jdText = (container.querySelector('#jdText')?.value || '').trim();
       const resumeText = (container.querySelector('#resumeText')?.value || '').trim();
       if (!jdText) { toast('Paste a Job Description first', 'error'); return; }
@@ -145,6 +152,7 @@ Write a 3-4 paragraph cover letter that:
 Keep it under 300 words. Professional but personable tone.`;
 
         const result = await callGemini(prompt, getApi('geminiKey'));
+        recordUsage('gemini');
         const coverOut = container.querySelector('#coverOut');
         if (coverOut) coverOut.value = result;
         const dlLink = container.querySelector('#dlCover');
