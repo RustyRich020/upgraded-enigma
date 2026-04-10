@@ -61,10 +61,15 @@
       <select id="roleSelect" class="role-sel">
         <option>Candidate</option><option>Manager</option><option>Executive</option><option>Auditor</option>
       </select>
-      <button class="btn small" id="seedBtn">SEED</button>
-      <button class="btn small" id="exportBtn">EXPORT</button>
-      <button class="btn small" id="importJobsBtn">IMPORT</button>
       <button class="btn small brand" id="addJobBtn">+ JOB</button>
+      <div class="header-overflow">
+        <button class="btn small" id="headerOverflowBtn" aria-label="More actions" style="font-size:16px;padding:6px 10px">···</button>
+        <div class="header-overflow-menu" id="headerOverflowMenu">
+          <button class="overflow-item" id="seedBtn">Load Sample Data</button>
+          <button class="overflow-item" id="exportBtn">Export CSV</button>
+          <button class="overflow-item" id="importJobsBtn">Import Jobs</button>
+        </div>
+      </div>
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">☀</button>
     </div>
   </header>
@@ -212,10 +217,10 @@
           <div><label><h4>KEYWORDS</h4><input id="searchKeyword" class="input" placeholder="e.g., Data Analyst, Python"></label></div>
           <div><label><h4>LOCATION</h4><input id="searchLocation" class="input" placeholder="e.g., Remote, New York"></label></div>
           <div style="display:flex;align-items:flex-end;gap:6px;flex-wrap:wrap">
-            <button class="btn brand small" id="searchRemotiveBtn" style="flex:1 1 auto;min-width:80px">REMOTIVE</button>
+            <button class="btn small" id="searchRemotiveBtn" style="flex:1 1 auto;min-width:80px">REMOTIVE</button>
             <button class="btn small" id="searchArbeitnowBtn" style="flex:1 1 auto;min-width:80px">ARBEITNOW</button>
-            <button class="btn blue small" id="searchAdzunaBtn" style="flex:1 1 auto;min-width:80px">ADZUNA</button>
-            <button class="btn green small" id="searchJSearchBtn" style="flex:1 1 auto;min-width:80px">JSEARCH</button>
+            <button class="btn small" id="searchAdzunaBtn" style="flex:1 1 auto;min-width:80px">ADZUNA</button>
+            <button class="btn small" id="searchJSearchBtn" style="flex:1 1 auto;min-width:80px">JSEARCH</button>
           </div>
         </div>
         <div id="searchStatus" class="muted" style="margin-bottom:12px"></div>

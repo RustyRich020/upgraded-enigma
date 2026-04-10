@@ -38,23 +38,28 @@ function computeStats(jobs) {
  * @param {object} state — state store
  */
 export function renderDashboard(container, state) {
-  const jobs = state.get('jobs') || [];
+  // Filter out _meta docs from Firestore
+  const jobs = (state.get('jobs') || []).filter(j => j.id && j.id !== '_meta' && j.title);
   const { byStatus, bySource, upcoming } = computeStats(jobs);
   const colors = getThemeColors();
+  const p = colors.pipeline;
 
-  // Pipeline donut chart
+  // Pipeline donut chart — theme-aware colors
+  const statusLabels = ['Saved', 'Applied', 'Interview', 'Offer', 'Closed'];
+  const statusData = statusLabels.map(s => byStatus[s] || 0);
+  const statusColors = statusLabels.map(s => p[s]);
   makeChart('pipelineChart', {
     type: 'doughnut',
     data: {
-      labels: Object.keys(byStatus),
+      labels: statusLabels,
       datasets: [{
-        data: Object.values(byStatus),
-        backgroundColor: ['#ff0000', '#ff3333', '#ff6600', '#00ff41', '#555'],
-        borderColor: '#000',
+        data: statusData,
+        backgroundColor: statusColors,
+        borderColor: colors.bg,
         borderWidth: 2
       }]
     },
-    options: { plugins: { legend: { position: 'bottom', labels: { padding: 10 } } } }
+    options: { plugins: { legend: { position: 'bottom', labels: { padding: 10, usePointStyle: true, pointStyle: 'circle' } } } }
   });
 
   // Source bar chart
@@ -67,8 +72,8 @@ export function renderDashboard(container, state) {
       datasets: [{
         label: 'Jobs',
         data: srcData,
-        backgroundColor: 'rgba(255,0,0,0.6)',
-        borderColor: '#ff0000',
+        backgroundColor: colors.primaryDim.replace('0.1', '0.5'),
+        borderColor: colors.primary,
         borderWidth: 1
       }]
     },
@@ -86,12 +91,12 @@ export function renderDashboard(container, state) {
   const upcomingEl = document.getElementById('upcomingList');
   if (upcomingEl) {
     upcomingEl.innerHTML = upcoming.map(j => `
-      <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0;padding:8px;background:var(--orange-dim);border:1px solid var(--orange);border-radius:4px;">
-        <div>
-          <strong style="color:var(--orange-bright)">${escapeHtml(j.title)}</strong>
-          <span class="muted">@ ${escapeHtml(j.company)}</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:6px 0;padding:8px 10px;background:var(--color-primary-subtle);border:1px solid var(--color-surface-border);border-radius:var(--radius-md);gap:8px;">
+        <div style="min-width:0;">
+          <strong style="color:var(--color-text-heading);font-size:var(--text-sm)">${escapeHtml(j.title)}</strong>
+          <span class="muted"> @ ${escapeHtml(j.company)}</span>
         </div>
-        <span class="chip">${fmtDate(j.follow)}</span>
+        <span class="chip" style="flex-shrink:0">${fmtDate(j.follow)}</span>
       </div>
     `).join('') || '<div class="muted" style="padding:20px;text-align:center">No upcoming follow-ups</div>';
   }
@@ -113,8 +118,8 @@ export function renderDashboard(container, state) {
       datasets: [{
         label: 'Activity',
         data: dailyCounts,
-        borderColor: '#ff0000',
-        backgroundColor: 'rgba(255,0,0,0.1)',
+        borderColor: colors.accent,
+        backgroundColor: colors.accentDim,
         fill: true,
         tension: 0.4
       }]

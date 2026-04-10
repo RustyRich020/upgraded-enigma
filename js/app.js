@@ -339,6 +339,17 @@ async function boot() {
     });
   }
 
+  // Header overflow menu toggle
+  const overflowBtn = document.getElementById('headerOverflowBtn');
+  const overflowMenu = document.getElementById('headerOverflowMenu');
+  if (overflowBtn && overflowMenu) {
+    overflowBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      overflowMenu.classList.toggle('show');
+    });
+    document.addEventListener('click', () => overflowMenu.classList.remove('show'));
+  }
+
   // 2. Try Firebase init (but do NOT auto sign-in)
   let firebaseReady = false;
   if (FEATURES.firebase) {

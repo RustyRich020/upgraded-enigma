@@ -1,47 +1,53 @@
 /* ============================================================
-   components/charts.js — Chart.js factory and management
+   components/charts.js — Chart.js factory with theme-aware colors
    ============================================================ */
 
 const chartInstances = {};
 
 /**
- * Get theme-aware colors from CSS variables or defaults.
+ * Get theme-aware colors from CSS variables.
  */
 export function getThemeColors() {
   const style = getComputedStyle(document.body);
+  const get = (prop, fallback) => style.getPropertyValue(prop).trim() || fallback;
+
   return {
-    red: style.getPropertyValue('--orange').trim() || '#ff0000',
-    redDim: 'rgba(255,0,0,0.3)',
-    green: style.getPropertyValue('--green').trim() || '#00ff41',
-    greenDim: 'rgba(0,255,65,0.3)',
-    blue: style.getPropertyValue('--blue').trim() || '#00bfff',
-    blueDim: 'rgba(0,191,255,0.3)',
-    orange: '#ff6600',
-    orangeDim: 'rgba(255,102,0,0.3)',
-    purple: '#bf00ff',
-    purpleDim: 'rgba(191,0,255,0.3)',
-    muted: style.getPropertyValue('--muted').trim() || '#808080',
-    text: style.getPropertyValue('--white-dim').trim() || '#e0e0e0',
-    gridColor: style.getPropertyValue('--grid').trim() || '#330000',
-    bg: 'rgba(0,0,0,0)'
+    primary: get('--color-primary', '#ff1a1a'),
+    primaryBright: get('--color-primary-bright', '#ff4040'),
+    primaryDim: get('--color-primary-dim', 'rgba(255,26,26,0.1)'),
+    accent: get('--color-accent', '#00e5ff'),
+    accentDim: get('--color-accent-dim', 'rgba(0,229,255,0.1)'),
+    success: get('--color-success', '#00ff6a'),
+    successDim: get('--color-success-dim', 'rgba(0,255,106,0.1)'),
+    warning: get('--color-warning', '#ff9500'),
+    warningDim: get('--color-warning-dim', 'rgba(255,149,0,0.1)'),
+    info: get('--color-info', '#3b82f6'),
+    infoDim: get('--color-info-dim', 'rgba(59,130,246,0.1)'),
+    danger: get('--color-danger', '#ff3b3b'),
+    muted: get('--color-muted', '#5a5f72'),
+    text: get('--color-text-dim', '#9da3b0'),
+    textHeading: get('--color-text-heading', '#ffffff'),
+    gridColor: get('--color-surface-border', '#1c1d2a'),
+    surface: get('--color-surface', '#0f1018'),
+    bg: get('--color-bg', '#050508'),
+    // Pipeline-specific palette
+    pipeline: {
+      Saved: get('--color-primary', '#ff1a1a'),
+      Applied: get('--color-warning', '#ff9500'),
+      Interview: get('--color-accent', '#00e5ff'),
+      Offer: get('--color-success', '#00ff6a'),
+      Closed: get('--color-muted', '#5a5f72'),
+    }
   };
 }
 
 /**
  * Create or recreate a Chart.js chart on a canvas element.
- * Destroys any existing chart on the same canvas first.
- * @param {string} canvasId — the canvas element's ID
- * @param {object} config — Chart.js configuration object
- * @returns {Chart|null} the Chart instance, or null if canvas not found
  */
 export function makeChart(canvasId, config) {
   const Chart = window.Chart;
-  if (!Chart) {
-    console.warn('Chart.js not loaded');
-    return null;
-  }
+  if (!Chart) { console.warn('Chart.js not loaded'); return null; }
 
-  // Destroy existing chart on this canvas
   if (chartInstances[canvasId]) {
     chartInstances[canvasId].destroy();
     delete chartInstances[canvasId];
@@ -49,14 +55,14 @@ export function makeChart(canvasId, config) {
 
   const canvas = document.getElementById(canvasId);
   if (!canvas) return null;
-
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
-  // Apply default theme styles
-  Chart.defaults.color = '#e0e0e0';
-  Chart.defaults.font.family = 'Orbitron, sans-serif';
-  Chart.defaults.font.size = 11;
+  const colors = getThemeColors();
+  Chart.defaults.color = colors.text;
+  Chart.defaults.font.family = "'Rajdhani', system-ui, sans-serif";
+  Chart.defaults.font.size = 12;
+  Chart.defaults.font.weight = 600;
 
   chartInstances[canvasId] = new Chart(ctx, config);
   return chartInstances[canvasId];
@@ -64,7 +70,6 @@ export function makeChart(canvasId, config) {
 
 /**
  * Destroy a chart by its canvas ID.
- * @param {string} canvasId — the canvas element's ID
  */
 export function destroyChart(canvasId) {
   if (chartInstances[canvasId]) {
