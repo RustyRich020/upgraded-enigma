@@ -84,7 +84,7 @@ export function renderProfileSetup(container, state, onComplete) {
 
     container.querySelector('#wizardBack')?.addEventListener('click', () => { step--; render(); });
     container.querySelector('#wizardNext')?.addEventListener('click', () => { step++; render(); });
-    container.querySelector('#wizardFinish')?.addEventListener('click', () => {
+    container.querySelector('#wizardFinish')?.addEventListener('click', async () => {
       // Save wizard data to state
       const settings = state.get('settings') || {};
       settings.name = wizard.name;
