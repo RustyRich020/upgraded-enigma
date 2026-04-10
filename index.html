@@ -87,15 +87,15 @@
     <nav id="sidebar">
       <div class="group">
         <h4>Primary Systems</h4>
-        <button class="nav-btn" data-view="dashboard"><span class="nav-icon">◆</span><span class="nav-label">Dashboard</span></button>
-        <button class="nav-btn" data-view="tracker"><span class="nav-icon">◆</span><span class="nav-label">Tracker</span></button>
-        <button class="nav-btn" data-view="search"><span class="nav-icon">◆</span><span class="nav-label">Job Search</span></button>
-        <button class="nav-btn" data-view="agent"><span class="nav-icon">◆</span><span class="nav-label">Job Agent</span></button>
-        <button class="nav-btn" data-view="ai"><span class="nav-icon">◆</span><span class="nav-label">AI Tools</span></button>
-        <button class="nav-btn" data-view="resume"><span class="nav-icon">◆</span><span class="nav-label">Resume Center</span></button>
-        <button class="nav-btn" data-view="companies"><span class="nav-icon">◆</span><span class="nav-label">Companies</span></button>
-        <button class="nav-btn" data-view="contacts"><span class="nav-icon">◆</span><span class="nav-label">Contacts</span></button>
-        <button class="nav-btn" data-view="insights"><span class="nav-icon">◆</span><span class="nav-label">Insights</span></button>
+        <button class="nav-btn" data-view="dashboard"><span class="nav-icon">•</span><span class="nav-label">Dashboard</span></button>
+        <button class="nav-btn" data-view="tracker"><span class="nav-icon">•</span><span class="nav-label">Tracker</span></button>
+        <button class="nav-btn" data-view="search"><span class="nav-icon">•</span><span class="nav-label">Job Search</span></button>
+        <button class="nav-btn" data-view="agent"><span class="nav-icon">•</span><span class="nav-label">Job Agent</span></button>
+        <button class="nav-btn" data-view="ai"><span class="nav-icon">•</span><span class="nav-label">AI Tools</span></button>
+        <button class="nav-btn" data-view="resume"><span class="nav-icon">•</span><span class="nav-label">Resume Center</span></button>
+        <button class="nav-btn" data-view="companies"><span class="nav-icon">•</span><span class="nav-label">Companies</span></button>
+        <button class="nav-btn" data-view="contacts"><span class="nav-icon">•</span><span class="nav-label">Contacts</span></button>
+        <button class="nav-btn" data-view="insights"><span class="nav-icon">•</span><span class="nav-label">Insights</span></button>
       </div>
       <div class="group">
         <button class="nav-expand-btn" id="navExpandMore">
@@ -104,16 +104,16 @@
           </h4>
         </button>
         <div class="nav-collapsible" id="navMoreSection" style="display:none;">
-          <button class="nav-btn" data-view="interviews"><span class="nav-icon">◆</span><span class="nav-label">Interviews</span></button>
-          <button class="nav-btn" data-view="timeline"><span class="nav-icon">◆</span><span class="nav-label">Timeline</span></button>
-          <button class="nav-btn" data-view="networking"><span class="nav-icon">◆</span><span class="nav-label">Networking</span></button>
-          <button class="nav-btn" data-view="salary"><span class="nav-icon">◆</span><span class="nav-label">Salary Tool</span></button>
-          <button class="nav-btn" data-view="report"><span class="nav-icon">◆</span><span class="nav-label">Weekly Report</span></button>
+          <button class="nav-btn" data-view="interviews"><span class="nav-icon">•</span><span class="nav-label">Interviews</span></button>
+          <button class="nav-btn" data-view="timeline"><span class="nav-icon">•</span><span class="nav-label">Timeline</span></button>
+          <button class="nav-btn" data-view="networking"><span class="nav-icon">•</span><span class="nav-label">Networking</span></button>
+          <button class="nav-btn" data-view="salary"><span class="nav-icon">•</span><span class="nav-label">Salary Tool</span></button>
+          <button class="nav-btn" data-view="report"><span class="nav-icon">•</span><span class="nav-label">Weekly Report</span></button>
         </div>
       </div>
       <div class="group">
         <h4>Configuration</h4>
-        <button class="nav-btn" data-view="settings"><span class="nav-icon">◆</span><span class="nav-label">API Settings</span></button>
+        <button class="nav-btn" data-view="settings"><span class="nav-icon">•</span><span class="nav-label">API Settings</span></button>
       </div>
       <div class="group" id="sidebarAuth" style="display:none;">
         <h4>Account</h4>
@@ -174,7 +174,7 @@
       <!-- PROFILE SETUP -->
       <section id="view-profile" class="panel hidden">
         <div class="setup-container">
-          <div class="toolbar" style="justify-content:center"><h2>⟨ PROFILE SETUP ⟩</h2></div>
+          <div class="toolbar" style="justify-content:center"><h2>Profile Setup</h2></div>
           <div class="setup-steps" id="setupSteps">
             <div class="setup-step active"></div>
             <div class="setup-step"></div>
@@ -187,7 +187,7 @@
       <!-- DASHBOARD -->
       <section id="view-dashboard" class="panel hidden">
         <div id="dashboardChecklist"></div>
-        <div class="toolbar"><h2>⟨ DASHBOARD ⟩</h2><span class="tag">Pipeline</span></div>
+        <div class="toolbar"><h2>Dashboard</h2></div>
         <div class="grid cols-3">
           <div class="panel"><h4>PIPELINE STATUS</h4><canvas id="pipelineChart" height="200"></canvas></div>
           <div class="panel"><h4>SOURCE DISTRIBUTION</h4><canvas id="sourceChart" height="200"></canvas></div>
@@ -206,7 +206,7 @@
       <!-- TRACKER -->
       <section id="view-tracker" class="panel hidden">
         <div class="toolbar">
-          <h2>⟨ TRACKER ⟩</h2>
+          <h2>Tracker</h2>
           <div style="margin-left:auto;display:flex;gap:8px">
             <button class="btn" id="toggleViewBtn">KANBAN</button>
             <button class="btn brand" id="addJobBtn2">+ JOB</button>
@@ -228,7 +228,7 @@
 
       <!-- JOB SEARCH -->
       <section id="view-search" class="panel hidden">
-        <div class="toolbar"><h2>⟨ JOB SEARCH ⟩</h2><span class="tag blue">API-Powered</span></div>
+        <div class="toolbar"><h2>Job Search</h2></div>
         <div class="grid cols-3" style="margin-bottom:16px">
           <div><label><h4>KEYWORDS</h4><input id="searchKeyword" class="input" placeholder="e.g., Data Analyst, Python"></label></div>
           <div><label><h4>LOCATION</h4><input id="searchLocation" class="input" placeholder="e.g., Remote, New York"></label></div>
@@ -250,7 +250,7 @@
 
       <!-- AI TOOLS -->
       <section id="view-ai" class="panel hidden">
-        <div class="toolbar"><h2>⟨ AI ANALYSIS ⟩</h2><span class="tag">Neural Net</span><span id="aiMode" class="tag blue" style="display:none">Gemini Active</span></div>
+        <div class="toolbar"><h2>AI Tools</h2><span id="aiMode" class="tag blue" style="display:none">Gemini Active</span></div>
         <div class="grid cols-2">
           <div class="panel">
             <h3>JD ↔ RESUME MATCHER</h3>
@@ -286,7 +286,7 @@
       <!-- RESUME CENTER -->
       <section id="view-resume" class="panel hidden">
         <div class="toolbar">
-          <h2>⟨ RESUME CENTER ⟩</h2>
+          <h2>Resume Center</h2>
           <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
             <input id="resumeName" class="input" placeholder="Resume name" style="width:200px">
             <button class="btn brand" id="addResume">ADD</button>
@@ -306,7 +306,7 @@
       <!-- COMPANIES -->
       <section id="view-companies" class="panel hidden">
         <div class="toolbar">
-          <h2>⟨ COMPANIES ⟩</h2>
+          <h2>Companies</h2>
           <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
             <input id="companyName" class="input" placeholder="Company name" style="width:200px">
             <button class="btn" id="addCompany">ADD</button>
@@ -320,7 +320,7 @@
       <!-- CONTACTS -->
       <section id="view-contacts" class="panel hidden">
         <div class="toolbar">
-          <h2>⟨ CONTACTS ⟩</h2>
+          <h2>Contacts</h2>
           <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
             <input id="contactName" class="input" placeholder="Name" style="width:140px">
             <input id="contactEmail" class="input" placeholder="Email" style="width:180px">
@@ -335,7 +335,7 @@
 
       <!-- INSIGHTS -->
       <section id="view-insights" class="panel hidden">
-        <div class="toolbar"><h2>⟨ INSIGHTS ⟩</h2><span class="tag">Analytics</span></div>
+        <div class="toolbar"><h2>Insights</h2></div>
         <div class="grid cols-2">
           <div class="panel"><h4>APPLICATION FUNNEL</h4><canvas id="funnelChart" height="250"></canvas></div>
           <div class="panel"><h4>SOURCE BREAKDOWN</h4><canvas id="sourceBars" height="250"></canvas></div>
@@ -373,7 +373,7 @@
 
       <!-- API SETTINGS -->
       <section id="view-settings" class="panel hidden">
-        <div class="toolbar"><h2>⟨ API SETTINGS ⟩</h2><span class="tag">Configuration</span><span class="tag green">13 APIs Available</span></div>
+        <div class="toolbar"><h2>Settings</h2></div>
         <div class="grid cols-2">
           <div class="panel">
             <h3>JOB SEARCH (4 APIs)</h3>
@@ -427,13 +427,13 @@
 
         <!-- Pricing Tiers -->
         <div style="margin-top:24px">
-          <div class="toolbar"><h2>⟨ PLANS & PRICING ⟩</h2></div>
+          <div class="toolbar"><h2>Plans <h2>PLANS & PRICING</h2> Pricing</h2></div>
           <div id="pricingSection"></div>
         </div>
 
         <!-- Usage Dashboard -->
         <div style="margin-top:24px">
-          <div class="toolbar"><h2>⟨ DAILY USAGE ⟩</h2><span class="tag">Resets at midnight</span></div>
+          <div class="toolbar"><h2>Daily Usage</h2></div>
           <div class="panel" id="usageDashboard"></div>
         </div>
       </section>
@@ -447,7 +447,7 @@
 <!-- ADD JOB MODAL -->
 <div class="modal" id="jobModal">
   <div class="content">
-    <div class="toolbar"><h2>⟨ ADD JOB ⟩</h2><button class="btn" id="closeModal">CLOSE</button></div>
+    <div class="toolbar"><h2>Add Job</h2><button class="btn" id="closeModal">CLOSE</button></div>
     <div class="grid cols-2">
       <div class="panel">
         <label style="display:block;margin:12px 0"><h4>TITLE</h4><input id="jobTitle" class="input" placeholder="e.g., Data Analyst"></label>
@@ -468,7 +468,7 @@
 <!-- IMPORT MODAL -->
 <div class="modal" id="importModal">
   <div class="content">
-    <div class="toolbar"><h2 id="importModalTitle">⟨ IMPORT ⟩</h2><button class="btn" id="closeImportModal">CLOSE</button></div>
+    <div class="toolbar"><h2 id="importModalTitle">Import</h2><button class="btn" id="closeImportModal">CLOSE</button></div>
     <div class="panel" style="margin-bottom:12px">
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
         <label><strong>Type:</strong> <select id="importType" class="input" style="width:auto"><option value="jobs">Jobs</option><option value="companies">Companies</option></select></label>
