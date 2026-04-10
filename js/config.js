@@ -78,7 +78,7 @@ export const FEATURES = {
 export const ENDPOINTS = {
   remotive: 'https://remotive.com/api/remote-jobs',
   adzuna: 'https://api.adzuna.com/v1/api/jobs',
-  gemini: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+  gemini: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
   hunter: 'https://api.hunter.io/v2/email-verifier',
   bls: 'https://api.bls.gov/publicAPI/v2/timeseries/data/',
   ntfy: 'https://ntfy.sh',
