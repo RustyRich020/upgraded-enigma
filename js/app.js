@@ -14,7 +14,7 @@ import router from './router.js';
 
 // Firebase
 import { initFirebase } from './firebase/init.js';
-import { signInAnonymously } from './firebase/auth.js';
+import { signInAnonymously, signOut, getCurrentUser, getUserProfile, onAuthChange, isAnonymous, upgradeAnonymousToEmail } from './firebase/auth.js';
 import { getAllDocs } from './firebase/db.js';
 import { migrateToFirestore } from './firebase/migration.js';
 
@@ -33,6 +33,7 @@ import { startTour, isTourCompleted } from './components/onboarding-tour.js';
 
 // Views
 import { renderLanding } from './views/landing.js';
+import { renderAuth } from './views/auth.js';
 import { renderProfileSetup } from './views/profile-setup.js';
 import { renderDashboard } from './views/dashboard.js';
 import { renderTracker } from './views/tracker.js';
@@ -71,13 +72,14 @@ function removeJob(id) {
 }
 
 /* ============================================================
-   Render dispatch — calls the current view's render function
+   Render dispatch
    ============================================================ */
 function renderCurrentView() {
   const view = router.getCurrentView();
   const renderers = {
     landing: () => renderLanding(getSection('landing')),
-    profile: () => renderProfileSetup(getSection('profile'), state, () => {}),
+    auth: () => renderAuth(getSection('auth'), { onAuthSuccess: handleAuthSuccess, onGuestAccess: handleGuestAccess }),
+    profile: () => renderProfileSetup(getSection('profile'), state, handleProfileComplete),
     dashboard: () => renderDashboard(getSection('dashboard'), state),
     tracker: () => renderTracker(getSection('tracker'), state, { addJob, updateJob, removeJob }),
     search: () => renderJobSearch(getSection('search'), state, addJob),
@@ -88,14 +90,12 @@ function renderCurrentView() {
     insights: () => renderInsights(getSection('insights'), state),
     settings: () => renderSettings(getSection('settings'), null, null, null)
   };
-
   if (renderers[view]) {
     try { renderers[view](); } catch (e) { console.error(`Render error (${view}):`, e); }
   }
 }
 
 function renderAll() {
-  // Render all visible/common views
   try { renderDashboard(getSection('dashboard'), state); } catch (e) { console.error(e); }
   try { renderTracker(getSection('tracker'), state, { addJob, updateJob, removeJob }); } catch (e) { console.error(e); }
   try { renderInsights(getSection('insights'), state); } catch (e) { console.error(e); }
@@ -106,6 +106,85 @@ function renderAll() {
 
 function getSection(name) {
   return document.getElementById('view-' + name);
+}
+
+/* ============================================================
+   Auth flow handlers
+   ============================================================ */
+function handleAuthSuccess(user) {
+  state.set('user', getUserProfile());
+  updateUserUI();
+  const isOnboarded = localStorage.getItem(STORAGE_KEYS.onboarded) === 'true';
+  if (isOnboarded) {
+    loadUserData();
+    router.navigate('dashboard');
+  } else {
+    router.navigate('profile');
+  }
+}
+
+function handleGuestAccess(user) {
+  state.set('user', getUserProfile());
+  updateUserUI();
+  localStorage.setItem(STORAGE_KEYS.onboarded, 'true');
+  loadUserData();
+  router.navigate('dashboard');
+}
+
+function handleProfileComplete() {
+  if (FEATURES.onboardingTour && !isTourCompleted()) {
+    router.navigate('dashboard');
+    renderAll();
+    setTimeout(() => startTour(), 800);
+  } else {
+    router.navigate('dashboard');
+    renderAll();
+  }
+}
+
+async function loadUserData() {
+  state.loadFromStorage();
+  loadKeys();
+  // Sync from Firestore if available
+  try {
+    if (getCurrentUser()) {
+      await state.syncFromFirestore(getAllDocs);
+      await migrateToFirestore();
+    }
+  } catch (e) {
+    console.warn('Firestore sync skipped:', e);
+  }
+  renderAll();
+}
+
+/* ============================================================
+   UI updates for auth state
+   ============================================================ */
+function updateUserUI() {
+  const user = getUserProfile();
+  const userInfo = document.getElementById('userInfo');
+  const userName = document.getElementById('userName');
+  const userAvatar = document.getElementById('userAvatar');
+  const sidebarAuth = document.getElementById('sidebarAuth');
+  const sidebarUserEmail = document.getElementById('sidebarUserEmail');
+  const sidebarUpgradeBtn = document.getElementById('sidebarUpgradeBtn');
+  const apiStatusTag = document.getElementById('apiStatusTag');
+
+  if (user) {
+    const displayName = user.displayName || (user.email ? user.email.split('@')[0] : (user.isAnonymous ? 'Guest' : 'User'));
+    const initial = displayName.charAt(0).toUpperCase();
+
+    if (userInfo) userInfo.style.display = 'flex';
+    if (userName) userName.textContent = displayName;
+    if (userAvatar) userAvatar.textContent = initial;
+
+    if (sidebarAuth) sidebarAuth.style.display = '';
+    if (sidebarUserEmail) sidebarUserEmail.textContent = user.email || 'Guest (anonymous)';
+    if (sidebarUpgradeBtn) sidebarUpgradeBtn.style.display = user.isAnonymous ? '' : 'none';
+  } else {
+    if (userInfo) userInfo.style.display = 'none';
+    if (sidebarAuth) sidebarAuth.style.display = 'none';
+  }
 }
 
 /* ============================================================
@@ -143,7 +222,6 @@ function setupImportModal() {
   const startImportBtn = document.getElementById('startImportBtn');
   const closeImportBtn = document.getElementById('closeImportModal');
   const importJobsBtn = document.getElementById('importJobsBtn');
-  const importCompaniesBtn = document.getElementById('importCompaniesBtn');
 
   function openImportModal(type) {
     const typeEl = document.getElementById('importType');
@@ -158,50 +236,30 @@ function setupImportModal() {
   }
 
   if (importJobsBtn) importJobsBtn.addEventListener('click', () => openImportModal('jobs'));
-  if (importCompaniesBtn) importCompaniesBtn.addEventListener('click', () => openImportModal('companies'));
   if (closeImportBtn) closeImportBtn.addEventListener('click', () => hideModal('importModal'));
-
-  if (importFileInput) {
-    importFileInput.addEventListener('change', e => {
-      lastImportFile = e.target.files[0] || null;
-    });
-  }
+  if (importFileInput) importFileInput.addEventListener('change', e => { lastImportFile = e.target.files[0] || null; });
 
   if (startImportBtn) {
     startImportBtn.addEventListener('click', async () => {
       const typeEl = document.getElementById('importType');
       const type = typeEl?.value || 'jobs';
       if (!lastImportFile) { toast('Choose a CSV file', 'error'); return; }
-
       const statsEl = document.getElementById('importStats');
       const logEl = document.getElementById('importLog');
       if (statsEl) statsEl.textContent = 'Parsing...';
       if (logEl) logEl.innerHTML = '';
-
       try {
         const result = await importCsv(lastImportFile, type);
-
-        // Add records to state
         if (type === 'jobs') {
           const jobs = state.get('jobs') || [];
-          result.records.forEach(r => {
-            jobs.push({ id: uid(), _added: today(), ...r });
-            logLine(logEl, `+ Job "${r.title}" @ ${r.company}`, 'success');
-          });
+          result.records.forEach(r => { jobs.push({ id: uid(), _added: today(), ...r }); logLine(logEl, `+ Job "${r.title}" @ ${r.company}`, 'success'); });
           state.set('jobs', jobs);
         } else {
           const companies = state.get('companies') || [];
-          result.records.forEach(r => {
-            companies.push({ id: uid(), ...r });
-            logLine(logEl, `+ Company "${r.name}"`, 'success');
-          });
+          result.records.forEach(r => { companies.push({ id: uid(), ...r }); logLine(logEl, `+ Company "${r.name}"`, 'success'); });
           state.set('companies', companies);
         }
-
-        result.errors.forEach(err => {
-          logLine(logEl, `Row ${err.row}: ${err.message}`, 'error');
-        });
-
+        result.errors.forEach(err => logLine(logEl, `Row ${err.row}: ${err.message}`, 'error'));
         if (statsEl) statsEl.textContent = `Done: ${result.records.length} imported, ${result.errors.length} errors`;
         toast(`Imported ${result.records.length} ${type}`, 'success');
         renderAll();
@@ -209,7 +267,6 @@ function setupImportModal() {
         if (statsEl) statsEl.textContent = 'Error: ' + err.message;
         toast('Import failed: ' + err.message, 'error');
       }
-
       lastImportFile = null;
       if (importFileInput) importFileInput.value = '';
     });
@@ -226,60 +283,54 @@ function logLine(logEl, msg, kind) {
 }
 
 /* ============================================================
+   Upgrade anonymous account (sidebar button)
+   ============================================================ */
+function setupUpgradeButton() {
+  const btn = document.getElementById('sidebarUpgradeBtn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    sessionStorage.setItem('authMode', 'signup');
+    // Show a prompt for email/password
+    const email = prompt('Enter your email to create a permanent account:');
+    if (!email) return;
+    const password = prompt('Choose a password (min 8 characters):');
+    if (!password || password.length < 8) { toast('Password must be at least 8 characters', 'error'); return; }
+
+    upgradeAnonymousToEmail(email, password)
+      .then(user => {
+        state.set('user', getUserProfile());
+        updateUserUI();
+        toast('Account upgraded! Your data is preserved.', 'success');
+      })
+      .catch(err => {
+        toast(err.message || 'Upgrade failed', 'error');
+      });
+  });
+}
+
+/* ============================================================
    Boot sequence
    ============================================================ */
 async function boot() {
   // 1. Initialize theme
   initTheme();
 
-  // 2. Try Firebase init + anonymous auth
+  // 2. Try Firebase init (but do NOT auto sign-in)
   let firebaseReady = false;
   if (FEATURES.firebase) {
     try {
       firebaseReady = await initFirebase();
-      if (firebaseReady) {
-        await signInAnonymously();
-      }
     } catch (e) {
       console.warn('Firebase boot failed:', e);
     }
   }
 
-  // 3. Load state from localStorage
-  state.loadFromStorage();
-
-  // 4. Sync from Firestore if available
-  if (firebaseReady) {
-    try {
-      await state.syncFromFirestore(getAllDocs);
-      await migrateToFirestore();
-    } catch (e) {
-      console.warn('Firestore sync/migration skipped:', e);
-    }
-  }
-
-  // 5. Load API keys
-  loadKeys();
-
-  // 6. Set role from saved settings
-  const settings = state.get('settings') || {};
-  if (settings.role) state.set('role', settings.role);
-  const roleSelect = document.getElementById('roleSelect');
-  if (roleSelect) {
-    roleSelect.value = state.get('role') || 'Candidate';
-    roleSelect.addEventListener('change', e => {
-      state.set('role', e.target.value);
-      renderAll();
-    });
-  }
-
-  // 7. Initialize sidebar
+  // 3. Initialize sidebar + UI components
   initSidebar();
-
-  // 8. Initialize job form
   initJobForm(job => addJob(job));
+  setupImportModal();
 
-  // 9. Setup CSV export button
+  // 4. Setup CSV export
   const exportBtn = document.getElementById('exportBtn');
   if (exportBtn) {
     exportBtn.addEventListener('click', () => {
@@ -289,10 +340,7 @@ async function boot() {
     });
   }
 
-  // 10. Setup import modal
-  setupImportModal();
-
-  // 11. Setup seed data button
+  // 5. Seed data button
   const seedBtn = document.getElementById('seedBtn');
   if (seedBtn) {
     seedBtn.addEventListener('click', () => {
@@ -303,13 +351,20 @@ async function boot() {
     });
   }
 
-  // 12. Register view renderers with router
+  // 6. Role select
+  const roleSelect = document.getElementById('roleSelect');
+  if (roleSelect) {
+    roleSelect.addEventListener('change', e => {
+      state.set('role', e.target.value);
+      renderAll();
+    });
+  }
+
+  // 7. Register view renderers
   router.registerView('landing', () => renderLanding(getSection('landing')));
-  router.registerView('profile', () => renderProfileSetup(getSection('profile'), state, () => {}));
-  router.registerView('dashboard', () => {
-    renderDashboard(getSection('dashboard'), state);
-    // Also render tracker and insights since they share data
-  });
+  router.registerView('auth', () => renderAuth(getSection('auth'), { onAuthSuccess: handleAuthSuccess, onGuestAccess: handleGuestAccess }));
+  router.registerView('profile', () => renderProfileSetup(getSection('profile'), state, handleProfileComplete));
+  router.registerView('dashboard', () => renderDashboard(getSection('dashboard'), state));
   router.registerView('tracker', () => renderTracker(getSection('tracker'), state, { addJob, updateJob, removeJob }));
   router.registerView('search', () => renderJobSearch(getSection('search'), state, addJob));
   router.registerView('ai', () => renderAiTools(getSection('ai'), state, addJob));
@@ -319,60 +374,121 @@ async function boot() {
   router.registerView('insights', () => renderInsights(getSection('insights'), state));
   router.registerView('settings', () => renderSettings(getSection('settings'), null, null, null));
 
-  // 13. Check if onboarded -> determine starting view
-  const isOnboarded = localStorage.getItem(STORAGE_KEYS.onboarded) === 'true';
-  if (!isOnboarded && FEATURES.landing) {
-    // Create landing section if it doesn't exist
-    let landingSection = document.getElementById('view-landing');
-    if (!landingSection) {
-      landingSection = document.createElement('section');
-      landingSection.id = 'view-landing';
-      landingSection.className = 'panel hidden';
-      const main = document.querySelector('main');
-      if (main) main.prepend(landingSection);
-    }
-
-    // Create profile section if it doesn't exist
-    let profileSection = document.getElementById('view-profile');
-    if (!profileSection) {
-      profileSection = document.createElement('section');
-      profileSection.id = 'view-profile';
-      profileSection.className = 'panel hidden';
-      const main = document.querySelector('main');
-      if (main) main.insertBefore(profileSection, main.firstChild.nextSibling);
-    }
-  }
-
-  // 14. Initialize router
-  router.init();
-
-  // If not onboarded and no specific hash, go to landing
-  if (!isOnboarded && FEATURES.landing && !window.location.hash) {
-    router.navigate('landing');
-  }
-
-  // 15. Render all views initially
-  renderAll();
-
-  // 16. Start notification schedule if permitted
-  if (FEATURES.notifications && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-    scheduleChecks(() => state.get('jobs') || [], getApi('ntfyTopic'));
-  }
-
-  // 17. Show onboarding tour if not completed
-  if (FEATURES.onboardingTour && isOnboarded && !isTourCompleted()) {
-    setTimeout(() => startTour(), 1000);
-  }
-
-  // 18. Listen for state changes to re-render
-  state.on('change', () => {
-    // Debounce re-renders
+  // 8. Set auth guard
+  router.setAuthGuard(() => {
+    return getCurrentUser() !== null;
   });
 
-  // 19. Save on unload
+  // 9. Setup sign out handlers
+  const signOutBtn = document.getElementById('signOutBtn');
+  const sidebarSignOut = document.getElementById('sidebarSignOut');
+  const handleSignOut = async () => {
+    await signOut();
+    state.set('user', null);
+    updateUserUI();
+    toast('Signed out', 'info');
+    router.navigate('landing');
+  };
+  if (signOutBtn) signOutBtn.addEventListener('click', handleSignOut);
+  if (sidebarSignOut) sidebarSignOut.addEventListener('click', handleSignOut);
+
+  // 10. Setup upgrade button for anonymous users
+  setupUpgradeButton();
+
+  // 11. Listen for auth state changes (handles page reload with persisted session)
+  if (firebaseReady) {
+    onAuthChange(async (user) => {
+      if (user) {
+        // User is signed in (either returning session or fresh sign-in)
+        state.set('user', getUserProfile());
+        updateUserUI();
+
+        // Load data
+        state.loadFromStorage();
+        loadKeys();
+
+        // Set role
+        const settings = state.get('settings') || {};
+        if (settings.role) {
+          state.set('role', settings.role);
+          const rs = document.getElementById('roleSelect');
+          if (rs) rs.value = settings.role;
+        }
+
+        // Sync Firestore
+        try {
+          await state.syncFromFirestore(getAllDocs);
+          await migrateToFirestore();
+        } catch (e) { console.warn('Firestore sync skipped:', e); }
+
+        // If we're on landing or auth and user is authenticated, redirect
+        const currentView = router.getCurrentView();
+        if (currentView === 'landing' || currentView === 'auth') {
+          const isOnboarded = localStorage.getItem(STORAGE_KEYS.onboarded) === 'true';
+          if (isOnboarded) {
+            router.navigate('dashboard');
+            renderAll();
+          }
+          // If not onboarded, handleAuthSuccess will navigate to profile
+        }
+
+        // Start notifications if permitted
+        if (FEATURES.notifications && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+          scheduleChecks(() => state.get('jobs') || [], getApi('ntfyTopic'));
+        }
+
+        // Show tour if needed
+        if (FEATURES.onboardingTour && localStorage.getItem(STORAGE_KEYS.onboarded) === 'true' && !isTourCompleted()) {
+          setTimeout(() => startTour(), 1200);
+        }
+      } else {
+        // User signed out
+        state.set('user', null);
+        updateUserUI();
+      }
+    });
+  } else {
+    // No Firebase — load data from localStorage and allow access without auth
+    state.loadFromStorage();
+    loadKeys();
+    const settings = state.get('settings') || {};
+    if (settings.role) {
+      state.set('role', settings.role);
+      const rs = document.getElementById('roleSelect');
+      if (rs) rs.value = settings.role;
+    }
+
+    // Disable auth guard when Firebase is not configured
+    router.setAuthGuard(null);
+  }
+
+  // 12. Initialize router
+  router.init();
+
+  // 13. Navigate based on state
+  if (!window.location.hash || window.location.hash === '#') {
+    if (firebaseReady) {
+      // Auth change listener will handle navigation
+      const user = getCurrentUser();
+      if (!user) {
+        router.navigate('landing');
+      }
+    } else {
+      // No Firebase — check onboarding
+      const isOnboarded = localStorage.getItem(STORAGE_KEYS.onboarded) === 'true';
+      if (!isOnboarded && FEATURES.landing) {
+        router.navigate('landing');
+      } else {
+        router.navigate('dashboard');
+        renderAll();
+      }
+    }
+  }
+
+  // 14. Save on unload
   window.addEventListener('beforeunload', () => state.persist());
 
-  // Expose addJobFromSearch globally for inline onclick in search results
+  // 15. Expose addJobFromSearch globally for inline onclick
   window.addJobFromSearch = (title, company, url, source, salary) => {
     addJob({ title, company, url, source, salary: salary ? salary.replace(/[^0-9]/g, '') : '', status: 'Saved', follow: today(3) });
     toast(`Added "${title}" to tracker`, 'success');

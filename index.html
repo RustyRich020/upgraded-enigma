@@ -52,6 +52,11 @@
       <span class="tag green" id="apiStatusTag" style="display:none">APIs Active</span>
     </div>
     <div class="header-actions">
+      <div class="user-info" id="userInfo" style="display:none;">
+        <span class="user-avatar" id="userAvatar">U</span>
+        <span class="user-name" id="userName"></span>
+        <button class="btn small" id="signOutBtn">SIGN OUT</button>
+      </div>
       <label class="muted" style="font-weight:600;font-size:11px">ROLE:</label>
       <select id="roleSelect" class="role-sel">
         <option>Candidate</option><option>Manager</option><option>Executive</option><option>Auditor</option>
@@ -82,6 +87,20 @@
         <h4>Configuration</h4>
         <button class="nav-btn" data-view="settings"><span class="nav-icon">◆</span><span class="nav-label">API Settings</span></button>
       </div>
+      <div class="group" id="sidebarAuth" style="display:none;">
+        <h4>Account</h4>
+        <div class="sidebar-user" id="sidebarUserInfo">
+          <span class="muted" id="sidebarUserEmail"></span>
+        </div>
+        <button class="nav-btn" id="sidebarSignOut">
+          <span class="nav-icon">&#x2192;</span>
+          <span class="nav-label">Sign Out</span>
+        </button>
+        <button class="nav-btn" id="sidebarUpgradeBtn" style="display:none;">
+          <span class="nav-icon">&#x2191;</span>
+          <span class="nav-label">Upgrade Account</span>
+        </button>
+      </div>
     </nav>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
@@ -89,6 +108,7 @@
     <main>
       <!-- LANDING -->
       <section id="view-landing" class="hidden">
+<!-- populated by js/views/landing.js -->
         <div class="landing-hero">
           <div class="landing-logo"><div class="logo-text">T</div></div>
           <h1 class="landing-title">JOBGRID PRO</h1>
@@ -116,6 +136,11 @@
           </div>
           <a class="landing-skip" id="returningUserLink">I've been here before — take me to my dashboard</a>
         </div>
+      </section>
+
+      <!-- AUTH -->
+      <section id="view-auth" class="hidden">
+        <!-- populated by js/views/auth.js -->
       </section>
 
       <!-- PROFILE SETUP -->

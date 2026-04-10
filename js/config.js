@@ -4,12 +4,13 @@
 
 // Firebase configuration — fill in your own values
 export const FIREBASE_CONFIG = {
-  apiKey: '',
-  authDomain: '',
-  projectId: '',
-  storageBucket: '',
-  messagingSenderId: '',
-  appId: ''
+  apiKey: 'AIzaSyAUbPGPfSHTxl8OFmSaVfg8jIJlwV4YWfA',
+  authDomain: 'jobgrid-pro.firebaseapp.com',
+  projectId: 'jobgrid-pro',
+  storageBucket: 'jobgrid-pro.firebasestorage.app',
+  messagingSenderId: '995536477473',
+  appId: '1:995536477473:web:4ae5484fa8b21a2025f260',
+  measurementId: 'G-8REGTKG7G5'
 };
 
 // Firestore collection names (scoped under users/{uid}/)
@@ -33,7 +34,8 @@ export const STORAGE_KEYS = {
   migrated: 'tron_migrated',
   theme: 'tron_theme',
   onboarded: 'tron_onboarded',
-  tourDone: 'tron_tour_done'
+  tourDone: 'tron_tour_done',
+  authUser: 'tron_auth_user'
 };
 
 // Job statuses
@@ -63,7 +65,8 @@ export const FEATURES = {
   hunterVerification: true,
   ntfyPush: true,
   onboardingTour: true,
-  landing: true
+  landing: true,
+  emailAuth: true
 };
 
 // API endpoints

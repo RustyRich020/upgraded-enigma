@@ -235,3 +235,31 @@ textarea { resize: vertical; min-height: 100px; }
 .search-result .company-logo { width: 24px; height: 24px; border-radius: var(--radius-sm); object-fit: contain; background: #fff; }
 .search-result .meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
 .search-result .meta span { font-size: 11px; color: var(--color-muted); }
+
+/* ---- Form Validation States ---- */
+.input.error, select.error, textarea.error {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
+}
+.input.success, select.success, textarea.success {
+  border-color: var(--color-success);
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+}
+.field-error { color: var(--color-danger); font-size: 11px; margin-top: 4px; display: block; }
+
+/* ---- User Info (Header) ---- */
+.user-info { display: flex; align-items: center; gap: 8px; }
+.user-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--color-primary-dim);
+  border: 2px solid var(--color-primary);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px; color: var(--color-primary-bright);
+}
+.user-name {
+  font-size: 12px; color: var(--color-text); font-weight: 600;
+  max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ---- Sidebar Account ---- */
+.sidebar-user { padding: 8px 12px; font-size: 11px; }
