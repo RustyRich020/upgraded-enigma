@@ -7,6 +7,7 @@ import { toast } from '../components/toast.js';
 import { requestPermission } from '../services/notifications.js';
 import { getUserTier, setUserTier, resetUsage } from '../services/usage-tracker.js';
 import { renderPricingTable, renderUsageDashboard } from '../components/upgrade-banner.js';
+import { saveUserApiKeys, setUserTierInFirestore } from '../firebase/provisioning.js';
 
 /**
  * Render the settings view.
@@ -46,6 +47,8 @@ export function renderSettings(container, apiKeys, onSave, onClear) {
         if (el) keys[keyName] = el.value.trim();
       });
       saveAllKeys(keys);
+      // Also save to Firestore for cloud sync
+      saveUserApiKeys(keys).catch(() => {});
       updateStatuses();
       toast('API settings saved!', 'success');
       if (onSave) onSave(keys);
@@ -87,6 +90,7 @@ export function renderSettings(container, apiKeys, onSave, onClear) {
       btn.addEventListener('click', () => {
         const tier = btn.dataset.tier;
         setUserTier(tier);
+        setUserTierInFirestore(tier).catch(() => {});
         if (tier !== 'free') resetUsage();
         toast(`Switched to ${tier.toUpperCase()} tier`, 'success');
         pricingEl.innerHTML = renderPricingTable();
