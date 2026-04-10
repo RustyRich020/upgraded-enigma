@@ -226,21 +226,57 @@
         </div>
       </section>
 
-      <!-- JOB SEARCH -->
+      <!-- JOB SEARCH (Unified) -->
       <section id="view-search" class="panel hidden">
         <div class="toolbar"><h2>Job Search</h2></div>
-        <div class="grid cols-3" style="margin-bottom:16px">
-          <div><label><h4>KEYWORDS</h4><input id="searchKeyword" class="input" placeholder="e.g., Data Analyst, Python"></label></div>
-          <div><label><h4>LOCATION</h4><input id="searchLocation" class="input" placeholder="e.g., Remote, New York"></label></div>
-          <div style="display:flex;align-items:flex-end;gap:6px;flex-wrap:wrap">
-            <button class="btn small" id="searchRemotiveBtn" style="flex:1 1 auto;min-width:80px">REMOTIVE</button>
-            <button class="btn small" id="searchArbeitnowBtn" style="flex:1 1 auto;min-width:80px">ARBEITNOW</button>
-            <button class="btn small" id="searchAdzunaBtn" style="flex:1 1 auto;min-width:80px">ADZUNA</button>
-            <button class="btn small" id="searchJSearchBtn" style="flex:1 1 auto;min-width:80px">JSEARCH</button>
+
+        <!-- Search Form -->
+        <div class="search-form panel" style="margin-bottom:20px;padding:20px;">
+          <div class="grid cols-2" style="gap:12px;margin-bottom:12px;">
+            <label><h4>Keywords</h4><input id="searchKeyword" class="input" placeholder="e.g., Security Analyst, Python, Firewall" style="font-size:15px;padding:12px;"></label>
+            <label><h4>Location</h4><input id="searchLocation" class="input" placeholder="e.g., Jacksonville FL, Remote, US" style="font-size:15px;padding:12px;"></label>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+            <label style="flex:1;min-width:120px;"><h4>Min Salary</h4><input id="searchMinSalary" class="input" type="number" placeholder="e.g., 80000" style="font-size:15px;padding:12px;"></label>
+            <label style="flex:1;min-width:120px;"><h4>Remote Only</h4>
+              <select id="searchRemoteFilter" class="input" style="font-size:15px;padding:12px;">
+                <option value="">Any</option>
+                <option value="remote">Remote Only</option>
+                <option value="hybrid">Hybrid</option>
+              </select>
+            </label>
+            <button class="btn brand large" id="searchAllBtn" style="min-width:180px;padding:14px 28px;font-size:15px;">
+              SEARCH ALL SOURCES
+            </button>
           </div>
         </div>
-        <div id="searchStatus" class="muted" style="margin-bottom:12px"></div>
+
+        <!-- Search Status -->
+        <div id="searchStatus" style="margin-bottom:12px;font-size:15px;"></div>
+
+        <!-- Filter/Sort Bar -->
+        <div id="searchFilterBar" style="margin-bottom:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <label style="font-size:13px;color:var(--color-text-dim);">Filter:</label>
+          <select id="searchSourceFilter" class="input" style="width:auto;padding:6px 10px;font-size:13px;">
+            <option value="">All Sources</option>
+            <option value="Remotive">Remotive</option>
+            <option value="Arbeitnow">Arbeitnow</option>
+            <option value="Adzuna">Adzuna</option>
+            <option value="JSearch">JSearch</option>
+          </select>
+          <select id="searchSortBy" class="input" style="width:auto;padding:6px 10px;font-size:13px;">
+            <option value="date">Sort: Newest</option>
+            <option value="salary">Sort: Salary</option>
+            <option value="source">Sort: Source</option>
+          </select>
+          <span id="searchResultCount" class="muted" style="margin-left:auto;font-size:13px;"></span>
+        </div>
+
+        <!-- Results (persistent table) -->
         <div id="searchResults"></div>
+
+        <!-- Past Searches -->
+        <div id="searchHistory" style="margin-top:20px;"></div>
       </section>
 
       <!-- JOB AGENT -->
