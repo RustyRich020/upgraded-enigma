@@ -5,12 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "npx serve . -p 3000",
-    "deploy": "firebase deploy --only hosting"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "deploy": "firebase deploy --only hosting",
+    "deploy:functions": "firebase deploy --only functions",
+    "deploy:all": "firebase deploy"
   },
   "keywords": ["job-tracker", "career", "pwa", "firebase", "ai"],
   "author": "R2D2THERAGEN",
   "license": "MIT",
   "devDependencies": {
-    "firebase-tools": "^13.0.0"
+    "firebase-tools": "^13.0.0",
+    "vitest": "^2.0.0"
   }
 }

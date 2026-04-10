@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "JobGrid Pro — Job Saver",
+  "version": "1.0.0",
+  "description": "Save jobs from LinkedIn, Indeed, Glassdoor, and other job boards directly to your JobGrid Pro tracker.",
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": [
+    "https://www.linkedin.com/*",
+    "https://www.indeed.com/*",
+    "https://www.glassdoor.com/*",
+    "https://www.ziprecruiter.com/*",
+    "https://www.dice.com/*",
+    "https://remotive.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.linkedin.com/jobs/*",
+        "https://www.indeed.com/viewjob*",
+        "https://www.indeed.com/jobs*",
+        "https://www.glassdoor.com/job-listing/*",
+        "https://www.ziprecruiter.com/jobs/*",
+        "https://www.dice.com/job-detail/*",
+        "https://remotive.com/remote-jobs/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ],
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}
