@@ -1,5 +1,6 @@
 /* ============================================================
    components/onboarding-tour.js — 6-step onboarding tour
+   Styled for JobSync copper/professional theme
    ============================================================ */
 
 import { STORAGE_KEYS } from '../config.js';
@@ -22,17 +23,17 @@ const STEPS = [
   },
   {
     title: 'Job Search',
-    description: 'Search for remote jobs via Remotive (free) or Adzuna (with API key). Add results directly to your tracker.',
+    description: 'Search all job boards at once with one click. Results are saved and can be filtered and sorted.',
     target: '[data-view="search"]'
   },
   {
-    title: 'AI-Powered Tools',
-    description: 'Analyze job descriptions against your resume, generate cover letters, and parse JDs — locally or with Gemini AI.',
-    target: '[data-view="ai"]'
+    title: 'ATS Optimizer',
+    description: 'Analyze your resume against job postings. See your ATS score, keyword gaps, and get AI suggestions.',
+    target: '[data-view="ats"]'
   },
   {
-    title: 'Settings & API Keys',
-    description: 'Configure API keys for Adzuna, Gemini, EmailJS, Hunter.io, and notifications to unlock all features.',
+    title: 'Settings',
+    description: 'Configure API keys, manage your subscription tier, and view usage analytics.',
     target: '[data-view="settings"]'
   }
 ];
@@ -58,17 +59,24 @@ export function startTour() {
 }
 
 function createOverlay() {
-  // Remove any existing tour elements
   cleanup();
 
   spotlightOverlay = document.createElement('div');
   spotlightOverlay.id = 'tourOverlay';
-  spotlightOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9998;transition:all 0.3s;';
+  spotlightOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9998;transition:all 0.25s ease;';
   document.body.appendChild(spotlightOverlay);
 
   tourPopup = document.createElement('div');
   tourPopup.id = 'tourPopup';
-  tourPopup.style.cssText = 'position:fixed;z-index:10000;background:#111;border:2px solid #ff0000;border-radius:8px;padding:20px;max-width:340px;color:#fff;font-family:Orbitron,sans-serif;box-shadow:0 0 40px rgba(255,0,0,0.4);';
+  tourPopup.style.cssText = `
+    position:fixed;z-index:10000;
+    background:var(--color-surface, #242428);
+    border:1px solid var(--color-surface-border, #333338);
+    border-radius:12px;padding:20px;max-width:320px;
+    color:var(--color-text, #E4E4E7);
+    font-family:var(--font-body, 'DM Sans', sans-serif);
+    box-shadow:0 8px 32px rgba(0,0,0,0.4);
+  `;
   document.body.appendChild(tourPopup);
 
   spotlightOverlay.addEventListener('click', nextStep);
@@ -83,41 +91,52 @@ function showStep(index) {
   const step = STEPS[index];
   currentStep = index;
 
-  // Highlight the target element
   const target = document.querySelector(step.target);
   if (target) {
     target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     const rect = target.getBoundingClientRect();
 
-    // Create a spotlight cutout effect via box-shadow
     spotlightOverlay.style.background = 'none';
-    spotlightOverlay.style.boxShadow = `0 0 0 9999px rgba(0,0,0,0.75)`;
+    spotlightOverlay.style.boxShadow = '0 0 0 9999px rgba(0,0,0,0.6)';
     spotlightOverlay.style.position = 'fixed';
     spotlightOverlay.style.left = rect.left - 4 + 'px';
     spotlightOverlay.style.top = rect.top - 4 + 'px';
     spotlightOverlay.style.width = rect.width + 8 + 'px';
     spotlightOverlay.style.height = rect.height + 8 + 'px';
-    spotlightOverlay.style.borderRadius = '8px';
-    spotlightOverlay.style.border = '2px solid #ff0000';
+    spotlightOverlay.style.borderRadius = '12px';
+    spotlightOverlay.style.border = '2px solid var(--color-primary, #D4874D)';
 
-    // Position the popup
     const popupTop = rect.bottom + 12;
-    const popupLeft = Math.min(rect.left, window.innerWidth - 360);
-    tourPopup.style.top = (popupTop > window.innerHeight - 200 ? rect.top - 180 : popupTop) + 'px';
+    const popupLeft = Math.min(rect.left, window.innerWidth - 340);
+    tourPopup.style.top = (popupTop > window.innerHeight - 200 ? rect.top - 200 : popupTop) + 'px';
     tourPopup.style.left = Math.max(10, popupLeft) + 'px';
   }
 
+  const progress = Math.round(((index + 1) / STEPS.length) * 100);
+
   tourPopup.innerHTML = `
-    <div style="font-size:10px;color:#ff0000;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">
-      Step ${index + 1} of ${STEPS.length}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span style="font-size:11px;color:var(--color-primary, #D4874D);font-weight:600;text-transform:uppercase;letter-spacing:1px;">
+        Step ${index + 1} of ${STEPS.length}
+      </span>
+      <span style="font-size:11px;color:var(--color-text-dim, #A1A1AA);">${progress}%</span>
     </div>
-    <h4 style="color:#ff0000;margin-bottom:8px;font-size:14px;">${step.title}</h4>
-    <p style="color:#e0e0e0;font-size:12px;line-height:1.5;margin-bottom:16px;">${step.description}</p>
+    <div style="height:3px;background:var(--color-surface-border, #333);border-radius:4px;margin-bottom:14px;overflow:hidden;">
+      <div style="width:${progress}%;height:100%;background:var(--color-primary, #D4874D);border-radius:4px;transition:width 0.3s;"></div>
+    </div>
+    <h4 style="color:var(--color-text-heading, #FAFAFA);margin-bottom:6px;font-size:15px;font-weight:600;font-family:var(--font-display, 'Instrument Sans', sans-serif);">${step.title}</h4>
+    <p style="color:var(--color-text-dim, #A1A1AA);font-size:13px;line-height:1.6;margin-bottom:16px;">${step.description}</p>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
-      <button id="tourSkip" style="background:transparent;border:1px dashed #555;color:#808080;padding:6px 12px;border-radius:4px;cursor:pointer;font-family:Orbitron,sans-serif;font-size:11px;">SKIP</button>
-      <button id="tourNext" style="background:#ff0000;border:none;color:#fff;padding:6px 16px;border-radius:4px;cursor:pointer;font-family:Orbitron,sans-serif;font-size:11px;font-weight:700;">
-        ${index === STEPS.length - 1 ? 'FINISH' : 'NEXT'}
-      </button>
+      <button id="tourSkip" style="
+        background:transparent;border:1px solid var(--color-surface-border, #333);
+        color:var(--color-text-dim, #A1A1AA);padding:7px 14px;border-radius:8px;
+        cursor:pointer;font-family:var(--font-body, 'DM Sans', sans-serif);font-size:12px;font-weight:600;
+      ">Skip</button>
+      <button id="tourNext" style="
+        background:var(--color-primary, #D4874D);border:none;
+        color:#1a1a1e;padding:7px 18px;border-radius:8px;
+        cursor:pointer;font-family:var(--font-body, 'DM Sans', sans-serif);font-size:12px;font-weight:700;
+      ">${index === STEPS.length - 1 ? 'Finish' : 'Next'}</button>
     </div>
   `;
 
