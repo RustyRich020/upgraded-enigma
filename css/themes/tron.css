@@ -1,20 +1,27 @@
 /* ============================================================
-   JobGrid Pro — TRON Theme (Default)
-   Red/black cyberpunk with animated grid
+   JobGrid Pro — TRON Theme v2 (Default)
+   Refined cyberpunk with deep blacks and subtle blue undertones
    ============================================================ */
 [data-theme="tron"],
 :root {
-  --color-bg: #000000;
-  --color-bg-secondary: #0a0a0a;
-  --color-surface: #111111;
-  --color-surface-border: #1a1a1a;
-  --color-grid: #330000;
-  --color-primary: #ff0000;
-  --color-primary-bright: #ff2929;
-  --color-primary-glow: rgba(255, 0, 0, 0.5);
-  --color-primary-dim: rgba(255, 0, 0, 0.12);
-  --color-text: #ffffff;
-  --color-text-dim: #e0e0e0;
-  --color-muted: #808080;
+  --color-bg: #050508;
+  --color-bg-secondary: #0a0a10;
+  --color-surface: #0f1018;
+  --color-surface-hover: #141520;
+  --color-surface-border: #1c1d2a;
+  --color-grid: #1a1020;
+  --color-primary: #ff1a1a;
+  --color-primary-bright: #ff4040;
+  --color-primary-glow: rgba(255, 26, 26, 0.45);
+  --color-primary-dim: rgba(255, 26, 26, 0.1);
+  --color-primary-subtle: rgba(255, 26, 26, 0.05);
+  --color-accent: #00e5ff;
+  --color-accent-bright: #40efff;
+  --color-accent-glow: rgba(0, 229, 255, 0.35);
+  --color-accent-dim: rgba(0, 229, 255, 0.1);
+  --color-text: #eaedf3;
+  --color-text-dim: #9da3b0;
+  --color-text-heading: #ffffff;
+  --color-muted: #5a5f72;
   --grid-opacity: 1;
 }
