@@ -52,10 +52,19 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs20",
+    "codebase": "jobgrid-pro"
+  },
   "auth": {
     "providers": {
       "anonymous": true,
-      "emailPassword": true
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "JobGrid Pro",
+        "supportEmail": "richieallen12@gmail.com"
+      }
     }
   }
 }
