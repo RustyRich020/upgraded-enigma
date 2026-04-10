@@ -6,6 +6,7 @@ import { escapeHtml } from '../utils.js';
 import { ROLES, STORAGE_KEYS } from '../config.js';
 import { navigate } from '../router.js';
 import { getCurrentUser } from '../firebase/auth.js';
+import { provisionUser, isProvisioned } from '../firebase/provisioning.js';
 
 /**
  * Render the profile setup wizard.
@@ -18,7 +19,7 @@ export function renderProfileSetup(container, state, onComplete) {
   // Pre-fill from Firebase Auth user if available
   const authUser = getCurrentUser();
   const defaultName = authUser?.displayName || (authUser?.email ? authUser.email.split('@')[0] : '');
-  const wizard = { name: defaultName, role: 'Candidate', theme: 'tron', apiKeys: {} };
+  const wizard = { name: defaultName, role: 'Candidate', theme: 'tron', apiKeys: {}, loadDemoData: true };
 
   function render() {
     container.innerHTML = `
@@ -56,6 +57,9 @@ export function renderProfileSetup(container, state, onComplete) {
       const roleEl = container.querySelector('#wizardRole');
       if (roleEl) roleEl.value = wizard.role;
       roleEl?.addEventListener('change', e => { wizard.role = e.target.value; });
+
+      const demoEl = container.querySelector('#wizardDemoData');
+      if (demoEl) demoEl.addEventListener('change', e => { wizard.loadDemoData = e.target.checked; });
     }
 
     if (step === 2) {
@@ -103,6 +107,17 @@ export function renderProfileSetup(container, state, onComplete) {
         }
       } catch (e) { console.warn('Profile sync failed:', e); }
 
+      // Provision user in Firestore (create isolated collections, API vault, etc.)
+      try {
+        const alreadyProvisioned = await isProvisioned();
+        if (!alreadyProvisioned) {
+          await provisionUser(
+            { name: wizard.name, role: wizard.role, theme: wizard.theme },
+            wizard.loadDemoData
+          );
+        }
+      } catch (e) { console.warn('Provisioning failed (will use localStorage):', e); }
+
       localStorage.setItem(STORAGE_KEYS.onboarded, 'true');
       if (onComplete) onComplete();
       navigate('dashboard');
@@ -122,6 +137,13 @@ export function renderProfileSetup(container, state, onComplete) {
         <select id="wizardRole" class="input">
           ${ROLES.map(r => `<option ${r === wizard.role ? 'selected' : ''}>${r}</option>`).join('')}
         </select>
+      </label>
+      <label style="display:flex;align-items:center;gap:10px;margin:16px 0;padding:12px;background:var(--color-primary-dim);border:1px solid var(--color-primary);border-radius:var(--radius-md);cursor:pointer;">
+        <input type="checkbox" id="wizardDemoData" ${wizard.loadDemoData ? 'checked' : ''} style="width:18px;height:18px;accent-color:var(--color-primary)">
+        <div>
+          <h4 style="margin:0">Load sample data to explore?</h4>
+          <div class="muted" style="font-size:11px">Pre-populate jobs, companies, an interview, and a resume so you can see the dashboard in action</div>
+        </div>
       </label>
     `;
   }
