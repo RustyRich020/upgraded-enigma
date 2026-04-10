@@ -1,0 +1,57 @@
+/* JobGrid Pro — Chrome Extension Content Script Styles */
+
+#jobgrid-save-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999999;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+#jobgrid-fab {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #050508;
+  border: 2px solid #ff1a1a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(255, 26, 26, 0.4), 0 2px 8px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s ease;
+}
+
+#jobgrid-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 24px rgba(255, 26, 26, 0.6), 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+#jobgrid-popup {
+  position: absolute;
+  bottom: 56px;
+  right: 0;
+  background: #0f1018;
+  border: 1px solid #1c1d2a;
+  border-radius: 12px;
+  padding: 16px;
+  width: 280px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 26, 26, 0.1);
+  color: #eaedf3;
+  animation: jobgrid-slide-up 0.2s ease-out;
+}
+
+@keyframes jobgrid-slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#jobgrid-confirm-save:hover {
+  background: #cc0000 !important;
+}
+
+#jobgrid-confirm-save:disabled {
+  background: #1c1d2a !important;
+  color: #00ff6a !important;
+  cursor: default;
+}

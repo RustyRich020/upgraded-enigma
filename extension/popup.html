@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { width: 320px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #050508; color: #eaedf3; }
+    .header { padding: 16px; border-bottom: 1px solid #1c1d2a; display: flex; align-items: center; gap: 10px; }
+    .logo { width: 28px; height: 28px; border: 2px solid #ff1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,26,26,0.1); }
+    .logo span { font-weight: 900; font-size: 12px; color: #ff1a1a; }
+    h1 { font-size: 14px; font-weight: 900; letter-spacing: 2px; }
+    .content { padding: 16px; }
+    .stat { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1c1d2a; font-size: 13px; }
+    .stat-value { color: #ff1a1a; font-weight: 700; }
+    .pending { padding: 12px; margin: 8px 0; background: #0f1018; border: 1px solid #1c1d2a; border-radius: 8px; }
+    .pending-title { font-size: 12px; font-weight: 700; }
+    .pending-meta { font-size: 11px; color: #9da3b0; margin-top: 2px; }
+    .empty { text-align: center; padding: 24px; color: #5a5f72; font-size: 12px; }
+    .btn { display: block; width: 100%; padding: 10px; background: #ff1a1a; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; margin-top: 12px; text-align: center; text-decoration: none; }
+    .btn:hover { background: #cc0000; }
+    .btn-ghost { background: transparent; border: 1px solid #1c1d2a; color: #9da3b0; }
+    .footer { padding: 12px 16px; border-top: 1px solid #1c1d2a; text-align: center; }
+    .footer a { color: #00e5ff; font-size: 11px; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo"><span>T</span></div>
+    <h1>JOBGRID PRO</h1>
+  </div>
+  <div class="content">
+    <div class="stat">
+      <span>Saved Jobs</span>
+      <span class="stat-value" id="pendingCount">0</span>
+    </div>
+    <div id="pendingList"></div>
+    <a href="http://localhost:3000/#tracker" target="_blank" class="btn" id="openAppBtn">OPEN JOBGRID PRO</a>
+    <button class="btn btn-ghost" id="clearBtn" style="margin-top:8px">CLEAR SAVED</button>
+  </div>
+  <div class="footer">
+    <a href="https://github.com/RustyRich020/upgraded-enigma" target="_blank">GitHub</a>
+  </div>
+
+  <script>
+    // Load pending jobs from extension storage
+    async function loadPending() {
+      return new Promise(resolve => {
+        if (chrome?.storage?.local) {
+          chrome.storage.local.get('pendingJobs', data => resolve(data.pendingJobs || []));
+        } else {
+          resolve([]);
+        }
+      });
+    }
+
+    async function render() {
+      const jobs = await loadPending();
+      document.getElementById('pendingCount').textContent = jobs.length;
+      const list = document.getElementById('pendingList');
+
+      if (jobs.length === 0) {
+        list.innerHTML = '<div class="empty">No saved jobs yet.<br>Visit a job posting and click the save button.</div>';
+        return;
+      }
+
+      list.innerHTML = jobs.slice(-5).reverse().map(j => `
+        <div class="pending">
+          <div class="pending-title">${j.title || 'Untitled'}</div>
+          <div class="pending-meta">${j.company || ''} — ${j.source || ''}</div>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      if (chrome?.storage?.local) {
+        chrome.storage.local.set({ pendingJobs: [] }, render);
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>

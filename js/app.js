@@ -53,6 +53,7 @@ import { initJdStorage } from './components/jd-storage.js';
 import { completeChecklistItem } from './components/getting-started.js';
 import { renderAgentDashboard } from './views/agent-dashboard.js';
 import { initAgent, recordRefinementSignal } from './services/job-agent.js';
+import { startRealtimeSync, stopRealtimeSync } from './firebase/realtime.js';
 
 /* ============================================================
    Job CRUD helpers
@@ -454,6 +455,7 @@ async function boot() {
   const signOutBtn = document.getElementById('signOutBtn');
   const sidebarSignOut = document.getElementById('sidebarSignOut');
   const handleSignOut = async () => {
+    stopRealtimeSync();
     await signOut();
     state.set('user', null);
     updateUserUI();
@@ -486,10 +488,16 @@ async function boot() {
           if (rs) rs.value = settings.role;
         }
 
-        // Sync Firestore
+        // Sync Firestore + start real-time listeners
         try {
           await state.syncFromFirestore(getAllDocs);
           await migrateToFirestore();
+          // Start real-time listeners for cross-device sync
+          startRealtimeSync(state, (key) => {
+            if (['jobs', 'resumes', 'companies', 'contacts'].includes(key)) {
+              renderAll();
+            }
+          });
         } catch (e) { console.warn('Firestore sync skipped:', e); }
 
         // If we're on landing or auth and user is authenticated, redirect
