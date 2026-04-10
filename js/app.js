@@ -44,6 +44,7 @@ import { renderCompanies } from './views/companies.js';
 import { renderContacts } from './views/contacts.js';
 import { renderInsights } from './views/insights.js';
 import { renderSettings } from './views/settings.js';
+import { renderATSOptimizer } from './views/ats-optimizer.js';
 import { renderInterviews } from './views/interviews.js';
 import { renderTimeline } from './views/timeline.js';
 import { renderNetworking } from './views/networking.js';
@@ -108,6 +109,7 @@ function renderCurrentView() {
     insights: () => renderInsights(getSection('insights'), state),
     settings: () => renderSettings(getSection('settings'), null, null, null),
     agent: () => renderAgentDashboard(getSection('agent'), state, addJob),
+    ats: () => renderATSOptimizer(getSection('ats'), state),
     interviews: () => renderInterviews(getSection('interviews'), state),
     timeline: () => renderTimeline(getSection('timeline'), state),
     networking: () => renderNetworking(getSection('networking'), state),
@@ -434,6 +436,7 @@ async function boot() {
   router.registerView('tracker', () => renderTracker(getSection('tracker'), state, { addJob, updateJob, removeJob }));
   router.registerView('search', () => renderJobSearch(getSection('search'), state, addJob));
   router.registerView('agent', () => renderAgentDashboard(getSection('agent'), state, addJob));
+  router.registerView('ats', () => renderATSOptimizer(getSection('ats'), state));
   router.registerView('ai', () => renderAiTools(getSection('ai'), state, addJob));
   router.registerView('resume', () => renderResumeCenter(getSection('resume'), state));
   router.registerView('companies', () => renderCompanies(getSection('companies'), state));
