@@ -12,7 +12,8 @@ import { STATUSES } from '../config.js';
  * @param {{ addJob: Function, updateJob: Function, removeJob: Function }} actions
  */
 export function renderTracker(container, state, { addJob, updateJob, removeJob }) {
-  const jobs = state.get('jobs') || [];
+  // Filter out _meta docs from Firestore
+  const jobs = (state.get('jobs') || []).filter(j => j.id && j.id !== '_meta' && j.title);
   const isListView = state.get('listView') !== false;
   const role = state.get('role') || 'Candidate';
   const hideSalary = role === 'Auditor';
