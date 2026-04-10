@@ -13,9 +13,17 @@ import { STORAGE_KEYS } from '../config.js';
 export function renderLanding(container) {
   container.innerHTML = `
     <div class="landing-hero">
-      <div class="landing-logo"><div class="logo-text">T</div></div>
-      <h1 class="landing-title">JOBGRID PRO</h1>
-      <p class="landing-subtitle">Track. Analyze. Land the Role.</p>
+      <div class="landing-logo">
+        <svg width="48" height="48" viewBox="0 0 40 40" fill="none">
+          <path d="M20 6c-1.5 0-2.5 1-2.5 2.5v4c0 .8-.4 1.5-1 2l-1 .8c-.8.5-1.5 1.5-1.5 2.7v2h12v-2c0-1.2-.7-2.2-1.5-2.7l-1-.8c-.6-.5-1-1.2-1-2v-4C22.5 7 21.5 6 20 6z" fill="var(--color-primary)"/>
+          <path d="M12 22h16v3c0 1.7-1.3 3-3 3h-2v4h-6v-4h-2c-1.7 0-3-1.3-3-3v-3z" fill="var(--color-primary)" opacity="0.6"/>
+          <circle cx="17" cy="18.5" r="0.8" fill="var(--color-bg)"/>
+          <circle cx="20" cy="19.5" r="0.8" fill="var(--color-bg)"/>
+          <circle cx="23" cy="18.5" r="0.8" fill="var(--color-bg)"/>
+        </svg>
+      </div>
+      <h1 class="landing-title">JOBSYNC</h1>
+      <p class="landing-subtitle">Your Career, Automated.</p>
 
       <div class="landing-features">
         <div class="feature-card">

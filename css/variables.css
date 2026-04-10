@@ -1,58 +1,58 @@
 /* ============================================================
-   JobGrid Pro — Design Tokens v2
-   Refined TRON aesthetic with improved readability
+   JobSync — Design Tokens
+   Refined professional dark theme with copper/amber accent
    ============================================================ */
 :root {
-  /* Surface colors — deeper blacks with subtle blue undertone */
-  --color-bg: #050508;
-  --color-bg-secondary: #0a0a10;
-  --color-surface: #0f1018;
-  --color-surface-hover: #141520;
-  --color-surface-border: #1c1d2a;
-  --color-grid: #1a1020;
+  /* Surface colors — warm charcoal */
+  --color-bg: #1a1a1e;
+  --color-bg-secondary: #1e1e22;
+  --color-surface: #242428;
+  --color-surface-hover: #2a2a30;
+  --color-surface-border: #333338;
+  --color-grid: #2a2a30;
 
-  /* Primary (brand red) — refined from pure red */
-  --color-primary: #ff1a1a;
-  --color-primary-bright: #ff4040;
-  --color-primary-glow: rgba(255, 26, 26, 0.45);
-  --color-primary-dim: rgba(255, 26, 26, 0.1);
-  --color-primary-subtle: rgba(255, 26, 26, 0.05);
+  /* Primary (copper/amber from logo) */
+  --color-primary: #D4874D;
+  --color-primary-bright: #E09960;
+  --color-primary-glow: rgba(212, 135, 77, 0.25);
+  --color-primary-dim: rgba(212, 135, 77, 0.1);
+  --color-primary-subtle: rgba(212, 135, 77, 0.05);
 
-  /* Accent (cyan) — secondary accent for variety */
-  --color-accent: #00e5ff;
-  --color-accent-bright: #40efff;
-  --color-accent-glow: rgba(0, 229, 255, 0.35);
-  --color-accent-dim: rgba(0, 229, 255, 0.1);
+  /* Accent (cool teal — contrast against warm primary) */
+  --color-accent: #4ECDC4;
+  --color-accent-bright: #6ED8D0;
+  --color-accent-glow: rgba(78, 205, 196, 0.2);
+  --color-accent-dim: rgba(78, 205, 196, 0.08);
 
-  /* Semantic colors */
-  --color-success: #00ff6a;
-  --color-success-dim: rgba(0, 255, 106, 0.1);
-  --color-info: #3b82f6;
-  --color-info-dim: rgba(59, 130, 246, 0.1);
-  --color-danger: #ff3b3b;
-  --color-danger-dim: rgba(255, 59, 59, 0.1);
-  --color-warning: #ff9500;
-  --color-warning-dim: rgba(255, 149, 0, 0.1);
+  /* Semantic */
+  --color-success: #4ADE80;
+  --color-success-dim: rgba(74, 222, 128, 0.1);
+  --color-info: #60A5FA;
+  --color-info-dim: rgba(96, 165, 250, 0.1);
+  --color-danger: #F87171;
+  --color-danger-dim: rgba(248, 113, 113, 0.1);
+  --color-warning: #FBBF24;
+  --color-warning-dim: rgba(251, 191, 36, 0.1);
 
-  /* Text — improved contrast */
-  --color-text: #eaedf3;
-  --color-text-dim: #9da3b0;
-  --color-text-heading: #ffffff;
-  --color-muted: #5a5f72;
+  /* Text */
+  --color-text: #E4E4E7;
+  --color-text-dim: #A1A1AA;
+  --color-text-heading: #FAFAFA;
+  --color-muted: #6B6B76;
 
-  /* Typography — dual font system */
-  --font-display: 'Orbitron', system-ui, sans-serif;
-  --font-body: 'Rajdhani', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  /* Typography */
+  --font-display: 'Instrument Sans', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 
   /* Type scale */
   --text-xs: 11px;
   --text-sm: 13px;
-  --text-base: 15px;
-  --text-lg: 18px;
-  --text-xl: 22px;
-  --text-2xl: 28px;
-  --text-3xl: 36px;
+  --text-base: 14px;
+  --text-lg: 17px;
+  --text-xl: 21px;
+  --text-2xl: 26px;
+  --text-3xl: 32px;
 
   /* Sizing */
   --radius-sm: 4px;
@@ -61,25 +61,25 @@
   --radius-xl: 16px;
   --radius-full: 9999px;
 
-  /* Shadows — refined with color */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
-  --shadow-glow: 0 0 20px var(--color-primary-glow);
-  --shadow-glow-lg: 0 0 40px var(--color-primary-glow);
-  --shadow-glow-accent: 0 0 20px var(--color-accent-glow);
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 16px rgba(212, 135, 77, 0.15);
+  --shadow-glow-lg: 0 0 32px rgba(212, 135, 77, 0.12);
+  --shadow-glow-accent: 0 0 16px rgba(78, 205, 196, 0.15);
 
   /* Transitions */
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.25s ease;
-  --transition-slow: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 0.12s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Layout */
-  --sidebar-width: 260px;
-  --sidebar-collapsed: 56px;
-  --header-height: 64px;
+  --sidebar-width: 240px;
+  --sidebar-collapsed: 52px;
+  --header-height: 56px;
 
-  /* Z-index scale */
+  /* Z-index */
   --z-base: 1;
   --z-sidebar: 50;
   --z-header: 100;
@@ -87,6 +87,6 @@
   --z-toast: 300;
   --z-tour: 400;
 
-  /* Grid animation (theme-controlled) */
-  --grid-opacity: 1;
+  /* Grid animation */
+  --grid-opacity: 0;
 }

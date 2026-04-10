@@ -1,54 +1,42 @@
 /* ============================================================
-   JobGrid Pro — Light Theme v2
-   Clean, refined light mode with warm neutrals
+   JobSync — Light Theme
+   Warm whites + copper accent
    ============================================================ */
 [data-theme="light"] {
-  --color-bg: #f4f5f7;
-  --color-bg-secondary: #ecedf0;
-  --color-surface: #ffffff;
-  --color-surface-hover: #f8f8fa;
-  --color-surface-border: #d4d6dd;
-  --color-grid: #e5e7ec;
-  --color-primary: #cc1a1a;
-  --color-primary-bright: #e63333;
-  --color-primary-glow: rgba(204, 26, 26, 0.15);
-  --color-primary-dim: rgba(204, 26, 26, 0.06);
-  --color-primary-subtle: rgba(204, 26, 26, 0.03);
-  --color-accent: #0891b2;
-  --color-accent-bright: #06b6d4;
-  --color-accent-glow: rgba(8, 145, 178, 0.15);
-  --color-accent-dim: rgba(8, 145, 178, 0.06);
-  --color-success: #16a34a;
-  --color-success-dim: rgba(22, 163, 74, 0.08);
-  --color-info: #2563eb;
-  --color-info-dim: rgba(37, 99, 235, 0.08);
-  --color-danger: #dc2626;
-  --color-danger-dim: rgba(220, 38, 38, 0.08);
-  --color-warning: #d97706;
-  --color-warning-dim: rgba(217, 119, 6, 0.08);
-  --color-text: #1e1e2e;
-  --color-text-dim: #555770;
-  --color-text-heading: #0f0f1a;
-  --color-muted: #8e90a0;
+  --color-bg: #FAFAF9;
+  --color-bg-secondary: #F5F5F4;
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #F9FAFB;
+  --color-surface-border: #E4E4E7;
+  --color-primary: #C17A42;
+  --color-primary-bright: #D4874D;
+  --color-primary-glow: rgba(193, 122, 66, 0.12);
+  --color-primary-dim: rgba(193, 122, 66, 0.06);
+  --color-primary-subtle: rgba(193, 122, 66, 0.03);
+  --color-accent: #0D9488;
+  --color-accent-bright: #14B8A6;
+  --color-accent-glow: rgba(13, 148, 136, 0.1);
+  --color-accent-dim: rgba(13, 148, 136, 0.05);
+  --color-success: #16A34A;
+  --color-info: #2563EB;
+  --color-danger: #DC2626;
+  --color-warning: #D97706;
+  --color-text: #1C1C1E;
+  --color-text-dim: #6B6B76;
+  --color-text-heading: #09090B;
+  --color-muted: #A1A1AA;
   --grid-opacity: 0;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 8px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 16px rgba(0,0,0,0.08);
   --shadow-glow: none;
   --shadow-glow-lg: none;
-  --shadow-glow-accent: none;
 }
 
-[data-theme="light"] .panel { background: var(--color-surface); box-shadow: var(--shadow-sm); }
-[data-theme="light"] .panel::before { opacity: 0; }
-[data-theme="light"] header { background: rgba(244,245,247,0.95); }
-[data-theme="light"] header::before { background: linear-gradient(90deg, transparent, rgba(204,26,26,0.3), transparent); }
+[data-theme="light"] .panel { box-shadow: var(--shadow-sm); }
+[data-theme="light"] .panel:hover { border-color: var(--color-surface-border); }
+[data-theme="light"] header { background: var(--color-surface); }
 [data-theme="light"] nav { background: var(--color-surface); }
-[data-theme="light"] .table td { background: transparent; }
-[data-theme="light"] .search-result { background: var(--color-surface); }
-[data-theme="light"] .card { background: var(--color-surface); }
-[data-theme="light"] .toast { background: var(--color-surface); box-shadow: var(--shadow-md); }
-[data-theme="light"] .logo { box-shadow: 0 0 10px var(--color-primary-glow); }
 [data-theme="light"] .modal .content { box-shadow: var(--shadow-lg); }
 [data-theme="light"] ::-webkit-scrollbar-track { background: var(--color-bg); }
 [data-theme="light"] ::-webkit-scrollbar-thumb { background: var(--color-surface-border); }

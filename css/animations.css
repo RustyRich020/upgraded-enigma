@@ -1,39 +1,10 @@
 /* ============================================================
-   JobGrid Pro — Animations v2
-   Refined, subtle TRON grid + micro-interactions
+   JobSync — Animations
+   Clean, professional micro-interactions
    ============================================================ */
 
-/* Grid background — subtle radial glows */
-body::before {
-  content: ''; position: fixed; inset: 0;
-  background:
-    radial-gradient(ellipse at 50% 100%, rgba(255,26,26,0.06) 0%, transparent 50%),
-    radial-gradient(circle at 85% 15%, rgba(0,229,255,0.04) 0%, transparent 35%),
-    radial-gradient(circle at 15% 60%, rgba(255,26,26,0.03) 0%, transparent 30%);
-  opacity: var(--grid-opacity, 1);
-  pointer-events: none; z-index: 0;
-  animation: gridPulse 10s ease-in-out infinite;
-}
-
-/* Grid wireframe — very subtle */
-body::after {
-  content: ''; position: fixed; inset: 0;
-  background:
-    repeating-linear-gradient(0deg, transparent 0px, transparent 59px, rgba(255,26,26,0.03) 60px, transparent 61px),
-    repeating-linear-gradient(90deg, transparent 0px, transparent 59px, rgba(255,26,26,0.03) 60px, transparent 61px);
-  pointer-events: none; z-index: 0;
-  opacity: var(--grid-opacity, 1);
-}
-
-@keyframes gridPulse {
-  0%, 100% { opacity: calc(0.7 * var(--grid-opacity, 1)); }
-  50% { opacity: var(--grid-opacity, 1); }
-}
-
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 15px var(--color-primary-glow); }
-  50% { box-shadow: 0 0 25px var(--color-primary-glow), 0 0 50px rgba(255,26,26,0.15); }
-}
+/* No grid background — clean solid color */
+body::before, body::after { display: none; }
 
 @keyframes slideIn {
   from { transform: translateX(100%); opacity: 0; }
@@ -45,26 +16,16 @@ body::after {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.95); }
+  from { opacity: 0; transform: scale(0.97); }
   to { opacity: 1; transform: scale(1); }
 }
 
-@keyframes glowPulse {
-  0%, 100% { text-shadow: 0 0 10px var(--color-primary-glow); }
-  50% { text-shadow: 0 0 25px var(--color-primary-glow), 0 0 50px rgba(255,26,26,0.1); }
-}
-
-@keyframes borderGlow {
-  0%, 100% { border-color: rgba(255,26,26,0.3); }
-  50% { border-color: var(--color-primary); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }

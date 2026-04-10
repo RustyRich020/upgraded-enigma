@@ -1,9 +1,8 @@
 /* ============================================================
-   JobGrid Pro — Layout v2
-   Refined header, sidebar, and main content area
+   JobSync — Layout
+   Clean professional header, sidebar, main area
    ============================================================ */
 
-/* App shell */
 .app {
   display: grid;
   grid-template-rows: auto 1fr;
@@ -15,14 +14,13 @@
 
 /* Header */
 header {
-  min-height: var(--header-height);
+  height: var(--header-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
   border-bottom: 1px solid var(--color-surface-border);
-  background: rgba(5, 5, 8, 0.95);
-  backdrop-filter: blur(12px);
+  background: var(--color-bg);
   position: sticky;
   top: 0;
   z-index: var(--z-header);
@@ -30,59 +28,45 @@ header {
   flex-wrap: wrap;
 }
 
-/* Subtle red line at the very top of header */
-header::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
-}
-
 header .brand {
   display: flex;
   gap: 10px;
   align-items: center;
   flex-shrink: 0;
-  min-width: 0;
 }
 
 .logo {
-  width: 34px; height: 34px;
-  border: 1.5px solid var(--color-primary);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: var(--radius-md);
   background: var(--color-primary-dim);
-  box-shadow: 0 0 15px var(--color-primary-glow);
-  animation: pulse 4s ease-in-out infinite;
+  display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
 
 .logo-text {
   font-family: var(--font-display);
-  font-weight: 900; font-size: 14px; color: var(--color-primary);
+  font-weight: 700; font-size: 14px; color: var(--color-primary);
 }
 
 header h1 {
   font-family: var(--font-display);
-  font-size: 16px; font-weight: 900;
-  letter-spacing: 3px;
+  font-size: 15px; font-weight: 700;
+  letter-spacing: 1.5px;
   color: var(--color-text-heading);
-  white-space: nowrap;
 }
 
 .header-actions {
   display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
   justify-content: flex-end;
-  min-width: 0;
 }
 
 .header-actions .role-sel {
-  max-width: 140px;
+  max-width: 130px;
   font-size: var(--text-xs);
   padding: 5px 8px;
 }
 
-/* Layout: sidebar + main */
+/* Layout */
 .layout {
   display: grid;
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
@@ -94,26 +78,23 @@ header h1 {
 /* Sidebar */
 nav {
   border-right: 1px solid var(--color-surface-border);
-  padding: 16px 12px;
+  padding: 16px 10px;
   position: sticky;
   top: var(--header-height);
   height: calc(100vh - var(--header-height));
   overflow-y: auto;
-  background: rgba(5, 5, 8, 0.98);
+  background: var(--color-bg);
   z-index: var(--z-sidebar);
-  transition: width var(--transition-normal), padding var(--transition-normal);
 }
 
-nav .group { margin-bottom: 20px; }
+nav .group { margin-bottom: 16px; }
 
 nav h4 {
-  margin: 16px 12px 8px;
+  margin: 12px 12px 6px;
   color: var(--color-muted);
-  font-family: var(--font-display);
-  font-weight: 700; font-size: 10px;
-  text-transform: uppercase; letter-spacing: 2.5px;
-  padding-bottom: 0;
-  border-bottom: none;
+  font-family: var(--font-body);
+  font-weight: 600; font-size: 10px;
+  text-transform: uppercase; letter-spacing: 1.5px;
 }
 
 /* Sidebar expand/collapse */
@@ -122,33 +103,29 @@ nav h4 {
   width: 100%; padding: 4px 12px; text-align: left;
 }
 .nav-expand-btn:hover h4 { color: var(--color-text-dim); }
-.nav-collapsible { animation: fadeIn 0.2s ease-out; }
+.nav-collapsible { animation: fadeIn 0.15s ease-out; }
 
-/* Hamburger button (mobile only) */
+/* Hamburger */
 .hamburger {
   display: none;
   background: none; border: none;
   color: var(--color-text-dim);
-  font-size: 22px; cursor: pointer;
-  padding: 8px;
+  font-size: 20px; cursor: pointer;
+  padding: 6px;
 }
 
-/* Sidebar overlay backdrop (mobile) */
 .sidebar-overlay {
   display: none;
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.5);
   z-index: calc(var(--z-sidebar) - 1);
 }
 
-/* Auth mode: collapse sidebar column */
-body.auth-mode .layout {
-  grid-template-columns: 1fr;
-}
+body.auth-mode .layout { grid-template-columns: 1fr; }
 
-/* Main content */
+/* Main */
 main {
-  padding: 28px;
+  padding: 24px;
   background: var(--color-bg);
   overflow-x: hidden;
   overflow-y: auto;

@@ -1,5 +1,7 @@
 {
   "projects": {
     "default": "jobgrid-pro"
-  }
+  },
+  "targets": {},
+  "etags": {}
 }

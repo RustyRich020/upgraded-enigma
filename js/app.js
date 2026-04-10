@@ -1,5 +1,5 @@
 /* ============================================================
-   app.js — Main entry point for JobGrid Pro
+   app.js — Main entry point for JobSync
    ============================================================ */
 
 // Config & utilities
@@ -573,7 +573,7 @@ async function boot() {
     toast(`Added "${title}" to tracker`, 'success');
   };
 
-  console.log('JobGrid Pro initialized');
+  console.log('JobSync initialized');
 }
 
 // Run boot when DOM is ready

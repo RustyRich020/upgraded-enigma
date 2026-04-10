@@ -1,12 +1,12 @@
 {
-  "name": "JobGrid Pro",
-  "short_name": "JobGrid",
+  "name": "JobSync",
+  "short_name": "JobSync",
   "description": "Professional job tracking and career management system with AI-powered analysis",
   "start_url": "/index.html",
   "display": "standalone",
   "orientation": "any",
-  "theme_color": "#ff0000",
-  "background_color": "#000000",
+  "theme_color": "#D4874D",
+  "background_color": "#1a1a1e",
   "categories": ["productivity", "business"],
   "icons": [
     { "src": "assets/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any maskable" },
