@@ -8,6 +8,7 @@ import { requestPermission } from '../services/notifications.js';
 import { getUserTier, setUserTier, resetUsage } from '../services/usage-tracker.js';
 import { renderPricingTable, renderUsageDashboard } from '../components/upgrade-banner.js';
 import { saveUserApiKeys, setUserTierInFirestore } from '../firebase/provisioning.js';
+import { completeChecklistItem } from '../components/getting-started.js';
 
 /**
  * Render the settings view.
@@ -49,6 +50,8 @@ export function renderSettings(container, apiKeys, onSave, onClear) {
       saveAllKeys(keys);
       // Also save to Firestore for cloud sync
       saveUserApiKeys(keys).catch(() => {});
+      // Check if any AI/NLP key was set
+      if (keys.geminiKey || keys.groqKey) completeChecklistItem('apiKeyConnected');
       updateStatuses();
       toast('API settings saved!', 'success');
       if (onSave) onSave(keys);

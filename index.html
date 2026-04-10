@@ -89,12 +89,18 @@
         <button class="nav-btn" data-view="insights"><span class="nav-icon">◆</span><span class="nav-label">Insights</span></button>
       </div>
       <div class="group">
-        <h4>Advanced Tools</h4>
-        <button class="nav-btn" data-view="interviews"><span class="nav-icon">◆</span><span class="nav-label">Interviews</span></button>
-        <button class="nav-btn" data-view="timeline"><span class="nav-icon">◆</span><span class="nav-label">Timeline</span></button>
-        <button class="nav-btn" data-view="networking"><span class="nav-icon">◆</span><span class="nav-label">Networking</span></button>
-        <button class="nav-btn" data-view="salary"><span class="nav-icon">◆</span><span class="nav-label">Salary Tool</span></button>
-        <button class="nav-btn" data-view="report"><span class="nav-icon">◆</span><span class="nav-label">Weekly Report</span></button>
+        <button class="nav-expand-btn" id="navExpandMore">
+          <h4 style="margin:0;cursor:pointer;display:flex;align-items:center;gap:6px;">
+            <span id="navExpandIcon" style="transition:transform 0.2s;">▸</span> More Tools
+          </h4>
+        </button>
+        <div class="nav-collapsible" id="navMoreSection" style="display:none;">
+          <button class="nav-btn" data-view="interviews"><span class="nav-icon">◆</span><span class="nav-label">Interviews</span></button>
+          <button class="nav-btn" data-view="timeline"><span class="nav-icon">◆</span><span class="nav-label">Timeline</span></button>
+          <button class="nav-btn" data-view="networking"><span class="nav-icon">◆</span><span class="nav-label">Networking</span></button>
+          <button class="nav-btn" data-view="salary"><span class="nav-icon">◆</span><span class="nav-label">Salary Tool</span></button>
+          <button class="nav-btn" data-view="report"><span class="nav-icon">◆</span><span class="nav-label">Weekly Report</span></button>
+        </div>
       </div>
       <div class="group">
         <h4>Configuration</h4>
@@ -171,6 +177,7 @@
 
       <!-- DASHBOARD -->
       <section id="view-dashboard" class="panel hidden">
+        <div id="dashboardChecklist"></div>
         <div class="toolbar"><h2>⟨ DASHBOARD ⟩</h2><span class="tag">Pipeline</span></div>
         <div class="grid cols-3">
           <div class="panel"><h4>PIPELINE STATUS</h4><canvas id="pipelineChart" height="200"></canvas></div>
