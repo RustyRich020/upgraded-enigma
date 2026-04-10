@@ -1,4 +1,4 @@
-# JobGrid Pro
+# JobSync
 
 **Professional job tracking and career management system** with AI-powered analysis, real-time job search, and Firebase backend.
 

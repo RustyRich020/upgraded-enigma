@@ -29,7 +29,7 @@ export function checkFollowUps(jobs, ntfyTopic) {
   dueJobs.forEach(j => {
     // Browser notification
     if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-      new Notification('JobGrid Pro Follow-Up', {
+      new Notification('JobSync Follow-Up', {
         body: `${j.title} @ ${j.company} — follow-up due ${j.follow}`,
         icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><circle cx="32" cy="32" r="30" fill="%23000" stroke="%23f00" stroke-width="3"/><text x="32" y="42" text-anchor="middle" fill="%23f00" font-size="32" font-weight="bold">T</text></svg>',
         tag: 'tron-followup-' + j.id
@@ -57,7 +57,7 @@ export async function sendNtfy(message, topic) {
       method: 'POST',
       body: message,
       headers: {
-        'Title': 'JobGrid Pro',
+        'Title': 'JobSync',
         'Priority': '3',
         'Tags': 'briefcase'
       }
