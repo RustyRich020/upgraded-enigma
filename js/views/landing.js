@@ -27,19 +27,19 @@ export function renderLanding(container) {
 
       <div class="landing-features">
         <div class="feature-card">
-          <div class="feature-icon">&#9670;</div>
-          <h3>SMART TRACKING</h3>
+          <div class="feature-icon" style="font-size:28px">📊</div>
+          <h3>Smart Tracking</h3>
           <p>Kanban board, pipeline analytics, follow-up reminders, and CSV import/export.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">&#9670;</div>
-          <h3>AI-POWERED ANALYSIS</h3>
+          <div class="feature-icon" style="font-size:28px">🤖</div>
+          <h3>AI-Powered Analysis</h3>
           <p>Resume-to-JD matching via Google Gemini, AI cover letter generation, and skill gap detection.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">&#9670;</div>
-          <h3>REAL-TIME JOB SEARCH</h3>
-          <p>Search Remotive and Adzuna APIs, auto-add listings to your tracker with one click.</p>
+          <div class="feature-icon" style="font-size:28px">🔍</div>
+          <h3>Real-Time Job Search</h3>
+          <p>Search 4 job board APIs simultaneously. Auto-add results to your tracker with one click.</p>
         </div>
       </div>
 

@@ -32,11 +32,11 @@ export function getThemeColors() {
     bg: get('--color-bg', '#050508'),
     // Pipeline-specific palette
     pipeline: {
-      Saved: get('--color-primary', '#ff1a1a'),
-      Applied: get('--color-warning', '#ff9500'),
-      Interview: get('--color-accent', '#00e5ff'),
-      Offer: get('--color-success', '#00ff6a'),
-      Closed: get('--color-muted', '#5a5f72'),
+      Saved: get('--color-primary', '#D4874D'),
+      Applied: get('--color-warning', '#FBBF24'),
+      Interview: get('--color-accent', '#4ECDC4'),
+      Offer: get('--color-success', '#4ADE80'),
+      Closed: get('--color-muted', '#6B6B76'),
     }
   };
 }
@@ -60,7 +60,7 @@ export function makeChart(canvasId, config) {
 
   const colors = getThemeColors();
   Chart.defaults.color = colors.text;
-  Chart.defaults.font.family = "'Rajdhani', system-ui, sans-serif";
+  Chart.defaults.font.family = "'DM Sans', system-ui, sans-serif";
   Chart.defaults.font.size = 12;
   Chart.defaults.font.weight = 600;
 
