@@ -72,7 +72,7 @@ export function renderProfileSetup(container, state, onComplete) {
     }
 
     if (step === 3) {
-      ['geminiKey', 'adzunaId', 'adzunaKey'].forEach(id => {
+      ['geminiKey', 'groqKey', 'adzunaId', 'adzunaKey', 'jsearchKey', 'hunterKey', 'emailjsPublic', 'abstractKey', 'ntfyTopic'].forEach(id => {
         const el = container.querySelector('#wizard_' + id);
         if (el) el.addEventListener('input', e => { wizard.apiKeys[id] = e.target.value.trim(); });
       });
@@ -148,20 +148,70 @@ export function renderProfileSetup(container, state, onComplete) {
   function renderStep3() {
     return `
       <h3>API Keys (Optional)</h3>
-      <p class="muted" style="margin-bottom:16px;font-size:12px;">Add API keys now or skip and configure later in Settings.</p>
-      <label style="display:block;margin:12px 0;">
-        <h4>GOOGLE GEMINI KEY</h4>
-        <input id="wizard_geminiKey" class="input" placeholder="AI-powered analysis (optional)">
-        <div class="muted" style="font-size:10px;margin-top:4px;">Free: 15 req/min</div>
+      <p class="muted" style="margin-bottom:16px;font-size:12px;">Add keys now or configure later in Settings. All APIs have free tiers.</p>
+
+      <div style="border-bottom:1px solid var(--grid);padding-bottom:8px;margin-bottom:12px">
+        <h4 style="color:var(--orange-bright);font-size:11px;text-transform:uppercase;letter-spacing:1px">AI / NLP</h4>
+      </div>
+      <label style="display:block;margin:8px 0;">
+        <h4>GOOGLE GEMINI</h4>
+        <input id="wizard_geminiKey" class="input" placeholder="API Key — Free: 15 req/min">
+        <div class="muted" style="font-size:10px;margin-top:2px"><a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--color-info)">Get key</a></div>
       </label>
-      <label style="display:block;margin:12px 0;">
+      <label style="display:block;margin:8px 0;">
+        <h4>GROQ (Fast LLM)</h4>
+        <input id="wizard_groqKey" class="input" placeholder="API Key — Free tier, Llama 3.3 70B">
+        <div class="muted" style="font-size:10px;margin-top:2px"><a href="https://console.groq.com/keys" target="_blank" style="color:var(--color-info)">Get key</a></div>
+      </label>
+
+      <div style="border-bottom:1px solid var(--grid);padding-bottom:8px;margin:16px 0 12px">
+        <h4 style="color:var(--orange-bright);font-size:11px;text-transform:uppercase;letter-spacing:1px">Job Search</h4>
+      </div>
+      <label style="display:block;margin:8px 0;">
         <h4>ADZUNA APP ID</h4>
-        <input id="wizard_adzunaId" class="input" placeholder="Job search (optional)">
+        <input id="wizard_adzunaId" class="input" placeholder="Free: 250 req/day">
       </label>
-      <label style="display:block;margin:12px 0;">
+      <label style="display:block;margin:8px 0;">
         <h4>ADZUNA APP KEY</h4>
-        <input id="wizard_adzunaKey" class="input" placeholder="Job search (optional)">
-        <div class="muted" style="font-size:10px;margin-top:4px;">Free: 250 req/day</div>
+        <input id="wizard_adzunaKey" class="input" placeholder="App Key">
+        <div class="muted" style="font-size:10px;margin-top:2px"><a href="https://developer.adzuna.com/" target="_blank" style="color:var(--color-info)">Get keys</a></div>
+      </label>
+      <label style="display:block;margin:8px 0;">
+        <h4>JSEARCH (RapidAPI)</h4>
+        <input id="wizard_jsearchKey" class="input" placeholder="Free: 500 req/mo — LinkedIn, Indeed aggregator">
+        <div class="muted" style="font-size:10px;margin-top:2px"><a href="https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch" target="_blank" style="color:var(--color-info)">Get key</a></div>
+      </label>
+
+      <div style="border-bottom:1px solid var(--grid);padding-bottom:8px;margin:16px 0 12px">
+        <h4 style="color:var(--orange-bright);font-size:11px;text-transform:uppercase;letter-spacing:1px">Email / Contacts</h4>
+      </div>
+      <label style="display:block;margin:8px 0;">
+        <h4>HUNTER.IO</h4>
+        <input id="wizard_hunterKey" class="input" placeholder="Free: 25 verifications/mo">
+        <div class="muted" style="font-size:10px;margin-top:2px"><a href="https://hunter.io/api" target="_blank" style="color:var(--color-info)">Get key</a></div>
+      </label>
+      <label style="display:block;margin:8px 0;">
+        <h4>EMAILJS PUBLIC KEY</h4>
+        <input id="wizard_emailjsPublic" class="input" placeholder="Free: 200 emails/mo">
+        <div class="muted" style="font-size:10px;margin-top:2px"><a href="https://www.emailjs.com/" target="_blank" style="color:var(--color-info)">Setup</a> — also configure Service ID and Template ID in Settings</div>
+      </label>
+
+      <div style="border-bottom:1px solid var(--grid);padding-bottom:8px;margin:16px 0 12px">
+        <h4 style="color:var(--orange-bright);font-size:11px;text-transform:uppercase;letter-spacing:1px">Company / Salary Data</h4>
+      </div>
+      <label style="display:block;margin:8px 0;">
+        <h4>ABSTRACT COMPANY ENRICHMENT</h4>
+        <input id="wizard_abstractKey" class="input" placeholder="Free: 100 req/mo — industry, size, HQ">
+        <div class="muted" style="font-size:10px;margin-top:2px"><a href="https://www.abstractapi.com/api/company-enrichment" target="_blank" style="color:var(--color-info)">Get key</a></div>
+      </label>
+
+      <div style="border-bottom:1px solid var(--grid);padding-bottom:8px;margin:16px 0 12px">
+        <h4 style="color:var(--orange-bright);font-size:11px;text-transform:uppercase;letter-spacing:1px">Notifications</h4>
+      </div>
+      <label style="display:block;margin:8px 0;">
+        <h4>NTFY.SH TOPIC</h4>
+        <input id="wizard_ntfyTopic" class="input" placeholder="e.g., jobgrid-alerts — Free, no account">
+        <div class="muted" style="font-size:10px;margin-top:2px"><a href="https://ntfy.sh/" target="_blank" style="color:var(--color-info)">Learn more</a></div>
       </label>
     `;
   }

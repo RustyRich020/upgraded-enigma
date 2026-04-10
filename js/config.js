@@ -66,7 +66,12 @@ export const FEATURES = {
   ntfyPush: true,
   onboardingTour: true,
   landing: true,
-  emailAuth: true
+  emailAuth: true,
+  arbeitnow: true,
+  jsearch: true,
+  careerOneStop: true,
+  companyEnrichment: true,
+  groqAi: true
 };
 
 // API endpoints
@@ -77,7 +82,12 @@ export const ENDPOINTS = {
   hunter: 'https://api.hunter.io/v2/email-verifier',
   bls: 'https://api.bls.gov/publicAPI/v2/timeseries/data/',
   ntfy: 'https://ntfy.sh',
-  clearbitLogo: 'https://logo.clearbit.com'
+  clearbitLogo: 'https://logo.clearbit.com',
+  arbeitnow: 'https://www.arbeitnow.com/api/job-board-api',
+  jsearch: 'https://jsearch.p.rapidapi.com/search',
+  careerOneStop: 'https://api.careeronestop.org/v1/occupation',
+  abstractCompany: 'https://companyenrichment.abstractapi.com/v1/',
+  groq: 'https://api.groq.com/openai/v1/chat/completions'
 };
 
 // BLS series IDs

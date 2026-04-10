@@ -5,6 +5,8 @@
 import { escapeHtml } from '../utils.js';
 import { searchRemotive } from '../services/search-remotive.js';
 import { searchAdzuna } from '../services/search-adzuna.js';
+import { searchArbeitnow } from '../services/search-arbeitnow.js';
+import { searchJSearch } from '../services/search-jsearch.js';
 import { getApi, hasApi } from '../services/api-keys.js';
 import { toast } from '../components/toast.js';
 import { ENDPOINTS } from '../config.js';
@@ -18,7 +20,9 @@ import { uid, today } from '../utils.js';
  */
 export function renderJobSearch(container, state, addJob) {
   const searchBtn = container.querySelector('#searchRemotiveBtn');
+  const arbeitnowBtn = container.querySelector('#searchArbeitnowBtn');
   const adzunaBtn = container.querySelector('#searchAdzunaBtn');
+  const jsearchBtn = container.querySelector('#searchJSearchBtn');
   const statusEl = container.querySelector('#searchStatus');
   const resultsEl = container.querySelector('#searchResults');
 
@@ -37,6 +41,49 @@ export function renderJobSearch(container, state, addJob) {
       } catch (err) {
         if (statusEl) statusEl.textContent = 'Error: ' + err.message;
         toast('Remotive search failed: ' + err.message, 'error');
+      }
+    };
+  }
+
+  // Arbeitnow — free, no key
+  if (arbeitnowBtn) {
+    arbeitnowBtn.onclick = async () => {
+      const keyword = (container.querySelector('#searchKeyword')?.value || '').trim();
+      if (statusEl) statusEl.innerHTML = '<span class="spinner"></span> Searching Arbeitnow...';
+      if (resultsEl) resultsEl.innerHTML = '';
+      try {
+        const jobs = await searchArbeitnow(keyword);
+        if (statusEl) statusEl.textContent = `Found ${jobs.length} European/remote jobs`;
+        if (resultsEl) resultsEl.innerHTML = renderResults(jobs);
+        bindAddButtons(resultsEl, addJob);
+      } catch (err) {
+        if (statusEl) statusEl.textContent = 'Error: ' + err.message;
+        toast('Arbeitnow search failed: ' + err.message, 'error');
+      }
+    };
+  }
+
+  // JSearch — requires RapidAPI key
+  if (jsearchBtn) {
+    jsearchBtn.onclick = async () => {
+      if (!hasApi('jsearchKey')) {
+        toast('Configure JSearch RapidAPI key in Settings first', 'error');
+        return;
+      }
+      const keyword = (container.querySelector('#searchKeyword')?.value || '').trim() || 'developer';
+      const location = (container.querySelector('#searchLocation')?.value || '').trim();
+      const query = location ? `${keyword} in ${location}` : keyword;
+      if (statusEl) statusEl.innerHTML = '<span class="spinner"></span> Searching JSearch (LinkedIn, Indeed)...';
+      if (resultsEl) resultsEl.innerHTML = '';
+      try {
+        const jobs = await searchJSearch(query, getApi('jsearchKey'));
+        if (statusEl) statusEl.textContent = `Found ${jobs.length} jobs from LinkedIn, Indeed, etc.`;
+        if (resultsEl) resultsEl.innerHTML = renderResults(jobs);
+        bindAddButtons(resultsEl, addJob);
+        toast(`JSearch: ${jobs.length} jobs found`, 'success');
+      } catch (err) {
+        if (statusEl) statusEl.textContent = 'Error: ' + err.message;
+        toast('JSearch failed: ' + err.message, 'error');
       }
     };
   }

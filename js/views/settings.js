@@ -1,5 +1,5 @@
 /* ============================================================
-   views/settings.js — API key configuration
+   views/settings.js — API key configuration (all 13 APIs)
    ============================================================ */
 
 import { getApi, hasApi, saveAllKeys, clearKeys, loadKeys } from '../services/api-keys.js';
@@ -8,21 +8,22 @@ import { requestPermission } from '../services/notifications.js';
 
 /**
  * Render the settings view.
- * @param {HTMLElement} container — section element
- * @param {object} apiKeys — current keys object (unused, we read from service)
- * @param {Function} onSave — called after save
- * @param {Function} onClear — called after clear
  */
 export function renderSettings(container, apiKeys, onSave, onClear) {
-  // Populate fields from stored keys
+  // All API key field mappings: DOM id → storage key
   const fields = {
     apiAdzunaId: 'adzunaId',
     apiAdzunaKey: 'adzunaKey',
+    apiJSearchKey: 'jsearchKey',
     apiGeminiKey: 'geminiKey',
+    apiGroqKey: 'groqKey',
     apiEmailjsPublic: 'emailjsPublic',
     apiEmailjsService: 'emailjsService',
     apiEmailjsTemplate: 'emailjsTemplate',
     apiHunterKey: 'hunterKey',
+    apiAbstractKey: 'abstractKey',
+    apiCareerOneStopKey: 'careerOneStopKey',
+    apiCareerOneStopUser: 'careerOneStopUser',
     apiNtfyTopic: 'ntfyTopic'
   };
 
@@ -78,30 +79,33 @@ export function renderSettings(container, apiKeys, onSave, onClear) {
 
 function updateStatuses() {
   setStatus('adzunaStatus', hasApi('adzunaId') && hasApi('adzunaKey'));
+  setStatus('jsearchStatus', hasApi('jsearchKey'));
   setStatus('geminiStatus', hasApi('geminiKey'));
+  setStatus('groqStatus', hasApi('groqKey'));
   setStatus('emailjsStatus', hasApi('emailjsPublic'));
   setStatus('hunterStatus', hasApi('hunterKey'));
+  setStatus('abstractStatus', hasApi('abstractKey'));
+  setStatus('careerOneStopStatus', hasApi('careerOneStopKey'));
   setStatus('ntfyStatus', !!getApi('ntfyTopic'));
   setStatus('browserNotifStatus', typeof Notification !== 'undefined' && Notification.permission === 'granted');
 
-  // Header API tag
-  const activeCount = [
-    hasApi('adzunaId'), hasApi('geminiKey'), hasApi('emailjsPublic'),
-    hasApi('hunterKey'), !!getApi('ntfyTopic')
+  // Header API tag — count all active keyed APIs + always-free ones
+  const keyedActive = [
+    hasApi('adzunaId'), hasApi('jsearchKey'), hasApi('geminiKey'), hasApi('groqKey'),
+    hasApi('emailjsPublic'), hasApi('hunterKey'), hasApi('abstractKey'),
+    hasApi('careerOneStopKey'), !!getApi('ntfyTopic')
   ].filter(Boolean).length;
+  const alwaysFree = 3; // Remotive, Arbeitnow, BLS (no key needed)
   const tag = document.getElementById('apiStatusTag');
   if (tag) {
-    if (activeCount > 0) {
-      tag.style.display = '';
-      tag.textContent = `${activeCount + 1} APIs Active`; // +1 for Remotive
-    } else {
-      tag.style.display = 'none';
-    }
+    const total = keyedActive + alwaysFree;
+    tag.style.display = '';
+    tag.textContent = `${total} APIs Active`;
   }
 
   // AI mode indicator
   const aiMode = document.getElementById('aiMode');
-  if (aiMode) aiMode.style.display = hasApi('geminiKey') ? '' : 'none';
+  if (aiMode) aiMode.style.display = (hasApi('geminiKey') || hasApi('groqKey')) ? '' : 'none';
 }
 
 function setStatus(elId, active) {
