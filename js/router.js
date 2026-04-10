@@ -65,10 +65,17 @@ function handleRoute() {
     s.classList.add('hidden');
   });
 
-  // Show the target section
+  // Show the target section with fade-in animation
   const target = document.getElementById('view-' + view);
   if (target) {
     target.classList.remove('hidden');
+    target.classList.add('view-enter');
+    target.addEventListener('animationend', () => target.classList.remove('view-enter'), { once: true });
+    // Accessibility: focus the view heading
+    requestAnimationFrame(() => {
+      const heading = target.querySelector('h2');
+      if (heading) { heading.setAttribute('tabindex', '-1'); heading.focus({ preventScroll: true }); }
+    });
   }
 
   // Update nav active state

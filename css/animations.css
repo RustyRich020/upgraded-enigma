@@ -1,10 +1,52 @@
 /* ============================================================
-   JobSync — Animations
-   Clean, professional micro-interactions
+   JobSync — Animations & Micro-Interactions
    ============================================================ */
 
-/* No grid background — clean solid color */
+/* No TRON grid background */
 body::before, body::after { display: none; }
+
+/* View transition */
+.view-enter {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Staggered card entrance */
+.card-enter {
+  animation: cardEnter 0.3s ease-out backwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+/* Skeleton loading shimmer */
+.skeleton {
+  background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-surface-hover) 50%, var(--color-surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+.skeleton-text { height: 14px; width: 80%; margin: 6px 0; }
+.skeleton-title { height: 20px; width: 60%; margin: 8px 0; }
+.skeleton-card { height: 120px; margin: 10px 0; }
+.skeleton-avatar { width: 36px; height: 36px; border-radius: var(--radius-md); }
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes cardEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 @keyframes slideIn {
   from { transform: translateX(100%); opacity: 0; }
@@ -15,17 +57,7 @@ body::before, body::after { display: none; }
   to { transform: rotate(360deg); }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.97); }
-  to { opacity: 1; transform: scale(1); }
-}
-
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  50% { opacity: 0.6; }
 }
