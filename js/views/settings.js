@@ -5,6 +5,8 @@
 import { getApi, hasApi, saveAllKeys, clearKeys, loadKeys } from '../services/api-keys.js';
 import { toast } from '../components/toast.js';
 import { requestPermission } from '../services/notifications.js';
+import { getUserTier, setUserTier, resetUsage } from '../services/usage-tracker.js';
+import { renderPricingTable, renderUsageDashboard } from '../components/upgrade-banner.js';
 
 /**
  * Render the settings view.
@@ -74,6 +76,30 @@ export function renderSettings(container, apiKeys, onSave, onClear) {
       toast(granted ? 'Notifications enabled!' : 'Notification permission denied', granted ? 'success' : 'error');
       updateStatuses();
     };
+  }
+
+  // Render pricing table
+  const pricingEl = document.getElementById('pricingSection');
+  if (pricingEl) {
+    pricingEl.innerHTML = renderPricingTable();
+    // Bind tier selection buttons
+    pricingEl.querySelectorAll('.pricing-select').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tier = btn.dataset.tier;
+        setUserTier(tier);
+        if (tier !== 'free') resetUsage();
+        toast(`Switched to ${tier.toUpperCase()} tier`, 'success');
+        pricingEl.innerHTML = renderPricingTable();
+        // Re-bind buttons after re-render
+        renderSettings(container, apiKeys, onSave, onClear);
+      });
+    });
+  }
+
+  // Render usage dashboard
+  const usageEl = document.getElementById('usageDashboard');
+  if (usageEl) {
+    usageEl.innerHTML = renderUsageDashboard();
   }
 }
 

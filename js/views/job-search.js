@@ -10,6 +10,8 @@ import { searchJSearch } from '../services/search-jsearch.js';
 import { getApi, hasApi } from '../services/api-keys.js';
 import { toast } from '../components/toast.js';
 import { ENDPOINTS } from '../config.js';
+import { checkLimit, recordUsage } from '../services/usage-tracker.js';
+import { showUpgradeBanner, showUsageMeter } from '../components/upgrade-banner.js';
 import { uid, today } from '../utils.js';
 
 /**
@@ -28,12 +30,16 @@ export function renderJobSearch(container, state, addJob) {
 
   if (searchBtn) {
     searchBtn.onclick = async () => {
+      const { allowed } = checkLimit('remotive');
+      if (!allowed) { showUpgradeBanner(container, 'remotive'); return; }
+
       const keyword = (container.querySelector('#searchKeyword')?.value || '').trim();
       if (statusEl) statusEl.innerHTML = '<span class="spinner"></span> Searching Remotive...';
       if (resultsEl) resultsEl.innerHTML = '';
 
       try {
         const jobs = await searchRemotive(keyword);
+        recordUsage('remotive');
         const shown = jobs.slice(0, 20);
         if (statusEl) statusEl.textContent = `Found ${jobs.length} remote jobs (showing ${shown.length})`;
         if (resultsEl) resultsEl.innerHTML = renderResults(shown, addJob);
@@ -48,11 +54,15 @@ export function renderJobSearch(container, state, addJob) {
   // Arbeitnow — free, no key
   if (arbeitnowBtn) {
     arbeitnowBtn.onclick = async () => {
+      const { allowed } = checkLimit('arbeitnow');
+      if (!allowed) { showUpgradeBanner(container, 'arbeitnow'); return; }
+
       const keyword = (container.querySelector('#searchKeyword')?.value || '').trim();
       if (statusEl) statusEl.innerHTML = '<span class="spinner"></span> Searching Arbeitnow...';
       if (resultsEl) resultsEl.innerHTML = '';
       try {
         const jobs = await searchArbeitnow(keyword);
+        recordUsage('arbeitnow');
         if (statusEl) statusEl.textContent = `Found ${jobs.length} European/remote jobs`;
         if (resultsEl) resultsEl.innerHTML = renderResults(jobs);
         bindAddButtons(resultsEl, addJob);
@@ -66,6 +76,8 @@ export function renderJobSearch(container, state, addJob) {
   // JSearch — requires RapidAPI key
   if (jsearchBtn) {
     jsearchBtn.onclick = async () => {
+      const { allowed: jsAllowed } = checkLimit('jsearch');
+      if (!jsAllowed) { showUpgradeBanner(container, 'jsearch'); return; }
       if (!hasApi('jsearchKey')) {
         toast('Configure JSearch RapidAPI key in Settings first', 'error');
         return;
@@ -77,6 +89,7 @@ export function renderJobSearch(container, state, addJob) {
       if (resultsEl) resultsEl.innerHTML = '';
       try {
         const jobs = await searchJSearch(query, getApi('jsearchKey'));
+        recordUsage('jsearch');
         if (statusEl) statusEl.textContent = `Found ${jobs.length} jobs from LinkedIn, Indeed, etc.`;
         if (resultsEl) resultsEl.innerHTML = renderResults(jobs);
         bindAddButtons(resultsEl, addJob);
@@ -90,6 +103,8 @@ export function renderJobSearch(container, state, addJob) {
 
   if (adzunaBtn) {
     adzunaBtn.onclick = async () => {
+      const { allowed: azAllowed } = checkLimit('adzuna');
+      if (!azAllowed) { showUpgradeBanner(container, 'adzuna'); return; }
       if (!hasApi('adzunaId') || !hasApi('adzunaKey')) {
         toast('Configure Adzuna API keys in Settings first', 'error');
         return;
@@ -101,6 +116,7 @@ export function renderJobSearch(container, state, addJob) {
 
       try {
         const jobs = await searchAdzuna(keyword, location, getApi('adzunaId'), getApi('adzunaKey'));
+        recordUsage('adzuna');
         const shown = jobs.slice(0, 20);
         if (statusEl) statusEl.textContent = `Found ${jobs[0]?.totalResults || jobs.length} jobs (showing ${shown.length})`;
         if (resultsEl) resultsEl.innerHTML = renderResults(shown, addJob);
