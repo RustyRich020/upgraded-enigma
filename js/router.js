@@ -3,7 +3,7 @@
    ============================================================ */
 
 const views = [
-  'landing', 'auth', 'profile', 'dashboard', 'tracker', 'search',
+  'landing', 'auth', 'profile', 'dashboard', 'tracker', 'search', 'agent',
   'ai', 'resume', 'companies', 'contacts', 'insights',
   'interviews', 'timeline', 'networking', 'salary', 'report',
   'settings'

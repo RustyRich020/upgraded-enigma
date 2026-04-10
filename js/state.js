@@ -13,6 +13,8 @@ const data = {
   settings: {},
   apiKeys: {},
   user: null,
+  agentConfig: null,
+  agentRuns: [],
   view: 'dashboard',
   role: 'Candidate',
   listView: true
@@ -66,6 +68,8 @@ export function persist() {
     localStorage.setItem(STORAGE_KEYS.companies, JSON.stringify(data.companies));
     localStorage.setItem(STORAGE_KEYS.contacts, JSON.stringify(data.contacts));
     localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify({ role: data.role, ...data.settings }));
+    if (data.agentConfig) localStorage.setItem(STORAGE_KEYS.agentConfig, JSON.stringify(data.agentConfig));
+    if (data.agentRuns) localStorage.setItem(STORAGE_KEYS.agentRuns, JSON.stringify(data.agentRuns));
   } catch (e) {
     console.warn('Persist failed:', e);
   }
@@ -83,6 +87,8 @@ export function loadFromStorage() {
     const settings = JSON.parse(localStorage.getItem(STORAGE_KEYS.settings) || '{}');
     data.role = settings.role || 'Candidate';
     data.settings = settings;
+    data.agentConfig = JSON.parse(localStorage.getItem(STORAGE_KEYS.agentConfig) || 'null');
+    data.agentRuns = JSON.parse(localStorage.getItem(STORAGE_KEYS.agentRuns) || '[]');
   } catch (e) {
     console.warn('Load from storage failed:', e);
   }
