@@ -12,6 +12,7 @@ const data = {
   contacts: [],
   settings: {},
   apiKeys: {},
+  user: null,
   view: 'dashboard',
   role: 'Candidate',
   listView: true

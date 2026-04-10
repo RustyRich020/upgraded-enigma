@@ -1,14 +1,23 @@
 /* ============================================================
-   router.js — Hash-based SPA router
+   router.js — Hash-based SPA router with auth guard
    ============================================================ */
 
 const views = [
-  'landing', 'profile', 'dashboard', 'tracker', 'search',
+  'landing', 'auth', 'profile', 'dashboard', 'tracker', 'search',
   'ai', 'resume', 'companies', 'contacts', 'insights', 'settings'
 ];
 
+const PUBLIC_ROUTES = new Set(['landing', 'auth']);
 const viewRenderers = {};
 let currentView = 'dashboard';
+let authGuardFn = null;
+
+/**
+ * Set an auth guard function. Returns true if user is authenticated.
+ */
+export function setAuthGuard(fn) {
+  authGuardFn = fn;
+}
 
 /**
  * Register a render function for a view.
@@ -32,12 +41,22 @@ export function getCurrentView() {
 }
 
 /**
- * Handle hash change: hide all sections, show target, update nav.
+ * Handle hash change: auth guard, hide all sections, show target, update nav.
  */
 function handleRoute() {
   const hash = window.location.hash.replace('#', '') || 'dashboard';
   const view = views.includes(hash) ? hash : 'dashboard';
+
+  // Auth guard: redirect unauthenticated users to landing
+  if (!PUBLIC_ROUTES.has(view) && authGuardFn && !authGuardFn()) {
+    window.location.hash = '#landing';
+    return;
+  }
+
   currentView = view;
+
+  // Toggle auth-mode class on body (hides header actions on public pages)
+  document.body.classList.toggle('auth-mode', PUBLIC_ROUTES.has(view));
 
   // Hide all view sections
   document.querySelectorAll('main > section').forEach(s => {
@@ -54,6 +73,10 @@ function handleRoute() {
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.view === view);
   });
+
+  // Hide sidebar on public routes
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar) sidebar.classList.toggle('hidden', PUBLIC_ROUTES.has(view));
 
   // Call the view's render function if registered
   if (viewRenderers[view]) {
@@ -72,7 +95,7 @@ export function init() {
   window.addEventListener('hashchange', handleRoute);
 
   // Bind nav buttons
-  document.querySelectorAll('.nav-btn').forEach(btn => {
+  document.querySelectorAll('.nav-btn[data-view]').forEach(btn => {
     btn.addEventListener('click', () => {
       const view = btn.dataset.view;
       if (view) navigate(view);
@@ -83,4 +106,4 @@ export function init() {
   handleRoute();
 }
 
-export default { registerView, navigate, getCurrentView, init };
+export default { registerView, navigate, getCurrentView, setAuthGuard, init };

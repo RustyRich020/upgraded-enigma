@@ -33,7 +33,8 @@ export const STORAGE_KEYS = {
   migrated: 'tron_migrated',
   theme: 'tron_theme',
   onboarded: 'tron_onboarded',
-  tourDone: 'tron_tour_done'
+  tourDone: 'tron_tour_done',
+  authUser: 'tron_auth_user'
 };
 
 // Job statuses
@@ -63,7 +64,8 @@ export const FEATURES = {
   hunterVerification: true,
   ntfyPush: true,
   onboardingTour: true,
-  landing: true
+  landing: true,
+  emailAuth: true
 };
 
 // API endpoints

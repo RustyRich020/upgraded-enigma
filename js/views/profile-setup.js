@@ -5,6 +5,7 @@
 import { escapeHtml } from '../utils.js';
 import { ROLES, STORAGE_KEYS } from '../config.js';
 import { navigate } from '../router.js';
+import { getCurrentUser } from '../firebase/auth.js';
 
 /**
  * Render the profile setup wizard.
@@ -14,7 +15,10 @@ import { navigate } from '../router.js';
  */
 export function renderProfileSetup(container, state, onComplete) {
   let step = 1;
-  const wizard = { name: '', role: 'Candidate', theme: 'tron', apiKeys: {} };
+  // Pre-fill from Firebase Auth user if available
+  const authUser = getCurrentUser();
+  const defaultName = authUser?.displayName || (authUser?.email ? authUser.email.split('@')[0] : '');
+  const wizard = { name: defaultName, role: 'Candidate', theme: 'tron', apiKeys: {} };
 
   function render() {
     container.innerHTML = `
@@ -90,6 +94,14 @@ export function renderProfileSetup(container, state, onComplete) {
         const merged = { ...existing, ...wizard.apiKeys };
         localStorage.setItem(STORAGE_KEYS.apiKeys, JSON.stringify(merged));
       }
+
+      // Sync display name to Firebase Auth
+      try {
+        const user = getCurrentUser();
+        if (user && wizard.name) {
+          user.updateProfile({ displayName: wizard.name });
+        }
+      } catch (e) { console.warn('Profile sync failed:', e); }
 
       localStorage.setItem(STORAGE_KEYS.onboarded, 'true');
       if (onComplete) onComplete();
