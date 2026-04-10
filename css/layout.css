@@ -6,19 +6,20 @@
 /* App shell */
 .app {
   display: grid;
-  grid-template-rows: var(--header-height) 1fr;
+  grid-template-rows: auto 1fr;
   position: relative;
   z-index: var(--z-base);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* Header */
 header {
-  height: var(--header-height);
+  min-height: var(--header-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 8px 16px;
   border-bottom: 2px solid var(--color-primary);
   box-shadow: var(--shadow-glow);
   background: linear-gradient(180deg, rgba(10,10,10,0.95), rgba(0,0,0,0.98));
@@ -26,18 +27,20 @@ header {
   position: sticky;
   top: 0;
   z-index: var(--z-header);
-  gap: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 header .brand {
   display: flex;
-  gap: 14px;
+  gap: 10px;
   align-items: center;
   flex-shrink: 0;
+  min-width: 0;
 }
 
 .logo {
-  width: 40px; height: 40px;
+  width: 36px; height: 36px;
   border: 2px solid var(--color-primary);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
@@ -47,10 +50,10 @@ header .brand {
   flex-shrink: 0;
 }
 
-.logo-text { font-weight: 900; font-size: 18px; color: var(--color-primary); }
+.logo-text { font-weight: 900; font-size: 16px; color: var(--color-primary); }
 
 header h1 {
-  font-size: 20px; font-weight: 900;
+  font-size: 18px; font-weight: 900;
   letter-spacing: 2px;
   color: var(--color-text);
   text-shadow: 0 0 10px var(--color-primary-glow);
@@ -58,16 +61,24 @@ header h1 {
 }
 
 .header-actions {
-  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
   justify-content: flex-end;
+  min-width: 0;
+}
+
+.header-actions .role-sel {
+  max-width: 160px;
+  font-size: 11px;
+  padding: 6px 8px;
 }
 
 /* Layout: sidebar + main */
 .layout {
   display: grid;
-  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   gap: 0;
   min-height: calc(100vh - var(--header-height));
+  overflow: hidden;
 }
 
 /* Sidebar */
@@ -123,5 +134,7 @@ main {
   background:
     radial-gradient(ellipse at top right, var(--color-primary-dim), transparent 60%),
     radial-gradient(ellipse at bottom left, rgba(255,0,0,0.03), transparent 50%);
+  overflow-x: hidden;
   overflow-y: auto;
+  min-width: 0;
 }
