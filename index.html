@@ -26,8 +26,8 @@
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/views.css">
   <link rel="stylesheet" href="css/responsive.css">
-  <link rel="stylesheet" href="css/themes/tron.css">
-  <link rel="stylesheet" href="css/themes/light.css">
+  <link rel="stylesheet" href="css/themes/default.css">
+  <link rel="stylesheet" href="css/themes/dark.css">
 
   <!-- CDN Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
@@ -41,7 +41,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-functions-compat.js"></script>
 </head>
-<body data-theme="tron">
+<body data-theme="default">
 <a href="#main-content" class="skip-link">Skip to content</a>
 <div class="app">
   <!-- ======== HEADER ======== -->
@@ -123,34 +123,7 @@
     <main id="main-content" role="main">
       <!-- LANDING -->
       <section id="view-landing" class="hidden">
-<!-- populated by js/views/landing.js -->
-        <div class="landing-hero">
-          <div class="landing-logo"><div class="logo-text">T</div></div>
-          <h1 class="landing-title">JOBSINK</h1>
-          <p class="landing-subtitle">Track. Analyze. Land the Role.</p>
-          <div class="landing-features">
-            <div class="feature-card">
-              <div class="feature-icon">◆</div>
-              <h3>SMART TRACKING</h3>
-              <p>Kanban boards, pipeline analytics, automated follow-up reminders, and CSV import/export.</p>
-            </div>
-            <div class="feature-card">
-              <div class="feature-icon">◆</div>
-              <h3>AI-POWERED ANALYSIS</h3>
-              <p>Resume-to-JD matching via Google Gemini, AI cover letter generation, and skill gap detection.</p>
-            </div>
-            <div class="feature-card">
-              <div class="feature-icon">◆</div>
-              <h3>REAL-TIME JOB SEARCH</h3>
-              <p>Search Remotive and Adzuna APIs, auto-add listings to your tracker with one click.</p>
-            </div>
-          </div>
-          <div class="landing-actions">
-            <button class="btn brand large" id="getStartedBtn">GET STARTED</button>
-            <button class="btn ghost large" id="skipToAppBtn">SKIP TO DASHBOARD</button>
-          </div>
-          <a class="landing-skip" id="returningUserLink">I've been here before — take me to my dashboard</a>
-        </div>
+        <!-- Dynamically rendered by js/views/landing.js -->
       </section>
 
       <!-- AUTH -->

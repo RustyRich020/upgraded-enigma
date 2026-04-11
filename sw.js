@@ -1,9 +1,9 @@
-const CACHE_NAME = 'jobgrid-v2.0.0';
+const CACHE_NAME = 'jobsink-v2.1.0';
 const APP_SHELL = [
   '/', '/index.html', '/manifest.json',
   '/css/variables.css', '/css/base.css', '/css/layout.css',
   '/css/components.css', '/css/views.css', '/css/animations.css',
-  '/css/responsive.css', '/css/themes/tron.css', '/css/themes/light.css',
+  '/css/responsive.css', '/css/themes/default.css', '/css/themes/dark.css',
   '/js/app.js', '/js/config.js', '/js/utils.js', '/js/state.js', '/js/router.js',
 ];
 const CDN_CACHE = [

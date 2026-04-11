@@ -34,7 +34,7 @@ export function renderProfileSetup(container, state, onComplete) {
     experienceLevel: '',
     skills: [],
     name: defaultName,
-    theme: 'tron',
+    theme: 'default',
   };
 
   let step = 0;

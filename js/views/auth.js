@@ -19,64 +19,145 @@ export function renderAuth(container, callbacks = {}) {
   function render() {
     container.innerHTML = `
       <div class="auth-container">
-        <div style="margin-bottom:32px;">
-          <div class="landing-logo" style="width:80px;height:80px;margin:0 auto 20px;">
-            <div class="logo-text" style="font-size:32px;">T</div>
+        <div class="auth-header">
+          <div class="auth-logo">
+            <img src="assets/icons/logo.svg" alt="JobSink" width="64" height="64" style="border-radius:14px">
           </div>
-          <h2 style="margin-bottom:8px;">${mode === 'reset' ? 'RESET PASSWORD' : mode === 'signup' ? 'CREATE ACCOUNT' : 'WELCOME BACK'}</h2>
-          <p class="muted" style="font-size:12px;">${mode === 'reset' ? 'Enter your email to receive a reset link' : 'Track your job search with cloud sync'}</p>
+          <h2>${mode === 'reset' ? 'Reset Password' : mode === 'signup' ? 'Create Account' : 'Welcome Back'}</h2>
+          <p>${mode === 'reset' ? 'Enter your email to receive a reset link' : 'Track your job search with cloud sync'}</p>
         </div>
 
         ${mode !== 'reset' ? `
         <div class="auth-tabs">
-          <button class="auth-tab ${mode === 'signup' ? 'active' : ''}" data-mode="signup">SIGN UP</button>
-          <button class="auth-tab ${mode === 'signin' ? 'active' : ''}" data-mode="signin">SIGN IN</button>
+          <button class="auth-tab ${mode === 'signup' ? 'active' : ''}" data-mode="signup">Sign Up</button>
+          <button class="auth-tab ${mode === 'signin' ? 'active' : ''}" data-mode="signin">Sign In</button>
         </div>` : ''}
 
         ${error ? `<div class="auth-error">${error}</div>` : ''}
         ${success ? `<div class="auth-success">${success}</div>` : ''}
 
         <form id="authForm" class="auth-form" novalidate>
-          <label style="display:block;margin:12px 0;">
-            <h4>EMAIL</h4>
+          <label class="auth-field">
+            <span class="auth-field-label">Email</span>
             <input id="authEmail" type="email" class="input" placeholder="you@example.com" required autocomplete="email">
           </label>
 
           ${mode !== 'reset' ? `
-          <label style="display:block;margin:12px 0;">
-            <h4>PASSWORD</h4>
+          <label class="auth-field">
+            <span class="auth-field-label">Password</span>
             <input id="authPassword" type="password" class="input" placeholder="${mode === 'signup' ? 'Min 8 characters' : 'Your password'}" required autocomplete="${mode === 'signup' ? 'new-password' : 'current-password'}" minlength="8">
           </label>` : ''}
 
           ${mode === 'signup' ? `
-          <label style="display:block;margin:12px 0;">
-            <h4>CONFIRM PASSWORD</h4>
+          <label class="auth-field">
+            <span class="auth-field-label">Confirm Password</span>
             <input id="authPasswordConfirm" type="password" class="input" placeholder="Re-enter password" required autocomplete="new-password" minlength="8">
           </label>` : ''}
 
-          <button type="submit" class="btn brand large" id="authSubmitBtn" style="width:100%;margin-top:16px;" ${loading ? 'disabled' : ''}>
-            ${loading ? '<span class="spinner"></span>' : mode === 'signup' ? 'CREATE ACCOUNT' : mode === 'signin' ? 'SIGN IN' : 'SEND RESET LINK'}
+          <button type="submit" class="btn brand large auth-submit" id="authSubmitBtn" ${loading ? 'disabled' : ''}>
+            ${loading ? '<span class="spinner"></span>' : mode === 'signup' ? 'Create Account' : mode === 'signin' ? 'Sign In' : 'Send Reset Link'}
           </button>
         </form>
 
         ${mode === 'signin' ? `
-        <div style="text-align:center;margin-top:12px;">
+        <div class="auth-footer-link">
           <button class="auth-link" id="authForgotLink">Forgot your password?</button>
         </div>` : ''}
 
         ${mode === 'reset' ? `
-        <div style="text-align:center;margin-top:12px;">
+        <div class="auth-footer-link">
           <button class="auth-link" id="authBackToSignin">Back to Sign In</button>
         </div>` : ''}
 
         <div class="auth-divider"><span>or</span></div>
 
-        <button class="btn ghost" id="authGuest" style="width:100%;">CONTINUE AS GUEST</button>
+        <button class="btn ghost auth-submit" id="authGuest">Continue as Guest</button>
 
-        <div style="text-align:center;margin-top:16px;">
-          ${mode === 'signup' ? `<span class="muted" style="font-size:12px;">Already have an account? </span><button class="auth-link" id="authToggle">Sign In</button>` : ''}
-          ${mode === 'signin' ? `<span class="muted" style="font-size:12px;">Don't have an account? </span><button class="auth-link" id="authToggle">Sign Up</button>` : ''}
+        <div class="auth-toggle-row">
+          ${mode === 'signup' ? `<span class="muted">Already have an account? </span><button class="auth-link" id="authToggle">Sign In</button>` : ''}
+          ${mode === 'signin' ? `<span class="muted">Don't have an account? </span><button class="auth-link" id="authToggle">Sign Up</button>` : ''}
         </div>
+
+        <button class="auth-home-link" id="authBackHome">\u2190 Back to home</button>
+
+        <style>
+          #view-auth {
+            background:
+              radial-gradient(ellipse at 50% 0%, rgba(196,123,58,0.06), transparent 50%),
+              radial-gradient(ellipse at 80% 100%, rgba(45,139,95,0.04), transparent 40%);
+            min-height: calc(100vh - var(--header-height, 56px));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .auth-container {
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 48px 24px 32px;
+          }
+          .auth-logo {
+            width: 80px; height: 80px;
+            margin: 0 auto 24px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(196,123,58,0.15);
+          }
+          .auth-header {
+            text-align: center;
+            margin-bottom: 28px;
+          }
+          .auth-header h2 {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-text-heading);
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+          }
+          .auth-header p {
+            font-size: 14px;
+            color: var(--color-text-dim);
+          }
+          .auth-field {
+            display: block;
+            margin: 16px 0;
+          }
+          .auth-field-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            display: block;
+          }
+          .auth-submit {
+            width: 100%;
+            margin-top: 20px;
+          }
+          .auth-footer-link {
+            text-align: center;
+            margin-top: 12px;
+          }
+          .auth-toggle-row {
+            text-align: center;
+            margin-top: 16px;
+          }
+          .auth-home-link {
+            display: block;
+            text-align: center;
+            margin-top: 24px;
+            background: none;
+            border: none;
+            font-size: 13px;
+            color: var(--color-muted);
+            cursor: pointer;
+            font-family: var(--font-body);
+            transition: color 0.15s;
+          }
+          .auth-home-link:hover { color: var(--color-primary); }
+        </style>
       </div>
     `;
 
@@ -108,6 +189,11 @@ export function renderAuth(container, callbacks = {}) {
       mode = 'signin';
       error = null; success = null;
       render();
+    });
+
+    // Back to home
+    container.querySelector('#authBackHome')?.addEventListener('click', () => {
+      window.location.hash = '#landing';
     });
 
     // Guest access

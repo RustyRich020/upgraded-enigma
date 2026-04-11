@@ -4,13 +4,16 @@
 
 import { STORAGE_KEYS } from '../config.js';
 
-const THEMES = ['tron', 'light'];
+const THEMES = ['default', 'dark'];
 
 /**
- * Initialize the theme from localStorage or default to 'tron'.
+ * Initialize the theme from localStorage or default to 'default'.
  */
 export function initTheme() {
-  const saved = localStorage.getItem(STORAGE_KEYS.theme) || 'tron';
+  let saved = localStorage.getItem(STORAGE_KEYS.theme) || 'default';
+  // Migrate legacy theme names
+  if (saved === 'tron') saved = 'default';
+  if (saved === 'light') saved = 'dark';
   applyTheme(saved);
 }
 
@@ -29,7 +32,7 @@ export function toggleTheme() {
  * Get the currently active theme name.
  */
 export function getCurrentTheme() {
-  return document.body.getAttribute('data-theme') || 'tron';
+  return document.body.getAttribute('data-theme') || 'default';
 }
 
 /**
