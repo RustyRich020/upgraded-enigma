@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /auto-login.html
+Disallow: /functions/
+Disallow: /extension/
+
+Sitemap: https://jobsynk.qq-studios.com/sitemap.xml
