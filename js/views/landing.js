@@ -13,12 +13,108 @@ const LOGO_IMG = `<img src="assets/icons/logo.svg" alt="JobSink" style="width:56
 const LOGO_IMG_SM = `<img src="assets/icons/logo.svg" alt="JobSink" style="width:40px;height:40px;border-radius:8px">`;
 
 const FEATURES = [
-  { img: 'assets/icons/feat-search.svg', title: 'Unified job search', desc: 'One search across 4 job boards. Results stored permanently so you can filter, sort, and revisit anytime.' },
-  { img: 'assets/icons/feat-ats.svg', title: 'ATS keyword optimizer', desc: 'Paste a job description, see your score, and click to add missing keywords directly to your resume.' },
-  { img: 'assets/icons/feat-ai.svg', title: 'AI cover letters', desc: 'Select a tracked job and your resume from dropdowns — Gemini generates a tailored cover letter in seconds.' },
-  { img: 'assets/icons/feat-pipeline.svg', title: 'Pipeline tracking', desc: 'Kanban board, table view, follow-up reminders, and a timeline of every application you\'ve submitted.' },
-  { img: 'assets/icons/feat-agent.svg', title: 'Automated agent', desc: 'Set your preferences once. The job agent searches on a schedule, deduplicates, and queues matches for review.' },
-  { img: 'assets/icons/feat-interview.svg', title: 'Interview prep', desc: 'AI generates 10 tailored questions for any role — behavioral, technical, and questions to ask the interviewer.' },
+  {
+    img: 'assets/icons/feat-search.svg',
+    title: 'Unified job search',
+    desc: 'One search across 4 job boards. Results stored permanently so you can filter, sort, and revisit anytime.',
+    detail: {
+      headline: 'Search everywhere. Store everything.',
+      intro: 'JobSink connects to 4 major job APIs simultaneously — Remotive, Arbeitnow, Adzuna, and JSearch — so you never have to tab between 10 browser windows again.',
+      highlights: [
+        { icon: '🔍', label: '4 API Sources', text: 'One button triggers Remotive (remote jobs), Arbeitnow (EU/global), Adzuna (salary data), and JSearch (LinkedIn/Indeed aggregate) in parallel.' },
+        { icon: '💾', label: 'Persistent Local DB', text: 'Every result is saved to a local database of up to 500 jobs. Filter by source, sort by date or salary, and revisit results days later.' },
+        { icon: '🧹', label: 'Smart Deduplication', text: 'Our 3-tier dedup engine catches duplicates across sources: URL match, exact title+company, and Jaccard fuzzy similarity — so you never see the same job twice.' },
+        { icon: '⭐', label: 'Relevance Scoring', text: 'Each result is scored against your resume: 60 pts for skill matches, 30 pts for title alignment, 10 pts for freshness. Best matches float to the top.' },
+      ],
+      cta: 'find-jobs',
+      ctaLabel: 'Try Job Search',
+    }
+  },
+  {
+    img: 'assets/icons/feat-ats.svg',
+    title: 'ATS keyword optimizer',
+    desc: 'Paste a job description, see your score, and click to add missing keywords directly to your resume.',
+    detail: {
+      headline: 'Beat the bots. Land the interview.',
+      intro: 'Most resumes are rejected by Applicant Tracking Systems before a human ever sees them. JobSink\'s ATS optimizer analyzes job descriptions against your resume with 200+ keyword patterns.',
+      highlights: [
+        { icon: '📊', label: 'Instant ATS Score', text: 'Paste any job description and get a weighted score across 6 categories: hard skills, certifications, soft skills, action verbs, experience level, and industry terms.' },
+        { icon: '🏷️', label: '200+ Keyword Patterns', text: 'Regex-powered extraction catches keywords that simple word matching misses — including multi-word phrases like "machine learning" and "CI/CD".' },
+        { icon: '➕', label: 'One-Click Quick Add', text: 'See a missing keyword? Click it to instantly add it to your resume skills. No copy-pasting, no switching tabs.' },
+        { icon: '🤖', label: 'AI Deep Analysis', text: 'Optional Gemini-powered deep scan provides context-aware suggestions, tone analysis, and section-by-section recommendations.' },
+      ],
+      cta: 'find-jobs',
+      ctaLabel: 'Try ATS Optimizer',
+    }
+  },
+  {
+    img: 'assets/icons/feat-ai.svg',
+    title: 'AI cover letters',
+    desc: 'Select a tracked job and your resume from dropdowns — Gemini generates a tailored cover letter in seconds.',
+    detail: {
+      headline: 'Personalized cover letters in seconds.',
+      intro: 'Stop writing cover letters from scratch. Select a job from your tracker and a resume from your library — JobSink\'s AI generates a tailored, professional letter instantly.',
+      highlights: [
+        { icon: '📝', label: 'Dropdown Selection', text: 'Pick from your tracked jobs and saved resumes via dropdown menus. The AI pulls the job description and your skills automatically.' },
+        { icon: '⚡', label: 'Gemini 2.5 Flash', text: 'Powered by Google\'s latest Gemini model for fast, high-quality generation. Each letter is unique and contextual — never template-sounding.' },
+        { icon: '🎯', label: 'JD ↔ Resume Matching', text: 'The AI cross-references the job requirements against your actual experience, highlighting relevant projects and quantified achievements.' },
+        { icon: '❓', label: 'Interview Questions', text: 'Generate 10 tailored interview questions for any role — behavioral, technical, and smart questions to ask the interviewer.' },
+      ],
+      cta: 'find-jobs',
+      ctaLabel: 'Try AI Tools',
+    }
+  },
+  {
+    img: 'assets/icons/feat-pipeline.svg',
+    title: 'Pipeline tracking',
+    desc: 'Kanban board, table view, follow-up reminders, and a timeline of every application you\'ve submitted.',
+    detail: {
+      headline: 'Your entire job search, organized.',
+      intro: 'Track every application from "Saved" to "Offer" with multiple view modes, follow-up reminders, and a visual timeline that shows your full activity history.',
+      highlights: [
+        { icon: '📋', label: 'Multiple Views', text: 'Switch between table view (sortable columns), Kanban board (drag cards between stages), and visual timeline (chronological activity feed).' },
+        { icon: '🔔', label: 'Follow-Up Reminders', text: 'Set follow-up dates for any application. JobSink surfaces overdue follow-ups on your dashboard and sends notifications.' },
+        { icon: '📈', label: 'Pipeline Analytics', text: 'Chart.js visualizations show your pipeline breakdown (donut), source distribution (bar), and weekly activity trends.' },
+        { icon: '☁️', label: 'Cross-Device Sync', text: 'Firebase Firestore keeps everything in sync across devices in real-time. Add a job on your phone, see it on your laptop instantly.' },
+      ],
+      cta: 'my-jobs',
+      ctaLabel: 'Try Pipeline Tracker',
+    }
+  },
+  {
+    img: 'assets/icons/feat-agent.svg',
+    title: 'Automated agent',
+    desc: 'Set your preferences once. The job agent searches on a schedule, deduplicates, and queues matches for review.',
+    detail: {
+      headline: 'Jobs find you while you sleep.',
+      intro: 'Configure your ideal roles, skills, and preferences once. The job agent runs a 10-step pipeline on a schedule — searching, deduplicating, scoring, and queuing the best matches for your review.',
+      highlights: [
+        { icon: '🤖', label: '10-Step Pipeline', text: 'Check preconditions → build resume profile → generate AI queries → plan API calls → execute searches → deduplicate → score → auto-add/queue → log → persist.' },
+        { icon: '⏰', label: 'Scheduled Runs', text: 'Runs every 6 hours via Firebase Cloud Functions — even when your browser is closed. Wake up to fresh, relevant job matches.' },
+        { icon: '🧠', label: 'Learning Signals', text: 'The agent learns from your actions: jobs you keep get reinforced, jobs you delete get down-weighted. Search queries improve over time.' },
+        { icon: '🔐', label: 'Rate-Limit Aware', text: 'Smart API call planning respects rate limits across all 4 sources. Never wastes your daily quota on duplicate or low-quality searches.' },
+      ],
+      cta: 'find-jobs',
+      ctaLabel: 'Configure Agent',
+    }
+  },
+  {
+    img: 'assets/icons/feat-interview.svg',
+    title: 'Interview prep',
+    desc: 'AI generates 10 tailored questions for any role — behavioral, technical, and questions to ask the interviewer.',
+    detail: {
+      headline: 'Walk in prepared. Walk out hired.',
+      intro: 'For any job in your tracker, generate a curated set of 10 interview questions — split across behavioral, technical, and "questions to ask them" categories. Powered by Gemini AI with context from the actual job description.',
+      highlights: [
+        { icon: '🎤', label: 'Behavioral Questions', text: 'STAR-method style questions tailored to the role: "Tell me about a time you led a cross-functional project under tight deadlines."' },
+        { icon: '💻', label: 'Technical Questions', text: 'Role-specific technical questions based on the required skills: system design, coding challenges, framework knowledge, and domain expertise.' },
+        { icon: '🙋', label: 'Questions to Ask', text: 'Smart questions that show you\'ve done your research: team structure, growth trajectory, tech stack decisions, and company culture.' },
+        { icon: '📄', label: 'Context-Aware', text: 'Every question is generated from the actual job description and your resume — not generic templates. The AI knows the specific role, company, and your background.' },
+      ],
+      cta: 'find-jobs',
+      ctaLabel: 'Try Interview Prep',
+    }
+  },
 ];
 
 const STATS = [
@@ -219,13 +315,14 @@ export function renderLanding(container) {
         <h2 class="lp-section-title">Built for the way job search actually works</h2>
         <div class="lp-features">
           ${FEATURES.map((f, i) => `
-            <div class="lp-feature" style="animation-delay:${i * 80}ms">
+            <div class="lp-feature" data-feature="${i}" style="animation-delay:${i * 80}ms" role="button" tabindex="0" aria-label="Learn more about ${f.title}">
               <div class="lp-feature-img">
                 <img src="${f.img}" alt="${f.title}" loading="lazy">
               </div>
               <div class="lp-feature-body">
                 <h3>${f.title}</h3>
                 <p>${f.desc}</p>
+                <span class="lp-feature-more">Learn more <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14m-7-7l7 7-7 7"/></svg></span>
               </div>
             </div>
           `).join('')}
@@ -274,6 +371,17 @@ export function renderLanding(container) {
           <p class="lp-footer-copy">&copy; ${new Date().getFullYear()} JobSink. Built with care.</p>
         </div>
       </footer>
+
+      <!-- ===== FEATURE DETAIL OVERLAY ===== -->
+      <div class="lp-detail-overlay" id="featureOverlay" aria-hidden="true">
+        <div class="lp-detail-backdrop" id="featureBackdrop"></div>
+        <div class="lp-detail-panel" id="featurePanel" role="dialog" aria-modal="true">
+          <button class="lp-detail-close" id="featureClose" aria-label="Close detail view">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+          <div class="lp-detail-content" id="featureContent"></div>
+        </div>
+      </div>
 
     </div>
 
@@ -517,8 +625,18 @@ export function renderLanding(container) {
       }
       .lp-feature:hover .lp-feature-img img { transform: scale(1.06); }
       .lp-feature-body { padding: 22px; }
+      .lp-feature { cursor: pointer; }
       .lp-feature-body h3 { font-size: 16px; font-weight: 650; color: var(--color-text-heading); margin-bottom: 8px; letter-spacing: -0.01em; text-transform: none; }
       .lp-feature-body p { font-size: 13px; color: var(--color-text-dim); line-height: 1.65; }
+      .lp-feature-more {
+        display: inline-flex; align-items: center; gap: 4px;
+        font-size: 13px; font-weight: 600;
+        color: var(--color-primary);
+        margin-top: 12px;
+        opacity: 0; transform: translateX(-4px);
+        transition: all 0.2s ease;
+      }
+      .lp-feature:hover .lp-feature-more { opacity: 1; transform: translateX(0); }
 
       /* ===== Trust Badges ===== */
       .lp-trust-section { padding-top: 48px; padding-bottom: 48px; }
@@ -590,6 +708,140 @@ export function renderLanding(container) {
       .lp-footer-sep { color: var(--color-muted); font-size: 12px; }
       .lp-footer-copy { font-size: 12px; color: var(--color-muted); }
 
+      /* ===== Feature Detail Overlay ===== */
+      .lp-detail-overlay {
+        position: fixed; inset: 0; z-index: 9999;
+        display: flex; align-items: flex-end; justify-content: center;
+        pointer-events: none; opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      .lp-detail-overlay.open { pointer-events: auto; opacity: 1; }
+
+      .lp-detail-backdrop {
+        position: absolute; inset: 0;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+      }
+
+      .lp-detail-panel {
+        position: relative; z-index: 1;
+        width: 100%; max-width: 720px;
+        max-height: 90vh;
+        background: var(--color-surface);
+        border-radius: 20px 20px 0 0;
+        overflow-y: auto;
+        transform: translateY(100%);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 -8px 40px rgba(0,0,0,0.15);
+      }
+      .lp-detail-overlay.open .lp-detail-panel { transform: translateY(0); }
+
+      .lp-detail-close {
+        position: sticky; top: 0; float: right;
+        margin: 16px 16px 0 0;
+        width: 40px; height: 40px;
+        border-radius: 50%;
+        border: 1px solid var(--color-surface-border);
+        background: var(--color-surface);
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; z-index: 2;
+        color: var(--color-text-dim);
+        transition: all 0.15s;
+        box-shadow: var(--shadow-sm);
+      }
+      .lp-detail-close:hover { background: var(--color-bg-secondary); color: var(--color-text-heading); }
+
+      .lp-detail-content { padding: 0 32px 40px; }
+
+      /* Detail: Hero area */
+      .lp-detail-hero {
+        display: flex; align-items: center; gap: 20px;
+        margin-bottom: 28px; padding-top: 8px;
+      }
+      .lp-detail-hero-img {
+        width: 80px; height: 80px; flex-shrink: 0;
+        border-radius: 16px; overflow: hidden;
+        border: 1px solid var(--color-surface-border);
+        display: flex; align-items: center; justify-content: center;
+        padding: 4px;
+        background: var(--color-bg-secondary);
+      }
+      .lp-detail-hero-img img { width: 100%; height: 100%; object-fit: contain; }
+      .lp-detail-hero-text h2 {
+        font-family: var(--font-display);
+        font-size: clamp(22px, 3vw, 28px);
+        font-weight: 700; color: var(--color-text-heading);
+        letter-spacing: -0.02em; line-height: 1.2;
+        margin-bottom: 4px;
+      }
+      .lp-detail-hero-text .lp-detail-subtitle {
+        font-size: 14px; color: var(--color-primary); font-weight: 600;
+        text-transform: uppercase; letter-spacing: 1px;
+      }
+
+      /* Detail: Intro */
+      .lp-detail-intro {
+        font-size: 16px; line-height: 1.7;
+        color: var(--color-text-dim);
+        margin-bottom: 32px;
+        max-width: 600px;
+      }
+
+      /* Detail: Highlight cards */
+      .lp-detail-highlights {
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 16px; margin-bottom: 36px;
+      }
+      .lp-detail-hl {
+        padding: 20px;
+        border-radius: 14px;
+        border: 1px solid var(--color-surface-border);
+        background: var(--color-bg-secondary);
+        transition: all 0.2s;
+      }
+      .lp-detail-hl:hover { border-color: var(--color-primary-dim); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+      .lp-detail-hl-header {
+        display: flex; align-items: center; gap: 10px;
+        margin-bottom: 8px;
+      }
+      .lp-detail-hl-icon { font-size: 20px; line-height: 1; }
+      .lp-detail-hl-label {
+        font-size: 14px; font-weight: 650;
+        color: var(--color-text-heading);
+        letter-spacing: -0.01em;
+      }
+      .lp-detail-hl-text {
+        font-size: 13px; line-height: 1.6;
+        color: var(--color-text-dim);
+      }
+
+      /* Detail: CTA */
+      .lp-detail-cta-row {
+        display: flex; gap: 12px; flex-wrap: wrap;
+        padding-top: 8px;
+        border-top: 1px solid var(--color-surface-border);
+        margin-top: 4px;
+      }
+      .lp-detail-cta-try {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: var(--color-primary); color: #fff; border: none;
+        padding: 12px 28px; border-radius: 12px;
+        font-family: var(--font-body); font-size: 15px; font-weight: 600;
+        cursor: pointer; transition: all 0.2s;
+        box-shadow: 0 2px 12px rgba(196,123,58,0.2);
+      }
+      .lp-detail-cta-try:hover { background: var(--color-primary-bright); transform: translateY(-1px); }
+      .lp-detail-cta-back {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: var(--color-bg-secondary); color: var(--color-text-dim);
+        border: 1px solid var(--color-surface-border);
+        padding: 12px 24px; border-radius: 12px;
+        font-family: var(--font-body); font-size: 15px; font-weight: 500;
+        cursor: pointer; transition: all 0.15s;
+      }
+      .lp-detail-cta-back:hover { border-color: var(--color-primary); color: var(--color-text-heading); }
+
       /* ===== Responsive ===== */
       @media (max-width: 768px) {
         .lp-hero { padding: 32px 16px 0; min-height: auto; }
@@ -605,6 +857,11 @@ export function renderLanding(container) {
         .lp-stat { border-right: none; border-bottom: 1px solid var(--color-surface-border); padding: 20px; flex-direction: row; gap: 12px; max-width: 100%; }
         .lp-stat:last-child { border-bottom: none; }
         .lp-footer-inner { flex-direction: column; text-align: center; }
+        .lp-detail-content { padding: 0 20px 32px; }
+        .lp-detail-highlights { grid-template-columns: 1fr; }
+        .lp-detail-hero { flex-direction: column; text-align: center; }
+        .lp-detail-intro { text-align: center; }
+        .lp-detail-cta-row { justify-content: center; }
       }
       @media (min-width: 769px) and (max-width: 1024px) {
         .lp-features { grid-template-columns: repeat(2, 1fr); }
@@ -630,6 +887,88 @@ export function renderLanding(container) {
   container.querySelector('#landingSignUp2')?.addEventListener('click', signUp);
   container.querySelector('#landingSignIn')?.addEventListener('click', signIn);
   container.querySelector('#landingGuest')?.addEventListener('click', guest);
+
+  /* ===== Feature Detail Overlay ===== */
+  const overlay = container.querySelector('#featureOverlay');
+  const panel = container.querySelector('#featurePanel');
+  const content = container.querySelector('#featureContent');
+
+  function openDetail(index) {
+    const f = FEATURES[index];
+    if (!f || !f.detail) return;
+    const d = f.detail;
+
+    content.innerHTML = `
+      <div class="lp-detail-hero">
+        <div class="lp-detail-hero-img"><img src="${f.img}" alt="${f.title}"></div>
+        <div class="lp-detail-hero-text">
+          <div class="lp-detail-subtitle">${f.title}</div>
+          <h2>${d.headline}</h2>
+        </div>
+      </div>
+
+      <p class="lp-detail-intro">${d.intro}</p>
+
+      <div class="lp-detail-highlights">
+        ${d.highlights.map(h => `
+          <div class="lp-detail-hl">
+            <div class="lp-detail-hl-header">
+              <span class="lp-detail-hl-icon">${h.icon}</span>
+              <span class="lp-detail-hl-label">${h.label}</span>
+            </div>
+            <p class="lp-detail-hl-text">${h.text}</p>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="lp-detail-cta-row">
+        <button class="lp-detail-cta-try" data-nav="${d.cta}">
+          ${d.ctaLabel}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14m-7-7l7 7-7 7"/></svg>
+        </button>
+        <button class="lp-detail-cta-back" id="detailBack">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>
+          Back to features
+        </button>
+      </div>
+    `;
+
+    // Scroll panel to top
+    panel.scrollTop = 0;
+
+    // Show overlay
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+
+    // Wire up detail CTA
+    content.querySelector('[data-nav]')?.addEventListener('click', () => {
+      closeDetail();
+      sessionStorage.setItem('authMode', 'signup');
+      navigate('auth');
+    });
+    content.querySelector('#detailBack')?.addEventListener('click', closeDetail);
+  }
+
+  function closeDetail() {
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  // Feature card click handlers
+  container.querySelectorAll('.lp-feature[data-feature]').forEach(card => {
+    const handler = () => openDetail(parseInt(card.dataset.feature, 10));
+    card.addEventListener('click', handler);
+    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(); } });
+  });
+
+  // Close on backdrop click, close button, or Escape
+  container.querySelector('#featureBackdrop')?.addEventListener('click', closeDetail);
+  container.querySelector('#featureClose')?.addEventListener('click', closeDetail);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) closeDetail();
+  });
 }
 
 export default { renderLanding };
