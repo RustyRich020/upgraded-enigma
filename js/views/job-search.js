@@ -5,6 +5,7 @@
    ============================================================ */
 
 import { escapeHtml } from '../utils.js';
+import { staggerChildren } from '../ui/animate.js';
 import { searchRemotive } from '../services/search-remotive.js';
 import { searchAdzuna } from '../services/search-adzuna.js';
 import { searchArbeitnow } from '../services/search-arbeitnow.js';
@@ -282,7 +283,7 @@ function displayResults(allResults, resultsEl, filterBar, resultCount, addJob, s
     const salaryDisplay = j.salary ? formatSalary(j.salary) : '';
 
     return `
-      <div class="search-result-card" data-idx="${i}">
+      <div class="search-result-card card-enter" data-idx="${i}">
         <div class="src-card-header">
           <img class="src-card-logo" src="${ENDPOINTS.clearbitLogo}/${domain}" onerror="this.style.display='none'" alt="">
           <div class="src-card-info">
@@ -330,6 +331,8 @@ function displayResults(allResults, resultsEl, filterBar, resultCount, addJob, s
       </div>
     `;
   }).join('');
+
+  staggerChildren(resultsEl, '.search-result-card');
 
   // Bind add buttons — fade out card after adding
   resultsEl.querySelectorAll('.search-add-btn').forEach(btn => {

@@ -120,7 +120,7 @@
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <!-- ======== MAIN CONTENT ======== -->
-    <main id="main-content" role="main">
+    <main id="main-content" role="main" aria-live="polite">
       <!-- LANDING -->
       <section id="view-landing" class="hidden">
         <!-- Dynamically rendered by js/views/landing.js -->
@@ -157,7 +157,11 @@
               </div>
             </div>
             <div class="section-hero">
-              <div class="glance-grid" id="dashboardMetrics"></div>
+              <div class="glance-grid" id="dashboardMetrics">
+  <div class="glance-card"><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton skeleton-title" style="width:40%"></div><div class="skeleton skeleton-text"></div></div>
+  <div class="glance-card"><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton skeleton-title" style="width:40%"></div><div class="skeleton skeleton-text"></div></div>
+  <div class="glance-card"><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton skeleton-title" style="width:40%"></div><div class="skeleton skeleton-text"></div></div>
+</div>
               <div class="quick-switcher" aria-label="Dashboard shortcuts">
                 <span class="muted">Jump to:</span>
                 <button class="btn small ghost" type="button" data-dash-nav="my-jobs">View pipeline</button>

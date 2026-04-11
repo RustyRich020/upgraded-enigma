@@ -29,12 +29,12 @@ export function renderAuth(container, callbacks = {}) {
 
         ${mode !== 'reset' ? `
         <div class="auth-tabs">
-          <button class="auth-tab ${mode === 'signup' ? 'active' : ''}" data-mode="signup">Sign Up</button>
-          <button class="auth-tab ${mode === 'signin' ? 'active' : ''}" data-mode="signin">Sign In</button>
+          <button type="button" class="auth-tab ${mode === 'signup' ? 'active' : ''}" data-mode="signup">Sign Up</button>
+          <button type="button" class="auth-tab ${mode === 'signin' ? 'active' : ''}" data-mode="signin">Sign In</button>
         </div>` : ''}
 
-        ${error ? `<div class="auth-error">${error}</div>` : ''}
-        ${success ? `<div class="auth-success">${success}</div>` : ''}
+        ${error ? `<div class="auth-error" role="alert">${error}</div>` : ''}
+        ${success ? `<div class="auth-success" role="status">${success}</div>` : ''}
 
         <form id="authForm" class="auth-form" novalidate>
           <label class="auth-field">
@@ -61,24 +61,24 @@ export function renderAuth(container, callbacks = {}) {
 
         ${mode === 'signin' ? `
         <div class="auth-footer-link">
-          <button class="auth-link" id="authForgotLink">Forgot your password?</button>
+          <button type="button" class="auth-link" id="authForgotLink">Forgot your password?</button>
         </div>` : ''}
 
         ${mode === 'reset' ? `
         <div class="auth-footer-link">
-          <button class="auth-link" id="authBackToSignin">Back to Sign In</button>
+          <button type="button" class="auth-link" id="authBackToSignin">Back to Sign In</button>
         </div>` : ''}
 
         <div class="auth-divider"><span>or</span></div>
 
-        <button class="btn ghost auth-submit" id="authGuest">Continue as Guest</button>
+        <button type="button" class="btn ghost auth-submit" id="authGuest">Continue as Guest</button>
 
         <div class="auth-toggle-row">
-          ${mode === 'signup' ? `<span class="muted">Already have an account? </span><button class="auth-link" id="authToggle">Sign In</button>` : ''}
-          ${mode === 'signin' ? `<span class="muted">Don't have an account? </span><button class="auth-link" id="authToggle">Sign Up</button>` : ''}
+          ${mode === 'signup' ? `<span class="muted">Already have an account? </span><button type="button" class="auth-link" id="authToggle">Sign In</button>` : ''}
+          ${mode === 'signin' ? `<span class="muted">Don't have an account? </span><button type="button" class="auth-link" id="authToggle">Sign Up</button>` : ''}
         </div>
 
-        <button class="auth-home-link" id="authBackHome">\u2190 Back to home</button>
+        <button type="button" class="auth-home-link" id="authBackHome">\u2190 Back to home</button>
 
         <style>
           #view-auth {

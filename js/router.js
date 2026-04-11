@@ -2,7 +2,7 @@
    router.js — Hash-based SPA router with auth guard
    ============================================================ */
 
-import { manageFocusOnViewChange } from './ui/a11y.js';
+import { manageFocusOnViewChange, announceToScreenReader } from './ui/a11y.js';
 
 const views = [
   'landing', 'auth', 'profile', 'dashboard',
@@ -80,22 +80,7 @@ function handleRoute() {
   // Toggle landing-specific chrome hiding
   document.body.classList.toggle('lp-active', view === 'landing');
 
-  // Hide all view sections
-  document.querySelectorAll('main > section').forEach(s => {
-    s.classList.add('hidden');
-  });
-
-  // Show the target section with fade-in animation
-  const target = document.getElementById('view-' + view);
-  if (target) {
-    target.classList.remove('hidden');
-    target.classList.add('view-enter');
-    target.addEventListener('animationend', () => target.classList.remove('view-enter'), { once: true });
-    requestAnimationFrame(() => {
-      manageFocusOnViewChange(target);
-    });
-  }
-
+  // Update nav buttons
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.view === view);
     if (btn.dataset.view === view) {
@@ -112,6 +97,7 @@ function handleRoute() {
   if (main) main.scrollTop = 0;
 
   document.title = `JobSink - ${TITLES[view] || view}`;
+  announceToScreenReader(`Navigated to ${TITLES[view] || view}`);
   window.dispatchEvent(new CustomEvent('routechange', { detail: { view } }));
 
   if (viewRenderers[view]) {
@@ -119,6 +105,39 @@ function handleRoute() {
       viewRenderers[view]();
     } catch (e) {
       console.error(`Error rendering view "${view}":`, e);
+    }
+  }
+
+  // Find currently visible section
+  const allSections = document.querySelectorAll('main > section');
+  const currentSection = Array.from(allSections).find(s => !s.classList.contains('hidden'));
+  const target = document.getElementById('view-' + view);
+
+  // If switching from a different section, animate exit
+  if (currentSection && target && currentSection !== target) {
+    currentSection.classList.add('view-exit');
+    setTimeout(() => {
+      allSections.forEach(s => {
+        s.classList.add('hidden');
+        s.classList.remove('view-exit');
+      });
+      target.classList.remove('hidden');
+      target.classList.add('view-enter');
+      target.addEventListener('animationend', () => target.classList.remove('view-enter'), { once: true });
+      requestAnimationFrame(() => {
+        manageFocusOnViewChange(target);
+      });
+    }, 120);
+  } else {
+    // No exit needed (initial load or same section)
+    allSections.forEach(s => s.classList.add('hidden'));
+    if (target) {
+      target.classList.remove('hidden');
+      target.classList.add('view-enter');
+      target.addEventListener('animationend', () => target.classList.remove('view-enter'), { once: true });
+      requestAnimationFrame(() => {
+        manageFocusOnViewChange(target);
+      });
     }
   }
 }
