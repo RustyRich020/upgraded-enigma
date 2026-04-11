@@ -14,6 +14,8 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   .landing-features { grid-template-columns: 1fr 1fr; }
   .metric-grid { grid-template-columns: 1fr 1fr; }
   .glance-grid { grid-template-columns: 1fr 1fr; }
+  .pricing-grid { grid-template-columns: 1fr 1fr; }
+  .career-ops-grid { grid-template-columns: 1fr 1fr; }
 
   nav {
     width: var(--sidebar-collapsed);
@@ -117,6 +119,12 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   .field-group, .field-group.compact { min-width: 100%; flex-basis: 100%; }
   .modal-actions { flex-direction: column-reverse; }
   .quick-switcher { align-items: flex-start; }
+
+  /* Search results */
+  .search-result { padding: 12px; }
+  .search-result h4 { font-size: var(--text-sm); }
+  .career-ops-grid { grid-template-columns: 1fr; }
+  .dashboard-hero-card { padding: 14px; border-radius: var(--radius-lg); }
 
   /* Tags: smaller */
   .tag { font-size: 9px; padding: 3px 8px; }
