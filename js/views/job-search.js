@@ -258,7 +258,7 @@ function displayResults(allResults, resultsEl, filterBar, resultCount, addJob, s
     `;
   }).join('');
 
-  // Bind add buttons
+  // Bind add buttons — fade out card after adding
   resultsEl.querySelectorAll('.search-add-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       addJob({
@@ -273,6 +273,23 @@ function displayResults(allResults, resultsEl, filterBar, resultCount, addJob, s
       toast(`Added "${btn.dataset.title}" to tracker`, 'success');
       btn.disabled = true;
       btn.textContent = 'Added ✓';
+      btn.style.background = 'var(--color-success)';
+      btn.style.borderColor = 'var(--color-success)';
+      btn.style.color = '#1a1a1e';
+      // Fade out the card
+      const card = btn.closest('.search-result-card');
+      if (card) {
+        card.style.transition = 'opacity 0.4s, transform 0.4s, max-height 0.4s, margin 0.4s, padding 0.4s';
+        card.style.opacity = '0.4';
+        card.style.transform = 'scale(0.98)';
+        setTimeout(() => {
+          card.style.maxHeight = '0';
+          card.style.margin = '0';
+          card.style.padding = '0';
+          card.style.overflow = 'hidden';
+          card.style.borderWidth = '0';
+        }, 500);
+      }
     });
   });
 }
