@@ -44,10 +44,20 @@ export function renderFindJobs(container, state, addJob) {
   buildATSPane(panes.ats);
   buildAgentPane(panes.agent);
 
-  /* ---- Render the active tab immediately ---- */
-  renderTab(savedTab, panes, state, addJob);
+  /* ---- Track which tabs have been rendered ---- */
+  const rendered = new Set();
 
-  /* ---- Tab click handler ---- */
+  function renderTabOnce(tab) {
+    if (!rendered.has(tab)) {
+      renderTab(tab, panes, state, addJob);
+      rendered.add(tab);
+    }
+  }
+
+  /* ---- Render the active tab immediately ---- */
+  renderTabOnce(savedTab);
+
+  /* ---- Tab click handler — show/hide, don't re-render ---- */
   tabBar.addEventListener('click', (e) => {
     const btn = e.target.closest('.view-tab');
     if (!btn) return;
@@ -58,7 +68,7 @@ export function renderFindJobs(container, state, addJob) {
     tabBar.querySelectorAll('.view-tab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
-    // Toggle pane visibility
+    // Toggle pane visibility (just show/hide, content is preserved)
     Object.entries(panes).forEach(([key, el]) => {
       el.classList.toggle('hidden', key !== tab);
     });
@@ -66,8 +76,8 @@ export function renderFindJobs(container, state, addJob) {
     // Persist selection
     sessionStorage.setItem(SESSION_KEY, tab);
 
-    // Re-render active tab
-    renderTab(tab, panes, state, addJob);
+    // Only render if first time showing this tab
+    renderTabOnce(tab);
   });
 }
 

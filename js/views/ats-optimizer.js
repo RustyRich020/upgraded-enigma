@@ -10,6 +10,22 @@ import {
 } from '../services/ats-optimizer.js';
 
 /**
+ * Add a keyword to the most recent resume's skills array.
+ */
+function addKeywordToResume(keyword, state) {
+  const resumes = state.get('resumes') || [];
+  const resume = resumes.filter(r => r.id !== '_meta').pop();
+  if (!resume) { toast('No resume found — upload one first', 'error'); return; }
+  if (!resume.skills) resume.skills = [];
+  const kw = keyword.toLowerCase().trim();
+  if (!resume.skills.includes(kw)) {
+    resume.skills.push(kw);
+    state.set('resumes', resumes);
+    toast(`Added "${keyword}" to ${resume.name}`, 'success');
+  }
+}
+
+/**
  * Render the ATS Optimizer view.
  */
 export function renderATSOptimizer(container, state) {
@@ -144,12 +160,22 @@ export function renderATSOptimizer(container, state) {
       `).join('')
       : '<span class="muted">Not enough keywords to generate queries.</span>';
 
-    // Bind "Use" buttons to navigate to search with that query
+    // Bind "Use" buttons — switch to Search tab within Find Jobs, or navigate
     queryEl.querySelectorAll('.ats-use-query').forEach(btn => {
       btn.addEventListener('click', () => {
-        const kw = document.getElementById('searchKeyword');
-        if (kw) kw.value = btn.dataset.query;
-        window.location.hash = '#search';
+        // Try to switch tab within Find Jobs (if we're inside it)
+        const searchTab = document.querySelector('.view-tab[data-tab="search"]');
+        if (searchTab) {
+          searchTab.click(); // Switch to Search tab
+          setTimeout(() => {
+            const kw = document.getElementById('searchKeyword');
+            if (kw) { kw.value = btn.dataset.query; kw.focus(); }
+          }, 100);
+        } else {
+          // Fallback: navigate to search page
+          sessionStorage.setItem('prefillSearch', btn.dataset.query);
+          window.location.hash = '#find-jobs';
+        }
       });
     });
   }
@@ -273,14 +299,46 @@ function showResults(container, result) {
       : '<span class="muted">No matching keywords found.</span>';
   }
 
-  // Missing
+  // Missing — with quick-add buttons
   const missingEl = container.querySelector('#atsMissing');
   if (missingEl) {
-    missingEl.innerHTML = result.missing.length > 0
-      ? result.missing.map(k => `
-        <span class="chip" style="margin:3px;background:var(--color-danger-dim);color:var(--color-danger);font-size:13px;border-color:rgba(248,113,113,0.2);">${escapeHtml(k.keyword)}</span>
-      `).join('')
-      : '<span class="muted">No gaps — all job keywords are in your resume!</span>';
+    if (result.missing.length > 0) {
+      missingEl.innerHTML = `
+        <div style="margin-bottom:8px;">
+          <button class="btn small" id="atsAddAllMissing" style="font-size:11px;">+ Add All to Resume</button>
+        </div>
+        ${result.missing.map(k => `
+          <span class="chip ats-missing-chip" data-keyword="${escapeHtml(k.keyword)}" style="margin:3px;background:var(--color-danger-dim);color:var(--color-danger);font-size:13px;border-color:rgba(248,113,113,0.2);cursor:pointer;" title="Click to add to resume">
+            + ${escapeHtml(k.keyword)}
+          </span>
+        `).join('')}
+      `;
+
+      // Quick-add individual keyword
+      missingEl.querySelectorAll('.ats-missing-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          addKeywordToResume(chip.dataset.keyword, state);
+          chip.style.background = 'var(--color-success-dim)';
+          chip.style.color = 'var(--color-success)';
+          chip.style.borderColor = 'rgba(74,222,128,0.2)';
+          chip.textContent = '✓ ' + chip.dataset.keyword;
+          chip.style.cursor = 'default';
+        });
+      });
+
+      // Add all missing keywords
+      missingEl.querySelector('#atsAddAllMissing')?.addEventListener('click', () => {
+        result.missing.forEach(k => addKeywordToResume(k.keyword, state));
+        missingEl.querySelectorAll('.ats-missing-chip').forEach(chip => {
+          chip.style.background = 'var(--color-success-dim)';
+          chip.style.color = 'var(--color-success)';
+          chip.textContent = '✓ ' + chip.dataset.keyword;
+        });
+        toast(`Added ${result.missing.length} keywords to your resume`, 'success');
+      });
+    } else {
+      missingEl.innerHTML = '<span class="muted">No gaps — all job keywords are in your resume!</span>';
+    }
   }
 
   // Breakdown

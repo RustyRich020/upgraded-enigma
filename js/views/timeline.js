@@ -113,25 +113,16 @@ export function renderTimeline(container, state) {
     <div id="timelineWrap"></div>
 
     <style>
-      .tl-line{position:relative;padding:0 0 0 40px;margin-left:20px}
-      .tl-line::before{content:'';position:absolute;left:19px;top:0;bottom:0;width:2px;background:var(--border)}
-      .tl-event{position:relative;margin-bottom:24px}
-      .tl-dot{position:absolute;left:-29px;top:4px;width:14px;height:14px;border-radius:50%;border:2px solid var(--bg);z-index:1}
-      .tl-card{padding:12px 16px;border:1px solid var(--border);border-radius:8px;background:var(--surface)}
-      .tl-date{font-size:11px;color:var(--muted);margin-bottom:4px}
-      .tl-title{font-weight:600;font-size:14px}
-      .tl-company{font-size:13px;color:var(--accent, var(--orange-bright, #ff9800))}
-      .tl-desc{font-size:13px;color:var(--muted);margin-top:4px}
-      @media(min-width:768px){
-        .tl-line{padding:0;margin-left:0;display:flex;flex-direction:column;align-items:center}
-        .tl-line::before{left:50%;transform:translateX(-50%)}
-        .tl-event{width:100%;display:flex}
-        .tl-event:nth-child(odd){justify-content:flex-start;padding-right:calc(50% + 30px)}
-        .tl-event:nth-child(even){justify-content:flex-end;padding-left:calc(50% + 30px)}
-        .tl-dot{left:calc(50% - 7px)}
-        .tl-event:nth-child(odd) .tl-dot{left:auto;right:calc(-50% + 22px);left:unset;left:calc(50% - 7px)}
-        .tl-event:nth-child(even) .tl-dot{left:calc(50% - 7px)}
-      }
+      .tl-line{position:relative;padding:0 0 0 44px;margin-left:16px}
+      .tl-line::before{content:'';position:absolute;left:19px;top:0;bottom:0;width:2px;background:var(--color-surface-border)}
+      .tl-event{position:relative;margin-bottom:20px;animation:fadeIn 0.2s ease-out backwards;animation-delay:calc(var(--i, 0) * 50ms)}
+      .tl-dot{position:absolute;left:-33px;top:6px;width:12px;height:12px;border-radius:50%;border:2px solid var(--color-bg);z-index:1}
+      .tl-card{padding:14px 18px;border:1px solid var(--color-surface-border);border-radius:var(--radius-lg);background:var(--color-surface);transition:border-color 0.15s}
+      .tl-card:hover{border-color:rgba(212,135,77,0.2)}
+      .tl-date{font-size:12px;color:var(--color-muted);margin-bottom:4px;font-weight:500}
+      .tl-title{font-weight:600;font-size:15px;color:var(--color-text-heading)}
+      .tl-company{font-size:13px;color:var(--color-primary);font-weight:500}
+      .tl-desc{font-size:13px;color:var(--color-text-dim);margin-top:4px;line-height:1.5}
     </style>
   `;
 
@@ -151,26 +142,26 @@ export function renderTimeline(container, state) {
     }
 
     const dotColors = {
-      Saved: '#F44336',
-      Applied: '#FF9800',
-      Interview: '#2196F3',
-      Offer: '#4CAF50',
-      Closed: '#9E9E9E'
+      Saved: 'var(--color-primary)',
+      Applied: 'var(--color-warning)',
+      Interview: 'var(--color-accent)',
+      Offer: 'var(--color-success)',
+      Closed: 'var(--color-muted)'
     };
 
     wrap.innerHTML = `
       <div class="tl-line">
-        ${filtered.map(ev => {
-          const dotColor = dotColors[ev.type] || '#999';
-          const dateLabel = ev.date ? new Date(ev.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown';
+        ${filtered.map((ev, i) => {
+          const dotColor = dotColors[ev.type] || 'var(--color-muted)';
+          const dateLabel = ev.date ? new Date(ev.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown';
           return `
-            <div class="tl-event">
+            <div class="tl-event" style="--i:${i}">
               <div class="tl-dot" style="background:${dotColor}"></div>
               <div class="tl-card">
                 <div class="tl-date">${escapeHtml(dateLabel)}</div>
                 <div class="tl-title">${escapeHtml(ev.title)}</div>
                 <div class="tl-company">${escapeHtml(ev.company)}</div>
-                <div class="tl-desc">${escapeHtml(ev.description)}</div>
+                ${ev.description ? `<div class="tl-desc">${escapeHtml(ev.description)}</div>` : ''}
               </div>
             </div>
           `;
