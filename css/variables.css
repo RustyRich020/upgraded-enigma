@@ -1,44 +1,45 @@
 /* ============================================================
    JobSync — Design Tokens
-   Refined professional dark theme with copper/amber accent
+   White-first with copper accent + green success
+   Clean professional SaaS aesthetic
    ============================================================ */
 :root {
-  /* Surface colors — warm charcoal */
-  --color-bg: #1a1a1e;
-  --color-bg-secondary: #1e1e22;
-  --color-surface: #242428;
-  --color-surface-hover: #2a2a30;
-  --color-surface-border: #333338;
-  --color-grid: #2a2a30;
+  /* Surface — clean whites */
+  --color-bg: #FFFFFF;
+  --color-bg-secondary: #F8F8F6;
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #F5F5F3;
+  --color-surface-border: #E8E8E4;
+  --color-grid: #F0F0EC;
 
-  /* Primary (copper/amber from logo) */
-  --color-primary: #D4874D;
-  --color-primary-bright: #E09960;
-  --color-primary-glow: rgba(212, 135, 77, 0.25);
-  --color-primary-dim: rgba(212, 135, 77, 0.1);
-  --color-primary-subtle: rgba(212, 135, 77, 0.05);
+  /* Primary — warm copper from logo */
+  --color-primary: #C47B3A;
+  --color-primary-bright: #D4874D;
+  --color-primary-glow: rgba(196, 123, 58, 0.15);
+  --color-primary-dim: rgba(196, 123, 58, 0.08);
+  --color-primary-subtle: rgba(196, 123, 58, 0.04);
 
-  /* Accent (cool teal — contrast against warm primary) */
-  --color-accent: #4ECDC4;
-  --color-accent-bright: #6ED8D0;
-  --color-accent-glow: rgba(78, 205, 196, 0.2);
-  --color-accent-dim: rgba(78, 205, 196, 0.08);
+  /* Accent — rich green */
+  --color-accent: #2D8B5F;
+  --color-accent-bright: #38A169;
+  --color-accent-glow: rgba(45, 139, 95, 0.12);
+  --color-accent-dim: rgba(45, 139, 95, 0.06);
 
   /* Semantic */
-  --color-success: #4ADE80;
-  --color-success-dim: rgba(74, 222, 128, 0.1);
-  --color-info: #60A5FA;
-  --color-info-dim: rgba(96, 165, 250, 0.1);
-  --color-danger: #F87171;
-  --color-danger-dim: rgba(248, 113, 113, 0.1);
-  --color-warning: #FBBF24;
-  --color-warning-dim: rgba(251, 191, 36, 0.1);
+  --color-success: #2D8B5F;
+  --color-success-dim: rgba(45, 139, 95, 0.08);
+  --color-info: #3B82F6;
+  --color-info-dim: rgba(59, 130, 246, 0.08);
+  --color-danger: #DC3545;
+  --color-danger-dim: rgba(220, 53, 69, 0.08);
+  --color-warning: #E6930A;
+  --color-warning-dim: rgba(230, 147, 10, 0.08);
 
-  /* Text */
-  --color-text: #E4E4E7;
-  --color-text-dim: #A1A1AA;
-  --color-text-heading: #FAFAFA;
-  --color-muted: #6B6B76;
+  /* Text — warm darks */
+  --color-text: #2D2D2D;
+  --color-text-dim: #6B7280;
+  --color-text-heading: #1A1A1A;
+  --color-muted: #9CA3AF;
 
   /* Typography */
   --font-display: 'Instrument Sans', system-ui, sans-serif;
@@ -48,11 +49,11 @@
   /* Type scale */
   --text-xs: 11px;
   --text-sm: 13px;
-  --text-base: 14px;
-  --text-lg: 17px;
-  --text-xl: 21px;
-  --text-2xl: 26px;
-  --text-3xl: 32px;
+  --text-base: 15px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+  --text-3xl: 36px;
 
   /* Sizing */
   --radius-sm: 4px;
@@ -61,13 +62,13 @@
   --radius-xl: 16px;
   --radius-full: 9999px;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 16px rgba(212, 135, 77, 0.15);
-  --shadow-glow-lg: 0 0 32px rgba(212, 135, 77, 0.12);
-  --shadow-glow-accent: 0 0 16px rgba(78, 205, 196, 0.15);
+  /* Shadows — soft */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-glow: 0 0 0 3px var(--color-primary-dim);
+  --shadow-glow-lg: 0 0 0 4px var(--color-primary-dim);
+  --shadow-glow-accent: 0 0 0 3px var(--color-accent-dim);
 
   /* Transitions */
   --transition-fast: 0.12s ease;
