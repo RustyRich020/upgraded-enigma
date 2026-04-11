@@ -3,6 +3,7 @@
    ============================================================ */
 
 import { showModal, hideModal } from './modal.js';
+import { today } from '../utils.js';
 
 /**
  * Initialize the job form modal with event listeners.
@@ -13,21 +14,33 @@ export function initJobForm(onSave) {
   const closeBtn = document.getElementById('closeModal');
   const addBtn = document.getElementById('addJobBtn');
   const addBtn2 = document.getElementById('addJobBtn2');
+  const errorEl = document.getElementById('jobFormError');
+  const fieldIds = ['jobTitle', 'jobCompany', 'jobSalary', 'jobSource', 'jobFollow', 'jobUrl'];
 
-  function openForm() {
-    showModal('jobModal');
+  function clearError() {
+    if (errorEl) errorEl.textContent = '';
   }
 
-  function closeForm() {
-    hideModal('jobModal');
-    // Clear all fields
-    const fields = ['jobTitle', 'jobCompany', 'jobSalary', 'jobSource', 'jobFollow', 'jobUrl'];
-    fields.forEach(id => {
+  function resetFields() {
+    fieldIds.forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
     const statusEl = document.getElementById('jobStatus');
     if (statusEl) statusEl.value = 'Saved';
+    const followEl = document.getElementById('jobFollow');
+    if (followEl) followEl.value = today(3);
+    clearError();
+  }
+
+  function openForm() {
+    resetFields();
+    showModal('jobModal');
+  }
+
+  function closeForm() {
+    hideModal('jobModal');
+    clearError();
   }
 
   if (addBtn) addBtn.addEventListener('click', openForm);
@@ -45,6 +58,12 @@ export function initJobForm(onSave) {
         follow: (document.getElementById('jobFollow')?.value || '').trim(),
         url: (document.getElementById('jobUrl')?.value || '').trim()
       };
+      if (!job.title || !job.company) {
+        if (errorEl) errorEl.textContent = 'Add both a job title and company before saving.';
+        const firstMissing = !job.title ? document.getElementById('jobTitle') : document.getElementById('jobCompany');
+        firstMissing?.focus();
+        return;
+      }
       if (onSave) onSave(job);
       closeForm();
     });
@@ -57,6 +76,10 @@ export function initJobForm(onSave) {
       if (e.target === modal) closeForm();
     });
   }
+
+  fieldIds.forEach(id => {
+    document.getElementById(id)?.addEventListener('input', clearError);
+  });
 }
 
 export default { initJobForm };

@@ -6,9 +6,12 @@
 :root {
   --color-bg: #FFFFFF;
   --color-bg-secondary: #F8F8F6;
+  --color-bg-elevated: #FCFCFA;
   --color-surface: #FFFFFF;
+  --color-surface-strong: #F3F1EB;
   --color-surface-hover: #F5F5F3;
   --color-surface-border: #E8E8E4;
+  --color-grid: #F0F0EC;
   --color-primary: #C47B3A;
   --color-primary-bright: #D4874D;
   --color-primary-glow: rgba(196, 123, 58, 0.15);
@@ -21,5 +24,13 @@
   --color-text-dim: #6B7280;
   --color-text-heading: #1A1A1A;
   --color-muted: #9CA3AF;
+  --color-surface-glass: rgba(255, 255, 255, 0.76);
+  --color-surface-glass-strong: rgba(255, 255, 255, 0.92);
+  --color-surface-glass-soft: rgba(255, 255, 255, 0.6);
+  --color-surface-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 248, 246, 0.98));
+  --color-surface-gradient-strong: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 248, 246, 0.98));
+  --color-shell-header: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.9));
+  --color-shell-nav: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 248, 246, 0.96));
+  --color-shell-main: linear-gradient(180deg, #fbfbf8 0%, #f6f5f1 100%);
   --grid-opacity: 0;
 }

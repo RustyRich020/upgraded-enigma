@@ -16,6 +16,7 @@ import { checkLimit, recordUsage } from '../services/usage-tracker.js';
 import { showUpgradeBanner } from '../components/upgrade-banner.js';
 import { completeChecklistItem } from '../components/getting-started.js';
 import { uid, today } from '../utils.js';
+import { buildCareerProfile, evaluateOpportunity } from '../services/career-ops-lite.js';
 
 const SEARCH_DB_KEY = 'tron_search_results';
 
@@ -33,6 +34,48 @@ function saveSearchDB(results) {
   // Cap at 500 results to prevent localStorage overflow
   const capped = results.slice(0, 500);
   localStorage.setItem(SEARCH_DB_KEY, JSON.stringify(capped));
+}
+
+function populateSourceOptions(sourceFilter, results) {
+  if (!sourceFilter) return;
+  const current = sourceFilter.value;
+  const sources = [...new Set(results.map(result => result.source).filter(Boolean))].sort();
+  sourceFilter.innerHTML = '';
+  const allOption = document.createElement('option');
+  allOption.value = '';
+  allOption.textContent = 'All Sources';
+  sourceFilter.appendChild(allOption);
+  sources.forEach(source => {
+    const option = document.createElement('option');
+    option.value = source;
+    option.textContent = source;
+    sourceFilter.appendChild(option);
+  });
+  if (sources.includes(current)) sourceFilter.value = current;
+}
+
+function relevanceScore(job) {
+  if (job.fit?.score) return job.fit.score;
+  const keyword = String(job._keyword || '').toLowerCase().trim();
+  if (!keyword) return 0;
+  const haystack = `${job.title || ''} ${job.company || ''} ${job.description || ''}`.toLowerCase();
+  return keyword.split(/\s+/).filter(Boolean).reduce((score, term) => (
+    haystack.includes(term) ? score + 1 : score
+  ), 0);
+}
+
+function enrichResults(results, state) {
+  const profile = buildCareerProfile({
+    resumes: state.get('resumes') || [],
+    jobs: state.get('jobs') || [],
+    offers: state.get('offers') || [],
+    settings: state.get('settings') || {}
+  });
+
+  return (results || []).map(result => ({
+    ...result,
+    fit: evaluateOpportunity(result, profile)
+  }));
 }
 
 /**
@@ -53,12 +96,23 @@ export function renderJobSearch(container, state, addJob) {
   const sortBy = container.querySelector('#searchSortBy');
   const resultCount = container.querySelector('#searchResultCount');
   const searchAllBtn = container.querySelector('#searchAllBtn');
+  const runSearch = () => searchAllBtn?.click();
+
+  ['#searchKeyword', '#searchLocation', '#searchMinSalary'].forEach(selector => {
+    container.querySelector(selector)?.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        runSearch();
+      }
+    });
+  });
 
   // Load persisted results on render
   let allResults = loadSearchDB();
   if (allResults.length > 0) {
+    populateSourceOptions(sourceFilter, allResults);
     try {
-      displayResults(allResults, null, null, null, addJob, '', 'date');
+      displayResults(enrichResults(allResults, state), null, null, null, addJob, sourceFilter?.value, sortBy?.value);
     } catch (e) {
       console.error('displayResults init error:', e);
     }
@@ -150,6 +204,7 @@ export function renderJobSearch(container, state, addJob) {
       const newOnly = unique.filter(j => !existingKeys.has(`${(j.title||'').toLowerCase()}|${(j.company||'').toLowerCase()}`));
       allResults = [...newOnly, ...existingDB];
       saveSearchDB(allResults);
+      populateSourceOptions(sourceFilter, allResults);
 
       // Final status
       const sourceStr = Object.entries(sources).filter(([_, v]) => v > 0).map(([k, v]) => `${k}: ${v}`).join(' · ');
@@ -160,20 +215,20 @@ export function renderJobSearch(container, state, addJob) {
       }
 
       completeChecklistItem('firstSearch');
-      displayResults(allResults, null, null, null, addJob, sourceFilter?.value, sortBy?.value);
+      displayResults(enrichResults(allResults, state), null, null, null, addJob, sourceFilter?.value, sortBy?.value);
 
       searchAllBtn.disabled = false;
-      searchAllBtn.innerHTML = 'SEARCH ALL SOURCES';
+      searchAllBtn.innerHTML = 'Search All Sources';
       toast(`Found ${unique.length} jobs across ${Object.values(sources).filter(v => v > 0).length} sources`, 'success');
     };
   }
 
   // Filter/Sort handlers
   if (sourceFilter) {
-    sourceFilter.onchange = () => displayResults(allResults, resultsEl, filterBar, resultCount, addJob, sourceFilter.value, sortBy?.value);
+    sourceFilter.onchange = () => displayResults(enrichResults(allResults, state), resultsEl, filterBar, resultCount, addJob, sourceFilter.value, sortBy?.value);
   }
   if (sortBy) {
-    sortBy.onchange = () => displayResults(allResults, resultsEl, filterBar, resultCount, addJob, sourceFilter?.value, sortBy.value);
+    sortBy.onchange = () => displayResults(enrichResults(allResults, state), resultsEl, filterBar, resultCount, addJob, sourceFilter?.value, sortBy.value);
   }
 }
 
@@ -204,8 +259,8 @@ function displayResults(allResults, resultsEl, filterBar, resultCount, addJob, s
       const sb = parseInt((b.salary || '').replace(/[^0-9]/g, '')) || 0;
       return sb - sa;
     });
-  } else if (sortVal === 'source') {
-    filtered.sort((a, b) => (a.source || '').localeCompare(b.source || ''));
+  } else if (sortVal === 'relevance') {
+    filtered.sort((a, b) => relevanceScore(b) - relevanceScore(a));
   } else {
     filtered.sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
   }
@@ -216,8 +271,8 @@ function displayResults(allResults, resultsEl, filterBar, resultCount, addJob, s
 
   if (filtered.length === 0) {
     resultsEl.innerHTML = allResults.length === 0
-      ? '<div style="text-align:center;padding:40px;color:var(--color-muted);">Enter keywords and click Search All Sources to find jobs.</div>'
-      : '<div style="text-align:center;padding:40px;color:var(--color-muted);">No results match this filter.</div>';
+      ? '<div class="empty-inline">Enter keywords and run a search to start building your opportunities list.</div>'
+      : '<div class="empty-inline">No results match this filter. Try another source, salary range, or remote setting.</div>';
     return;
   }
 
@@ -233,6 +288,12 @@ function displayResults(allResults, resultsEl, filterBar, resultCount, addJob, s
           <div class="src-card-info">
             <div class="src-card-company">${escapeHtml(j.company || 'Unknown Company')}</div>
             <h3 class="src-card-title">${escapeHtml(j.title || 'Untitled Position')}</h3>
+            ${j.fit ? `
+              <div class="fit-summary-row">
+                <span class="fit-grade fit-grade-${(j.fit.grade || 'c').toLowerCase()}">${escapeHtml(j.fit.grade)} · ${j.fit.score}%</span>
+                <span class="muted">${escapeHtml(j.fit.summary)}</span>
+              </div>
+            ` : ''}
           </div>
           <span class="src-card-source">${escapeHtml(j.source || '')}</span>
         </div>
@@ -242,6 +303,12 @@ function displayResults(allResults, resultsEl, filterBar, resultCount, addJob, s
           ${salaryDisplay ? `<span class="src-card-detail src-card-salary">💰 ${salaryDisplay}</span>` : ''}
           ${j.remote ? `<span class="src-card-detail" style="color:var(--color-accent)">🏠 Remote</span>` : ''}
         </div>
+        ${j.fit ? `
+          <div class="fit-chip-row">
+            ${j.fit.strengths.slice(0, 3).map(item => `<span class="chip chip-strong">${escapeHtml(item)}</span>`).join('')}
+            ${j.fit.risks.slice(0, 2).map(item => `<span class="chip chip-risk">${escapeHtml(item)}</span>`).join('')}
+          </div>
+        ` : ''}
         ${j.description ? `<p class="src-card-desc">${escapeHtml(String(j.description))}</p>` : ''}
         <div class="src-card-actions">
           <button class="btn brand small search-add-btn"
@@ -249,7 +316,13 @@ function displayResults(allResults, resultsEl, filterBar, resultCount, addJob, s
             data-company="${escapeHtml(String(j.company || ''))}"
             data-url="${escapeHtml(String(j.url || ''))}"
             data-source="${escapeHtml(String(j.source || ''))}"
-            data-salary="${escapeHtml(String(j.salary || '').toString().replace(/[^0-9]/g, ''))}">
+            data-salary="${escapeHtml(String(j.salary || '').toString().replace(/[^0-9]/g, ''))}"
+            data-description="${escapeHtml(String(j.description || ''))}"
+            data-location="${escapeHtml(String(j.location || ''))}"
+            data-remote="${escapeHtml(String(j.remote || ''))}"
+            data-date="${escapeHtml(String(j.date || ''))}"
+            data-fit-score="${escapeHtml(String(j.fit?.score || ''))}"
+            data-fit-grade="${escapeHtml(String(j.fit?.grade || ''))}">
             + Add to Tracker
           </button>
           ${j.url ? `<a href="${escapeHtml(j.url)}" target="_blank" rel="noopener" class="btn small ghost">View Posting</a>` : ''}
@@ -267,12 +340,18 @@ function displayResults(allResults, resultsEl, filterBar, resultCount, addJob, s
         url: btn.dataset.url || '',
         source: btn.dataset.source || '',
         salary: btn.dataset.salary || '',
+        description: btn.dataset.description || '',
+        location: btn.dataset.location || '',
+        remote: btn.dataset.remote || '',
+        date: btn.dataset.date || '',
+        fitScore: btn.dataset.fitScore ? Number(btn.dataset.fitScore) : 0,
+        fitGrade: btn.dataset.fitGrade || '',
         status: 'Saved',
         follow: today(3)
       });
       toast(`Added "${btn.dataset.title}" to tracker`, 'success');
       btn.disabled = true;
-      btn.textContent = 'Added ✓';
+      btn.textContent = 'Added';
       btn.style.background = 'var(--color-success)';
       btn.style.borderColor = 'var(--color-success)';
       btn.style.color = '#1a1a1e';

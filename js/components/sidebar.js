@@ -6,72 +6,54 @@
  * Initialize sidebar behavior: hamburger toggle for mobile, nav click handling, overlay.
  */
 export function initSidebar() {
-  const nav = document.querySelector('nav');
-  if (!nav) return;
+  const nav = document.getElementById('sidebar');
+  const hamburger = document.getElementById('hamburgerBtn');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (!nav || !hamburger || !overlay) return;
 
-  // Create hamburger button if it doesn't exist
-  let hamburger = document.getElementById('hamburgerBtn');
-  if (!hamburger) {
-    hamburger = document.createElement('button');
-    hamburger.id = 'hamburgerBtn';
-    hamburger.className = 'btn hamburger';
-    hamburger.innerHTML = '&#9776;';
-    hamburger.style.cssText = 'display:none;position:fixed;top:16px;left:16px;z-index:150;font-size:20px;padding:8px 12px;';
-    document.body.appendChild(hamburger);
+  function isMobile() {
+    return window.innerWidth <= 768;
   }
 
-  // Create overlay if it doesn't exist
-  let overlay = document.getElementById('sidebarOverlay');
-  if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.id = 'sidebarOverlay';
-    overlay.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:90;';
-    document.body.appendChild(overlay);
+  function setOpen(open) {
+    const shouldShow = isMobile() && open;
+    nav.classList.toggle('open', shouldShow);
+    overlay.classList.toggle('show', shouldShow);
+    document.body.classList.toggle('nav-open', shouldShow);
+    document.body.style.overflow = shouldShow ? 'hidden' : '';
+    hamburger.setAttribute('aria-expanded', shouldShow ? 'true' : 'false');
+    overlay.setAttribute('aria-hidden', shouldShow ? 'false' : 'true');
   }
 
-  // Show hamburger on small screens
-  function checkWidth() {
-    if (window.innerWidth <= 768) {
-      hamburger.style.display = 'block';
-      nav.classList.add('sidebar-collapsed');
-    } else {
-      hamburger.style.display = 'none';
-      overlay.style.display = 'none';
-      nav.classList.remove('sidebar-collapsed');
-      nav.classList.remove('sidebar-open');
+  function syncForViewport() {
+    if (!isMobile()) {
+      setOpen(false);
     }
   }
 
-  // Toggle sidebar
+  hamburger.setAttribute('aria-controls', 'sidebar');
+  hamburger.setAttribute('aria-expanded', 'false');
+  overlay.setAttribute('aria-hidden', 'true');
+
   hamburger.addEventListener('click', () => {
-    const isOpen = nav.classList.contains('sidebar-open');
-    if (isOpen) {
-      nav.classList.remove('sidebar-open');
-      overlay.style.display = 'none';
-    } else {
-      nav.classList.add('sidebar-open');
-      overlay.style.display = 'block';
-    }
+    setOpen(!nav.classList.contains('open'));
   });
 
-  // Close sidebar on overlay click
-  overlay.addEventListener('click', () => {
-    nav.classList.remove('sidebar-open');
-    overlay.style.display = 'none';
-  });
+  overlay.addEventListener('click', () => setOpen(false));
 
-  // Close sidebar when a nav button is clicked (mobile)
   nav.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (window.innerWidth <= 768) {
-        nav.classList.remove('sidebar-open');
-        overlay.style.display = 'none';
-      }
+      if (isMobile()) setOpen(false);
     });
   });
 
-  window.addEventListener('resize', checkWidth);
-  checkWidth();
+  window.addEventListener('resize', syncForViewport);
+  window.addEventListener('routechange', () => setOpen(false));
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') setOpen(false);
+  });
+
+  syncForViewport();
 }
 
 export default { initSidebar };

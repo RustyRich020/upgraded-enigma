@@ -4,6 +4,7 @@
 
 import { escapeHtml, fmtDate, today, download } from '../utils.js';
 import { toast } from '../components/toast.js';
+import { buildCareerProfile, summarizeLearningGaps } from '../services/career-ops-lite.js';
 
 /**
  * Render the weekly report generator view.
@@ -138,6 +139,12 @@ function buildReport(state, startDate, endDate) {
   const jobs = state.get('jobs') || [];
   const interviews = state.get('interviews') || [];
   const networking = state.get('networking') || [];
+  const profile = buildCareerProfile({
+    resumes: state.get('resumes') || [],
+    jobs,
+    offers: state.get('offers') || [],
+    settings: state.get('settings') || {}
+  });
 
   /* Filter jobs added in range */
   const jobsThisWeek = jobs.filter(j => {
@@ -179,6 +186,7 @@ function buildReport(state, startDate, endDate) {
     const matches = text.match(/\b(JavaScript|TypeScript|React|Python|Node\.?js|SQL|AWS|Docker|Java|Go|Rust|C\+\+|Kubernetes|GraphQL|REST|Git)\b/gi);
     if (matches) matches.forEach(s => skillSet.add(s));
   });
+  const learningGaps = summarizeLearningGaps(jobs, profile, 5);
 
   /* Build text */
   const lines = [];
@@ -250,6 +258,16 @@ function buildReport(state, startDate, endDate) {
     lines.push('  (none detected)');
   } else {
     lines.push(`  ${[...skillSet].join(', ')}`);
+  }
+  lines.push('');
+
+  lines.push('-- TOP LEARNING GAPS --');
+  if (!learningGaps.length) {
+    lines.push('  (no major repeated gaps detected)');
+  } else {
+    learningGaps.forEach(item => {
+      lines.push(`  - ${item.skill} (${item.count} roles)`);
+    });
   }
   lines.push('');
   lines.push('========================================');

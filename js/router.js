@@ -2,6 +2,8 @@
    router.js — Hash-based SPA router with auth guard
    ============================================================ */
 
+import { manageFocusOnViewChange } from './ui/a11y.js';
+
 const views = [
   'landing', 'auth', 'profile', 'dashboard',
   'find-jobs', 'my-jobs', 'my-profile',
@@ -14,6 +16,16 @@ const PUBLIC_ROUTES = new Set(['landing', 'auth']);
 const viewRenderers = {};
 let currentView = 'dashboard';
 let authGuardFn = null;
+const TITLES = {
+  landing: 'Welcome',
+  auth: 'Sign In',
+  profile: 'Profile Setup',
+  dashboard: 'Dashboard',
+  'find-jobs': 'Find Jobs',
+  'my-jobs': 'My Jobs',
+  'my-profile': 'My Profile',
+  settings: 'Settings'
+};
 
 /**
  * Set an auth guard function. Returns true if user is authenticated.
@@ -33,6 +45,10 @@ export function registerView(name, renderFn) {
  * Navigate to a specific view by setting the hash.
  */
 export function navigate(view) {
+  if (window.location.hash === '#' + view) {
+    handleRoute();
+    return;
+  }
   window.location.hash = '#' + view;
 }
 
@@ -72,23 +88,29 @@ function handleRoute() {
     target.classList.remove('hidden');
     target.classList.add('view-enter');
     target.addEventListener('animationend', () => target.classList.remove('view-enter'), { once: true });
-    // Accessibility: focus the view heading
     requestAnimationFrame(() => {
-      const heading = target.querySelector('h2');
-      if (heading) { heading.setAttribute('tabindex', '-1'); heading.focus({ preventScroll: true }); }
+      manageFocusOnViewChange(target);
     });
   }
 
-  // Update nav active state
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.view === view);
+    if (btn.dataset.view === view) {
+      btn.setAttribute('aria-current', 'page');
+    } else {
+      btn.removeAttribute('aria-current');
+    }
   });
 
-  // Hide sidebar on public routes
   const sidebar = document.getElementById('sidebar');
   if (sidebar) sidebar.classList.toggle('hidden', PUBLIC_ROUTES.has(view));
 
-  // Call the view's render function if registered
+  const main = document.getElementById('main-content');
+  if (main) main.scrollTop = 0;
+
+  document.title = `JobSync - ${TITLES[view] || view}`;
+  window.dispatchEvent(new CustomEvent('routechange', { detail: { view } }));
+
   if (viewRenderers[view]) {
     try {
       viewRenderers[view]();

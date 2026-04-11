@@ -134,6 +134,10 @@ function renderAll() {
   try { renderResumeCenter(getSection('resume'), state); } catch (e) { console.error(e); }
   try { renderCompanies(getSection('companies'), state); } catch (e) { console.error(e); }
   try { renderContacts(getSection('contacts'), state); } catch (e) { console.error(e); }
+  try { renderInterviews(getSection('interviews'), state); } catch (e) { console.error(e); }
+  try { renderNetworking(getSection('networking'), state); } catch (e) { console.error(e); }
+  try { renderSalaryTool(getSection('salary'), state); } catch (e) { console.error(e); }
+  try { renderWeeklyReport(getSection('report'), state); } catch (e) { console.error(e); }
 }
 
 function getSection(name) {
@@ -242,6 +246,18 @@ function loadSeedData() {
   state.set('contacts', [
     { id: uid(), name: 'Kevin Flynn', email: 'kevin@flynn.io', company: 'Flynn Lives', notes: 'CEO, met at conference', verified: null }
   ]);
+  state.set('interviews', [
+    { id: uid(), company: 'Flynn Lives', role: 'ML Engineer', date: today(2), time: '10:00', type: 'Video', notes: 'Review agent workflows and model deployment examples.', status: 'Scheduled', createdAt: new Date().toISOString() }
+  ]);
+  state.set('networking', [
+    { id: uid(), type: 'Informational Interview', contactName: 'Alan Bradley', company: 'ENCOM', date: today(-2), notes: 'Talked about platform reliability and internal tooling.', outcome: 'Send follow-up and stay in touch', createdAt: new Date().toISOString() }
+  ]);
+  state.set('offers', [
+    { id: uid(), company: 'Digital Frontier', role: 'DevOps Engineer', baseSalary: 145000, bonus: 10000, equity: 15000, benefits: 4, pto: 20, remote: 'hybrid', commute: 20, notes: 'Good comp but slower pace.', createdAt: new Date().toISOString() }
+  ]);
+  state.set('stories', [
+    { id: uid(), title: 'Automated multi-step workflow handoff', skills: ['automation', 'leadership', 'javascript'], situation: 'A repetitive workflow was creating delays and missed handoffs.', action: 'Designed and shipped an automated flow with alerts and ownership boundaries, cutting manual effort and improving consistency.', createdAt: new Date().toISOString() }
+  ]);
 }
 
 /* ============================================================
@@ -349,7 +365,10 @@ async function boot() {
   const themeBtn = document.getElementById('themeToggle');
   if (themeBtn) {
     function updateThemeIcon() {
-      themeBtn.textContent = getCurrentTheme() === 'light' ? '🌙' : '☀';
+      const isLight = getCurrentTheme() === 'light';
+      themeBtn.textContent = isLight ? '🌙' : '☀';
+      themeBtn.setAttribute('aria-label', isLight ? 'Switch to dark-inspired theme' : 'Switch to light theme');
+      themeBtn.setAttribute('title', isLight ? 'Switch to dark-inspired theme' : 'Switch to light theme');
     }
     updateThemeIcon();
     themeBtn.addEventListener('click', () => {
@@ -395,9 +414,12 @@ async function boot() {
   const navMoreSection = document.getElementById('navMoreSection');
   const navExpandIcon = document.getElementById('navExpandIcon');
   if (navExpandBtn && navMoreSection) {
+    navExpandBtn.setAttribute('aria-expanded', 'false');
+    navExpandBtn.setAttribute('aria-controls', 'navMoreSection');
     navExpandBtn.addEventListener('click', () => {
       const isOpen = navMoreSection.style.display !== 'none';
       navMoreSection.style.display = isOpen ? 'none' : 'block';
+      navExpandBtn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
       if (navExpandIcon) navExpandIcon.style.transform = isOpen ? '' : 'rotate(90deg)';
     });
   }
@@ -506,7 +528,7 @@ async function boot() {
           await migrateToFirestore();
           // Start real-time listeners for cross-device sync
           startRealtimeSync(state, (key) => {
-            if (['jobs', 'resumes', 'companies', 'contacts'].includes(key)) {
+            if (['jobs', 'resumes', 'companies', 'contacts', 'interviews', 'networking', 'offers', 'stories'].includes(key)) {
               renderAll();
             }
           });

@@ -7,8 +7,18 @@
 import { renderJobSearch } from './job-search.js';
 import { renderATSOptimizer } from './ats-optimizer.js';
 import { renderAgentDashboard } from './agent-dashboard.js';
+import { enableTabKeyboardNavigation, setActiveTab } from '../ui/a11y.js';
 
+const SEARCH_DB_KEY = 'tron_search_results';
 const SESSION_KEY = 'tron_findJobs_activeTab';
+
+function getStoredSearchCount() {
+  try {
+    return JSON.parse(localStorage.getItem(SEARCH_DB_KEY) || '[]').length;
+  } catch {
+    return 0;
+  }
+}
 
 /**
  * Render the consolidated Find Jobs view with 3 tabs:
@@ -20,16 +30,56 @@ const SESSION_KEY = 'tron_findJobs_activeTab';
  */
 export function renderFindJobs(container, state, addJob) {
   const savedTab = sessionStorage.getItem(SESSION_KEY) || 'search';
+  const storedResults = getStoredSearchCount();
+  const resumes = (state.get('resumes') || []).filter(item => item.id && item.id !== '_meta');
+  const activeJobs = (state.get('jobs') || []).filter(item => item.id && item.id !== '_meta' && item.status !== 'Closed');
+  const settings = state.get('settings') || {};
+  const connectedKeys = ['adzunaId', 'adzunaKey', 'jsearchKey'].filter(key => Boolean(settings[key])).length;
 
   container.innerHTML = `
-    <div class="view-tabs">
-      <button class="view-tab ${savedTab === 'search' ? 'active' : ''}" data-tab="search">Search</button>
-      <button class="view-tab ${savedTab === 'ats' ? 'active' : ''}" data-tab="ats">ATS Optimizer</button>
-      <button class="view-tab ${savedTab === 'agent' ? 'active' : ''}" data-tab="agent">Job Agent</button>
+    <div class="section-shell">
+      <div class="section-intro">
+        <div class="section-title-row">
+          <p class="eyebrow">Opportunity Flow</p>
+          <h2>Find Jobs</h2>
+          <p class="section-copy">Search openings, stress-test your resume against postings, and let the job agent help with discovery from one workspace.</p>
+        </div>
+      </div>
+      <div class="section-hero">
+        <div class="glance-grid">
+          <div class="glance-card">
+            <div class="glance-label">Stored Results</div>
+            <div class="glance-value">${storedResults}</div>
+            <div class="glance-copy">${storedResults ? 'Your search database is ready for filtering and re-sorting.' : 'Run a search once and your best leads will stay nearby.'}</div>
+          </div>
+          <div class="glance-card">
+            <div class="glance-label">Resume Coverage</div>
+            <div class="glance-value">${resumes.length}</div>
+            <div class="glance-copy">${resumes.length ? 'You have profile material ready for ATS checks and fit scoring.' : 'Add a resume to make role scoring and ATS help more useful.'}</div>
+          </div>
+          <div class="glance-card">
+            <div class="glance-label">Pipeline Ready</div>
+            <div class="glance-value">${activeJobs.length}</div>
+            <div class="glance-copy">${activeJobs.length ? `${activeJobs.length} tracked roles can inform better search decisions.` : 'No active roles yet, so this is a good moment to build the top of funnel.'}</div>
+          </div>
+        </div>
+        <div class="quick-switcher" aria-label="Find Jobs shortcuts">
+          <span class="muted">Jump to:</span>
+          <button class="btn small ghost" type="button" data-jump-tab="search">Search roles</button>
+          <button class="btn small ghost" type="button" data-jump-tab="ats">Check ATS fit</button>
+          <button class="btn small ghost" type="button" data-jump-tab="agent">Open job agent</button>
+          <span class="chip">${connectedKeys ? `${connectedKeys} premium source key${connectedKeys === 1 ? '' : 's'} connected` : 'Free sources ready'}</span>
+        </div>
+      </div>
+      <div class="view-tabs" role="tablist" aria-label="Find Jobs views">
+        <button class="view-tab ${savedTab === 'search' ? 'active' : ''}" data-tab="search" role="tab" aria-selected="${savedTab === 'search'}">Search</button>
+        <button class="view-tab ${savedTab === 'ats' ? 'active' : ''}" data-tab="ats" role="tab" aria-selected="${savedTab === 'ats'}">ATS Optimizer</button>
+        <button class="view-tab ${savedTab === 'agent' ? 'active' : ''}" data-tab="agent" role="tab" aria-selected="${savedTab === 'agent'}">Job Agent</button>
+      </div>
+      <div class="tab-content ${savedTab !== 'search' ? 'hidden' : ''}" id="tab-search"></div>
+      <div class="tab-content ${savedTab !== 'ats' ? 'hidden' : ''}" id="tab-ats"></div>
+      <div class="tab-content ${savedTab !== 'agent' ? 'hidden' : ''}" id="tab-agent"></div>
     </div>
-    <div class="tab-content ${savedTab !== 'search' ? 'hidden' : ''}" id="tab-search"></div>
-    <div class="tab-content ${savedTab !== 'ats' ? 'hidden' : ''}" id="tab-ats"></div>
-    <div class="tab-content ${savedTab !== 'agent' ? 'hidden' : ''}" id="tab-agent"></div>
   `;
 
   const tabBar = container.querySelector('.view-tabs');
@@ -54,8 +104,17 @@ export function renderFindJobs(container, state, addJob) {
     }
   }
 
+  function activateTab(tab) {
+    setActiveTab(tabBar, tab);
+    Object.entries(panes).forEach(([key, el]) => {
+      el.classList.toggle('hidden', key !== tab);
+    });
+    sessionStorage.setItem(SESSION_KEY, tab);
+    renderTabOnce(tab);
+  }
+
   /* ---- Render the active tab immediately ---- */
-  renderTabOnce(savedTab);
+  activateTab(savedTab);
 
   /* ---- Tab click handler — show/hide, don't re-render ---- */
   tabBar.addEventListener('click', (e) => {
@@ -63,22 +122,17 @@ export function renderFindJobs(container, state, addJob) {
     if (!btn) return;
     const tab = btn.dataset.tab;
     if (!tab) return;
-
-    // Update active class
-    tabBar.querySelectorAll('.view-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    // Toggle pane visibility (just show/hide, content is preserved)
-    Object.entries(panes).forEach(([key, el]) => {
-      el.classList.toggle('hidden', key !== tab);
-    });
-
-    // Persist selection
-    sessionStorage.setItem(SESSION_KEY, tab);
-
-    // Only render if first time showing this tab
-    renderTabOnce(tab);
+    activateTab(tab);
   });
+
+  container.querySelectorAll('[data-jump-tab]').forEach(button => {
+    button.addEventListener('click', () => {
+      const tab = button.dataset.jumpTab;
+      if (tab) activateTab(tab);
+    });
+  });
+
+  enableTabKeyboardNavigation(tabBar, activateTab);
 }
 
 /* ============================================================
@@ -88,27 +142,27 @@ export function renderFindJobs(container, state, addJob) {
 
 function buildSearchPane(el) {
   el.innerHTML = `
-    <div class="toolbar" style="flex-wrap:wrap;gap:8px;">
-      <h2>Job Search</h2>
+    <div class="toolbar">
+      <h3>Job Search</h3>
       <span class="tag green">Unified</span>
     </div>
 
-    <div class="panel" style="margin-bottom:16px;">
-      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;">
-        <div style="flex:1;min-width:160px;">
-          <label class="muted" style="display:block;font-size:12px;margin-bottom:4px;">Keywords</label>
+    <div class="panel stack-md" style="margin-bottom:16px;">
+      <div class="inline-form">
+        <div class="field-group">
+          <label class="muted" style="display:block;font-size:12px;">Keywords</label>
           <input id="searchKeyword" class="input" placeholder="e.g. security analyst" />
         </div>
-        <div style="flex:1;min-width:140px;">
-          <label class="muted" style="display:block;font-size:12px;margin-bottom:4px;">Location</label>
+        <div class="field-group">
+          <label class="muted" style="display:block;font-size:12px;">Location</label>
           <input id="searchLocation" class="input" placeholder="e.g. Remote, NYC" />
         </div>
-        <div style="min-width:110px;">
-          <label class="muted" style="display:block;font-size:12px;margin-bottom:4px;">Min Salary</label>
+        <div class="field-group compact">
+          <label class="muted" style="display:block;font-size:12px;">Min Salary</label>
           <input id="searchMinSalary" class="input" type="number" placeholder="50000" />
         </div>
-        <div style="min-width:100px;">
-          <label class="muted" style="display:block;font-size:12px;margin-bottom:4px;">Remote</label>
+        <div class="field-group compact">
+          <label class="muted" style="display:block;font-size:12px;">Remote</label>
           <select id="searchRemoteFilter" class="input">
             <option value="">Any</option>
             <option value="remote">Remote</option>
@@ -116,13 +170,13 @@ function buildSearchPane(el) {
             <option value="onsite">On-site</option>
           </select>
         </div>
-        <button id="searchAllBtn" class="btn brand" style="height:38px;">Search All</button>
+        <button id="searchAllBtn" class="btn brand">Search All</button>
       </div>
     </div>
 
     <!-- Filter bar -->
     <div id="searchFilterBar" style="display:none;margin-bottom:12px;">
-      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+      <div class="action-cluster">
         <select id="searchSourceFilter" class="input small" style="width:auto;">
           <option value="">All Sources</option>
         </select>

@@ -106,3 +106,68 @@ export function manageFocusOnViewChange(viewEl) {
     viewEl.focus();
   }
 }
+
+/**
+ * Syncs visual and accessibility state for a tablist.
+ *
+ * @param {HTMLElement} tabBar
+ * @param {string} activeTab
+ */
+export function setActiveTab(tabBar, activeTab) {
+  if (!tabBar) return;
+
+  tabBar.querySelectorAll('[role="tab"]').forEach(tab => {
+    const isActive = tab.dataset.tab === activeTab;
+    tab.classList.toggle('active', isActive);
+    tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    tab.setAttribute('tabindex', isActive ? '0' : '-1');
+  });
+}
+
+/**
+ * Adds arrow-key tab navigation to a tablist.
+ *
+ * @param {HTMLElement} tabBar
+ * @param {(tabId: string) => void} onSelect
+ * @returns {Function}
+ */
+export function enableTabKeyboardNavigation(tabBar, onSelect) {
+  if (!tabBar) return () => {};
+
+  function handler(event) {
+    const tabs = Array.from(tabBar.querySelectorAll('[role="tab"]'));
+    if (!tabs.length) return;
+
+    const activeElement = document.activeElement?.closest?.('[role="tab"]');
+    const fallbackTab = tabBar.querySelector('[aria-selected="true"]');
+    const currentIndex = Math.max(0, tabs.indexOf(activeElement || fallbackTab));
+    let nextIndex = currentIndex;
+
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (currentIndex + 1) % tabs.length;
+    else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    else if (event.key === 'Home') nextIndex = 0;
+    else if (event.key === 'End') nextIndex = tabs.length - 1;
+    else if (event.key === 'Enter' || event.key === ' ') {
+      const focusedTab = activeElement || tabs[currentIndex];
+      if (focusedTab?.dataset.tab) {
+        event.preventDefault();
+        onSelect(focusedTab.dataset.tab);
+      }
+      return;
+    } else {
+      return;
+    }
+
+    event.preventDefault();
+    const nextTab = tabs[nextIndex];
+    if (!nextTab) return;
+    nextTab.focus();
+    if (nextTab.dataset.tab) {
+      onSelect(nextTab.dataset.tab);
+      announceToScreenReader(`${nextTab.textContent?.trim() || 'Tab'} selected`);
+    }
+  }
+
+  tabBar.addEventListener('keydown', handler);
+  return () => tabBar.removeEventListener('keydown', handler);
+}

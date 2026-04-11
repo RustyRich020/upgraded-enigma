@@ -19,7 +19,11 @@ export const COLLECTIONS = {
   resumes: 'resumes',
   companies: 'companies',
   contacts: 'contacts',
-  settings: 'settings'
+  settings: 'settings',
+  interviews: 'interviews',
+  networking: 'networking',
+  offers: 'offers',
+  stories: 'stories'
 };
 
 // localStorage key prefixes
@@ -28,6 +32,10 @@ export const STORAGE_KEYS = {
   resumes: 'tron_resumes',
   companies: 'tron_companies',
   contacts: 'tron_contacts',
+  interviews: 'tron_interviews',
+  networking: 'tron_networking',
+  offers: 'tron_offers',
+  stories: 'tron_stories',
   filters: 'tron_filters',
   settings: 'tron_settings',
   apiKeys: 'tron_api_keys',
