@@ -187,6 +187,45 @@ Keep it under 300 words. Professional but personable tone.`;
       toast('Job created from JD', 'success');
     };
   }
+
+  // Interview Questions Generator
+  const interviewBtn = container.querySelector('#genInterviewQuestions');
+  if (interviewBtn) {
+    interviewBtn.onclick = async () => {
+      const jdText = (container.querySelector('#jdText')?.value || '').trim();
+      if (!jdText) { toast('Paste a Job Description first', 'error'); return; }
+      if (!hasApi('geminiKey')) { toast('Configure Gemini API key in Settings', 'error'); return; }
+
+      interviewBtn.disabled = true;
+      interviewBtn.innerHTML = '<span class="spinner"></span>';
+      try {
+        const prompt = `Based on this job description, generate 10 likely interview questions the candidate should prepare for. Include a mix of:
+- 3 behavioral questions (STAR method)
+- 3 technical questions specific to the role
+- 2 situational questions
+- 2 questions the candidate should ask the interviewer
+
+JOB DESCRIPTION:
+${jdText.slice(0, 2500)}
+
+Format each question with a number and category label. For technical questions, include a brief hint about what a good answer covers.`;
+
+        const result = await callGemini(prompt, getApi('geminiKey'));
+        recordUsage('gemini');
+        const coverOut = container.querySelector('#coverOut');
+        if (coverOut) coverOut.value = result;
+        const blob = new Blob([result], { type: 'text/plain' });
+        const dlLink = container.querySelector('#dlCover');
+        if (dlLink) { dlLink.href = URL.createObjectURL(blob); dlLink.download = 'interview-questions.txt'; }
+        toast('Interview questions generated', 'success');
+      } catch (err) {
+        toast('AI error: ' + err.message, 'error');
+      } finally {
+        interviewBtn.disabled = false;
+        interviewBtn.textContent = 'INTERVIEW QUESTIONS';
+      }
+    };
+  }
 }
 
 export default { renderAiTools };
