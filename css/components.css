@@ -252,8 +252,11 @@ textarea { resize: vertical; min-height: 80px; }
 .toast.error { border-left-color: var(--color-danger); }
 
 /* ---- Empty State ---- */
-.empty-state { text-align: center; padding: 48px 20px; color: var(--color-muted); }
-.empty-state-icon { font-size: 40px; margin-bottom: 12px; opacity: .3; }
+.empty-state { text-align: center; padding: 40px 20px; }
+.empty-state-icon { font-size: 40px; margin-bottom: 12px; line-height: 1; }
+.empty-state h3 { font-size: 16px; font-weight: 600; color: var(--color-text-heading); margin-bottom: 8px; }
+.empty-state p { font-size: 14px; color: var(--color-text-dim); line-height: 1.6; max-width: 360px; margin: 0 auto; }
+.empty-state .btn { margin-top: 16px; }
 
 /* ---- Status Indicators ---- */
 .api-status { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 5px; }

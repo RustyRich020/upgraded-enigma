@@ -50,3 +50,47 @@
 [data-theme="dark"] .modal .content { box-shadow: var(--shadow-lg); }
 [data-theme="dark"] ::-webkit-scrollbar-track { background: var(--color-bg); }
 [data-theme="dark"] ::-webkit-scrollbar-thumb { background: var(--color-surface-border); }
+
+/* Section heroes and glance cards */
+[data-theme="dark"] .section-hero {
+  background: rgba(196, 123, 58, 0.04);
+  border-color: rgba(196, 123, 58, 0.12);
+}
+[data-theme="dark"] .glance-card {
+  background: var(--color-surface);
+  border-color: var(--color-surface-border);
+}
+[data-theme="dark"] .dashboard-hero-card {
+  background: var(--color-surface-gradient);
+  border-color: var(--color-primary-border);
+}
+
+/* Search result cards */
+[data-theme="dark"] .search-result-card {
+  background: var(--color-surface);
+}
+
+/* Settings accordions */
+[data-theme="dark"] .settings-section {
+  background: var(--color-surface);
+  border-color: var(--color-surface-border);
+}
+[data-theme="dark"] .settings-section-header:hover {
+  background: var(--color-bg-elevated);
+}
+[data-theme="dark"] .settings-section-body {
+  border-top-color: var(--color-surface-border);
+}
+
+/* Auth page */
+[data-theme="dark"] #view-auth {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(212, 135, 77, 0.08), transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(45, 139, 95, 0.06), transparent 40%),
+    var(--color-bg);
+}
+
+/* Career ops panel */
+[data-theme="dark"] .career-ops-panel {
+  background: var(--color-surface);
+}

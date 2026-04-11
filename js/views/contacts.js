@@ -7,6 +7,7 @@ import { verifyEmail as hunterVerify } from '../services/hunter-service.js';
 import { sendEmail } from '../services/email-service.js';
 import { getApi, hasApi } from '../services/api-keys.js';
 import { toast } from '../components/toast.js';
+import { EmptyState } from '../ui/empty-state.js';
 
 /**
  * Render the contacts view.
@@ -19,7 +20,7 @@ export function renderContacts(container, state) {
   const tbody = container.querySelector('#contactsTable tbody');
   if (tbody) {
     if (contacts.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">&#128101;</div><h3>No contacts yet</h3><p>Track recruiters and hiring managers - verify emails with Hunter.io</p></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6">${EmptyState({ icon: '\u{1F465}', title: 'No contacts yet', description: 'Track recruiters and hiring managers - verify emails with Hunter.io' })}</td></tr>`;
     } else {
       tbody.innerHTML = contacts.map(c => `
         <tr>

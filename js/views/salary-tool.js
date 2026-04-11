@@ -4,6 +4,7 @@
 
 import { escapeHtml, uid } from '../utils.js';
 import { toast } from '../components/toast.js';
+import { EmptyState } from '../ui/empty-state.js';
 
 /**
  * Render the salary negotiation / offer comparison tool.
@@ -74,7 +75,7 @@ export function renderSalaryTool(container, state) {
     </div>
 
     ${offers.length === 0
-      ? `<div class="empty-state"><div class="empty-state-icon">&#128176;</div><h3>No offers to compare</h3><p>Add up to 3 offers to compare side by side</p></div>`
+      ? EmptyState({ icon: '\u{1F4B0}', title: 'No offers to compare', description: 'Add up to 3 offers to compare side by side' })
       : `
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px" id="offerCards">
           ${offers.map(o => renderOfferCard(o)).join('')}

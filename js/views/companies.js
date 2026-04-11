@@ -4,6 +4,7 @@
 
 import { escapeHtml, uid } from '../utils.js';
 import { ENDPOINTS } from '../config.js';
+import { EmptyState } from '../ui/empty-state.js';
 
 /**
  * Render the companies view.
@@ -16,7 +17,7 @@ export function renderCompanies(container, state) {
   const tbody = container.querySelector('#companyTable tbody');
   if (tbody) {
     if (companies.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">&#127970;</div><h3>No companies tracked</h3><p>Add companies to auto-fetch logos via Clearbit</p></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5">${EmptyState({ icon: '\u{1F3E2}', title: 'No companies tracked', description: 'Add companies to auto-fetch logos via Clearbit' })}</td></tr>`;
     } else {
       tbody.innerHTML = companies.map(c => {
         const domain = c.domain || (c.name || '').toLowerCase().replace(/[^a-z0-9]/g, '') + '.com';

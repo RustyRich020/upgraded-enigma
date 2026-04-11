@@ -5,6 +5,7 @@
 import { escapeHtml, fmtDate, today, download } from '../utils.js';
 import { toast } from '../components/toast.js';
 import { buildCareerProfile, summarizeLearningGaps } from '../services/career-ops-lite.js';
+import { EmptyState } from '../ui/empty-state.js';
 
 /**
  * Render the weekly report generator view.
@@ -38,11 +39,7 @@ export function renderWeeklyReport(container, state) {
     </div>
 
     <div id="reportPreview" style="padding:20px;border:1px solid var(--border);border-radius:8px;background:var(--surface);min-height:200px">
-      <div class="empty-state">
-        <div class="empty-state-icon">&#128202;</div>
-        <h3>No report generated yet</h3>
-        <p>Select a date range and click "Generate Report"</p>
-      </div>
+      ${EmptyState({ icon: '\u{1F4CA}', title: 'No report generated yet', description: 'Select a date range and click "Generate Report"' })}
     </div>
   `;
 

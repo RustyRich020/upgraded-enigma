@@ -3,6 +3,7 @@
    ============================================================ */
 
 import { escapeHtml, fmtDate, today } from '../utils.js';
+import { EmptyState } from '../ui/empty-state.js';
 
 /**
  * Render a visual vertical timeline of all job activity.
@@ -137,7 +138,7 @@ export function renderTimeline(container, state) {
     }
 
     if (filtered.length === 0) {
-      wrap.innerHTML = `<div class="empty-state"><div class="empty-state-icon">&#128337;</div><h3>No activity found</h3><p>Add jobs to your tracker to see timeline events</p></div>`;
+      wrap.innerHTML = EmptyState({ icon: '\u{1F551}', title: 'No activity found', description: 'Add jobs to your tracker to see timeline events' });
       return;
     }
 

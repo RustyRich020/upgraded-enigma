@@ -5,6 +5,7 @@
 import { escapeHtml, fmtDate, today } from '../utils.js';
 import { STATUSES } from '../config.js';
 import { buildCareerProfile, evaluateOpportunity } from '../services/career-ops-lite.js';
+import { EmptyState } from '../ui/empty-state.js';
 
 /**
  * Render the tracker view (table + kanban toggle).
@@ -33,7 +34,7 @@ export function renderTracker(container, state, { addJob, updateJob, removeJob }
   const tbody = container.querySelector('#trackerTable tbody');
   if (tbody) {
     if (jobs.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">&#9670;</div><h3>No jobs tracked yet</h3><p>Click "+ JOB" to add your first application</p></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7">${EmptyState({ icon: '\u25C6', title: 'No jobs tracked yet', description: 'Click "+ JOB" to add your first application' })}</td></tr>`;
     } else {
       tbody.innerHTML = scoredJobs.map(j => `
         <tr draggable="true" data-id="${j.id}">
