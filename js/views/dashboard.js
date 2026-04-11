@@ -341,13 +341,17 @@ export function renderDashboard(container, state) {
         detail: topSource ? `${topSource[0]} is your top source` : 'Add a few jobs to build insights'
       }
     ].map(metric => `
-      <div class="metric-card">
-        <div class="metric-value">${metric.value}</div>
-        <div class="metric-label">${metric.label}</div>
-        <div class="metric-detail">${metric.detail}</div>
+      <div class="glance-card">
+        <div class="glance-label">${metric.label}</div>
+        <div class="glance-value">${metric.value}</div>
+        <div class="glance-copy">${metric.detail}</div>
       </div>
     `).join('');
   }
+
+  container.querySelectorAll('[data-dash-nav]').forEach(btn => {
+    btn.addEventListener('click', () => navigate(btn.dataset.dashNav));
+  });
 
   renderCareerOpsPanel(state, jobs);
 
