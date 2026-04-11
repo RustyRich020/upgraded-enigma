@@ -84,7 +84,7 @@ export function renderSettings(container, apiKeys, onSave, onClear) {
       if (!phone) { toast('Enter a phone number first', 'error'); return; }
       testSmsBtn.disabled = true;
       testSmsBtn.textContent = 'Sending...';
-      const result = await sendSMS(phone, 'JobSync test: SMS notifications are working! You will receive alerts for follow-ups and new job matches.');
+      const result = await sendSMS(phone, 'JobSink test: SMS notifications are working! You will receive alerts for follow-ups and new job matches.');
       testSmsBtn.disabled = false;
       testSmsBtn.textContent = 'Send Test SMS';
     };

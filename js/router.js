@@ -108,7 +108,7 @@ function handleRoute() {
   const main = document.getElementById('main-content');
   if (main) main.scrollTop = 0;
 
-  document.title = `JobSync - ${TITLES[view] || view}`;
+  document.title = `JobSink - ${TITLES[view] || view}`;
   window.dispatchEvent(new CustomEvent('routechange', { detail: { view } }));
 
   if (viewRenderers[view]) {

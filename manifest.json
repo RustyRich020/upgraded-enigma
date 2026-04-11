@@ -1,6 +1,6 @@
 {
-  "name": "JobSync",
-  "short_name": "JobSync",
+  "name": "JobSink",
+  "short_name": "JobSink",
   "description": "Professional job tracking and career management system with AI-powered analysis",
   "start_url": "/index.html",
   "display": "standalone",

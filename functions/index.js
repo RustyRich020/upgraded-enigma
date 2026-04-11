@@ -595,7 +595,7 @@ async function sendAllNotifications(message, channels, uid) {
         await fetch(`https://ntfy.sh/${ntfyTopic}`, {
           method: "POST",
           body: message,
-          headers: { "Title": "JobSync", "Priority": "3", "Tags": "briefcase" },
+          headers: { "Title": "JobSink", "Priority": "3", "Tags": "briefcase" },
         });
         results.ntfy = { success: true };
       }
