@@ -3,10 +3,11 @@
    ============================================================ */
 
 const views = [
-  'landing', 'auth', 'profile', 'dashboard', 'tracker', 'search', 'agent',
-  'ai', 'ats', 'resume', 'companies', 'contacts', 'insights',
-  'interviews', 'timeline', 'networking', 'salary', 'report',
-  'settings'
+  'landing', 'auth', 'profile', 'dashboard',
+  'find-jobs', 'my-jobs', 'my-profile',
+  'tracker', 'search', 'agent', 'ai', 'ats', 'resume', 'companies',
+  'contacts', 'insights', 'interviews', 'timeline', 'networking',
+  'salary', 'report', 'settings'
 ];
 
 const PUBLIC_ROUTES = new Set(['landing', 'auth']);
