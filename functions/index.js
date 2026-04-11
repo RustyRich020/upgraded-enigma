@@ -8,7 +8,7 @@
 
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const fetch = require("node-fetch");
+// Node.js 20 has built-in fetch — no need for node-fetch
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -91,6 +91,12 @@ exports.apiProxy = functions.https.onCall(async (data, context) => {
       case "verify-email":
         if (!keys.hunterKey) throw new functions.https.HttpsError("failed-precondition", "Hunter key not configured");
         return await verifyEmail(params.email, keys.hunterKey);
+
+      case "career-onestop-salary":
+        return await fetchCareerOneStopSalary(params.keyword, params.location, uid);
+
+      case "bls-salary":
+        return await fetchBLSSalary();
 
       case "send-sms":
         return await sendTwilioSMS(params.to, params.message, uid);
@@ -599,6 +605,78 @@ async function sendAllNotifications(message, channels, uid) {
   }
 
   return results;
+}
+
+// ============================================================
+// 5. CAREERONESTOP — Salary data by occupation + location
+// ============================================================
+
+async function fetchCareerOneStopSalary(keyword, location, uid) {
+  // Get user's CareerOneStop credentials
+  const keysDoc = await db.collection("users").doc(uid).collection("config").doc("apiKeys").get();
+  const keys = keysDoc.exists ? keysDoc.data() : {};
+  const userId = keys.careerOneStopUser || process.env.CAREERONESTOP_USER || "";
+  const token = keys.careerOneStopKey || process.env.CAREERONESTOP_KEY || "";
+
+  if (!userId || !token) {
+    throw new functions.https.HttpsError("failed-precondition", "CareerOneStop credentials not configured");
+  }
+
+  const loc = (location || "US").replace(/\s+/g, "%20");
+  const kw = encodeURIComponent(keyword || "information security analyst");
+  const url = `https://api.careeronestop.org/v1/occupation/${userId}/${kw}/${loc}/10`;
+
+  const resp = await fetch(url, {
+    headers: { "Authorization": `Bearer ${token}` }
+  });
+
+  if (!resp.ok) throw new Error("CareerOneStop returned " + resp.status);
+  const data = await resp.json();
+
+  const results = (data.OccupationDetail || []).map(occ => ({
+    title: occ.OnetTitle || occ.OccupationTitle || keyword,
+    code: occ.OnetCode || "",
+    wages: occ.Wages || null,
+    brightOutlook: occ.BrightOutlook || false,
+    green: occ.Green || false,
+  }));
+
+  return { results, totalRecords: data.TotalRecords || 0, source: "CareerOneStop" };
+}
+
+// ============================================================
+// 6. BLS — Bureau of Labor Statistics salary data
+// ============================================================
+
+async function fetchBLSSalary() {
+  const currentYear = new Date().getFullYear();
+  const resp = await fetch("https://api.bls.gov/publicAPI/v2/timeseries/data/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      seriesid: ["LEU0254530800"],
+      startyear: String(currentYear - 2),
+      endyear: String(currentYear),
+    }),
+  });
+
+  if (!resp.ok) throw new Error("BLS returned " + resp.status);
+  const data = await resp.json();
+
+  if (data.status !== "REQUEST_SUCCEEDED" || !data.Results?.series?.length) {
+    throw new Error(data.message?.[0] || "BLS returned no data");
+  }
+
+  const latest = data.Results.series[0].data?.[0];
+  const weekly = Number(latest?.value || 1200);
+
+  return {
+    annual: weekly * 52,
+    weekly,
+    year: latest?.year || String(currentYear),
+    period: latest?.period || "Q1",
+    source: "BLS API (server-side)",
+  };
 }
 
 // ============================================================
