@@ -77,6 +77,9 @@ function handleRoute() {
   // Toggle auth-mode class on body (hides header actions on public pages)
   document.body.classList.toggle('auth-mode', PUBLIC_ROUTES.has(view));
 
+  // Toggle landing-specific chrome hiding
+  document.body.classList.toggle('lp-active', view === 'landing');
+
   // Hide all view sections
   document.querySelectorAll('main > section').forEach(s => {
     s.classList.add('hidden');
