@@ -1,6 +1,42 @@
-<svg xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 512 512'>
-  <rect width='512' height='512' rx='64' fill='#000'/>
-  <circle cx='256' cy='256' r='200' fill='none' stroke='#ff0000' stroke-width='8'/>
-  <circle cx='256' cy='256' r='150' fill='rgba(255,0,0,0.15)'/>
-  <text x='256' y='305' text-anchor='middle' font-family='Arial Black,Impact,sans-serif' font-size='192' font-weight='900' fill='#ff0000'>T</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 200 200" fill="none">
+  <!-- Background -->
+  <rect width="200" height="200" rx="32" fill="#1A1A1E"/>
+
+  <!-- Frame / border -->
+  <rect x="28" y="28" width="144" height="144" rx="16" stroke="#D4874D" stroke-width="5" fill="none"/>
+
+  <!-- Faucet handle -->
+  <path d="M120 36v20" stroke="#D4874D" stroke-width="5" stroke-linecap="round"/>
+  <path d="M110 56h20" stroke="#D4874D" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Faucet spout (curved pipe) -->
+  <path d="M120 56v12c0 8-6 14-14 14h-4c-8 0-14 6-14 14v10" stroke="#D4874D" stroke-width="5" stroke-linecap="round" fill="none"/>
+
+  <!-- Water drops -->
+  <circle cx="88" cy="112" r="3.5" fill="#D4874D" opacity="0.7"/>
+  <circle cx="94" cy="118" r="3" fill="#D4874D" opacity="0.5"/>
+  <circle cx="82" cy="116" r="2.5" fill="#D4874D" opacity="0.6"/>
+  <circle cx="90" cy="124" r="2" fill="#D4874D" opacity="0.4"/>
+
+  <!-- Basin / sink bowl -->
+  <path d="M42 132h116v20c0 10-8 18-18 18H60c-10 0-18-8-18-18v-20z" fill="#D4874D" opacity="0.8"/>
+
+  <!-- Envelope -->
+  <g transform="translate(48, 72) rotate(-12)">
+    <rect width="28" height="20" rx="3" stroke="#D4874D" stroke-width="2.5" fill="none" opacity="0.6"/>
+    <path d="M0 0l14 11 14-11" stroke="#D4874D" stroke-width="2" fill="none" opacity="0.6"/>
+  </g>
+
+  <!-- Pie chart -->
+  <g transform="translate(56, 108)">
+    <circle r="12" stroke="#D4874D" stroke-width="2.5" fill="none" opacity="0.5"/>
+    <path d="M0 0v-12a12 12 0 0 1 10.4 6z" fill="#D4874D" opacity="0.4"/>
+  </g>
+
+  <!-- Bar chart -->
+  <g transform="translate(130, 90)">
+    <rect x="0" y="12" width="6" height="16" rx="1.5" fill="#D4874D" opacity="0.5"/>
+    <rect x="9" y="6" width="6" height="22" rx="1.5" fill="#D4874D" opacity="0.5"/>
+    <rect x="18" y="0" width="6" height="28" rx="1.5" fill="#D4874D" opacity="0.5"/>
+  </g>
 </svg>

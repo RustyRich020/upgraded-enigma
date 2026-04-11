@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="160" viewBox="0 0 240 160" fill="none">
+  <defs>
+    <linearGradient id="ag1" x1="0" y1="0" x2="240" y2="160" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2D8B5F" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#C47B3A" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="160" rx="12" fill="url(#ag1)"/>
+
+  <!-- Circular score gauge -->
+  <circle cx="100" cy="76" r="34" stroke="#E8E8E8" stroke-width="6" fill="none" opacity="0.3"/>
+  <circle cx="100" cy="76" r="34" stroke="#2D8B5F" stroke-width="6" fill="none"
+    stroke-dasharray="160 214" stroke-dashoffset="0" stroke-linecap="round" opacity="0.7"
+    transform="rotate(-90 100 76)"/>
+  <text x="100" y="80" font-family="system-ui" font-size="20" font-weight="700" fill="#2D8B5F" text-anchor="middle" opacity="0.8">85</text>
+  <text x="100" y="94" font-family="system-ui" font-size="9" fill="#2D8B5F" text-anchor="middle" opacity="0.5">ATS Score</text>
+
+  <!-- Keyword chips -->
+  <rect x="150" y="42" width="60" height="18" rx="9" fill="#2D8B5F" opacity="0.15"/>
+  <text x="180" y="54" font-family="system-ui" font-size="9" fill="#2D8B5F" text-anchor="middle" opacity="0.6">Python</text>
+
+  <rect x="150" y="66" width="50" height="18" rx="9" fill="#C47B3A" opacity="0.15"/>
+  <text x="175" y="78" font-family="system-ui" font-size="9" fill="#C47B3A" text-anchor="middle" opacity="0.6">React</text>
+
+  <rect x="150" y="90" width="68" height="18" rx="9" fill="#2D8B5F" opacity="0.15"/>
+  <text x="184" y="102" font-family="system-ui" font-size="9" fill="#2D8B5F" text-anchor="middle" opacity="0.6">Leadership</text>
+
+  <!-- Check marks -->
+  <path d="M212 48l3 3 5-5" stroke="#2D8B5F" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+  <path d="M202 72l3 3 5-5" stroke="#C47B3A" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+  <path d="M220 96l3 3 5-5" stroke="#2D8B5F" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+
+  <!-- + add buttons -->
+  <circle cx="148" cy="120" r="8" stroke="#C47B3A" stroke-width="1.5" fill="none" opacity="0.3"/>
+  <path d="M145 120h6M148 117v6" stroke="#C47B3A" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+</svg>
