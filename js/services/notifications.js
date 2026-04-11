@@ -148,4 +148,60 @@ function getNotificationIcon() {
   );
 }
 
-export default { requestPermission, getPermissionStatus, checkFollowUps, sendNtfy, scheduleChecks };
+/**
+ * Send an SMS notification via Firebase Cloud Functions (Twilio).
+ * @param {string} to — phone number
+ * @param {string} message — SMS body
+ * @returns {object} — { success, sid, to } or { success: false, error }
+ */
+export async function sendSMS(to, message) {
+  try {
+    const firebase = window.firebase;
+    if (!firebase?.functions) {
+      return { success: false, error: 'Firebase Functions not available' };
+    }
+    const fn = firebase.functions().httpsCallable('apiProxy');
+    const result = await fn({ action: 'send-sms', params: { to, message } });
+    toast('SMS sent successfully', 'success');
+    return result.data;
+  } catch (err) {
+    const errorMsg = err.message || 'SMS send failed';
+    toast('SMS failed: ' + errorMsg, 'error');
+    return { success: false, error: errorMsg };
+  }
+}
+
+/**
+ * Send notification across all configured channels (browser + ntfy + SMS).
+ * @param {string} message — notification text
+ * @param {object} options — { ntfyTopic, phone, browserEnabled }
+ */
+export async function sendAllChannels(message, options = {}) {
+  const results = { browser: false, ntfy: false, sms: false };
+
+  // Browser notification
+  if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+    try {
+      new Notification('JobSync', { body: message, icon: getNotificationIcon() });
+      results.browser = true;
+    } catch (e) { /* silent */ }
+  }
+
+  // ntfy.sh push
+  if (options.ntfyTopic) {
+    results.ntfy = await sendNtfy(message, options.ntfyTopic);
+  }
+
+  // SMS via Cloud Function
+  if (options.phone) {
+    const smsResult = await sendSMS(options.phone, message);
+    results.sms = smsResult.success;
+  }
+
+  return results;
+}
+
+export default {
+  requestPermission, getPermissionStatus, checkFollowUps,
+  sendNtfy, sendSMS, sendAllChannels, scheduleChecks
+};

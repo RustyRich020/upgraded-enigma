@@ -26,6 +26,11 @@ const CONFIG = {
   abstract: { key: process.env.ABSTRACT_KEY || "" },
   hunter: { key: process.env.HUNTER_KEY || "" },
   emailjs: { public: process.env.EMAILJS_PUBLIC || "", service: process.env.EMAILJS_SERVICE || "", template: process.env.EMAILJS_TEMPLATE || "" },
+  twilio: {
+    accountSid: process.env.TWILIO_ACCOUNT_SID || "",
+    authToken: process.env.TWILIO_AUTH_TOKEN || "",
+    fromNumber: process.env.TWILIO_FROM_NUMBER || "",
+  },
 };
 
 // ============================================================
@@ -86,6 +91,12 @@ exports.apiProxy = functions.https.onCall(async (data, context) => {
       case "verify-email":
         if (!keys.hunterKey) throw new functions.https.HttpsError("failed-precondition", "Hunter key not configured");
         return await verifyEmail(params.email, keys.hunterKey);
+
+      case "send-sms":
+        return await sendTwilioSMS(params.to, params.message, uid);
+
+      case "send-notification":
+        return await sendAllNotifications(params.message, params.channels, uid);
 
       default:
         throw new functions.https.HttpsError("invalid-argument", `Unknown action: ${action}`);
@@ -474,6 +485,120 @@ async function verifyEmail(email, apiKey) {
   const resp = await fetch(`https://api.hunter.io/v2/email-verifier?email=${encodeURIComponent(email)}&api_key=${apiKey}`);
   if (!resp.ok) throw new Error("Hunter: " + resp.status);
   return await resp.json();
+}
+
+// ============================================================
+// 4. TWILIO SMS — Send SMS notifications server-side
+// ============================================================
+
+/**
+ * Send an SMS via Twilio REST API.
+ * Uses fetch instead of the Twilio SDK to avoid extra dependency.
+ */
+async function sendTwilioSMS(to, message, uid) {
+  const { accountSid, authToken, fromNumber } = CONFIG.twilio;
+
+  if (!accountSid || !authToken || !fromNumber) {
+    throw new functions.https.HttpsError("failed-precondition",
+      "Twilio not configured. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER in environment.");
+  }
+
+  // Validate phone number format
+  const cleanNumber = (to || "").replace(/[^+\d]/g, "");
+  if (!cleanNumber || cleanNumber.length < 10) {
+    throw new functions.https.HttpsError("invalid-argument", "Invalid phone number");
+  }
+
+  // Add +1 country code if not present
+  const fullNumber = cleanNumber.startsWith("+") ? cleanNumber : "+1" + cleanNumber;
+
+  // Rate limit: max 10 SMS per user per day
+  const usageRef = db.collection("users").doc(uid).collection("config").doc("smsUsage");
+  const usageDoc = await usageRef.get();
+  const usage = usageDoc.exists ? usageDoc.data() : {};
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const todayCount = usage._date === todayKey ? (usage.count || 0) : 0;
+
+  if (todayCount >= 10) {
+    throw new functions.https.HttpsError("resource-exhausted", "Daily SMS limit reached (10/day)");
+  }
+
+  try {
+    const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+    const auth = Buffer.from(`${accountSid}:${authToken}`).toString("base64");
+
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Authorization": `Basic ${auth}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        To: fullNumber,
+        From: fromNumber,
+        Body: message.slice(0, 1600), // SMS limit
+      }).toString(),
+    });
+
+    const result = await resp.json();
+
+    if (!resp.ok) {
+      console.error("Twilio error:", result);
+      throw new functions.https.HttpsError("internal", result.message || "SMS send failed");
+    }
+
+    // Update usage counter
+    await usageRef.set({ _date: todayKey, count: todayCount + 1 }, { merge: true });
+
+    console.log(`SMS sent to ${fullNumber} for user ${uid} (${todayCount + 1}/10 today)`);
+    return { success: true, sid: result.sid, to: fullNumber };
+  } catch (err) {
+    if (err instanceof functions.https.HttpsError) throw err;
+    console.error("SMS error:", err);
+    throw new functions.https.HttpsError("internal", "Failed to send SMS: " + err.message);
+  }
+}
+
+/**
+ * Send notifications across multiple channels.
+ * Channels: 'sms', 'ntfy', 'browser' (browser handled client-side)
+ */
+async function sendAllNotifications(message, channels, uid) {
+  const results = {};
+
+  if (channels?.includes("sms")) {
+    try {
+      // Get user's phone number from Firestore
+      const userDoc = await db.collection("users").doc(uid).get();
+      const phone = userDoc.data()?.phone;
+      if (phone) {
+        results.sms = await sendTwilioSMS(phone, message, uid);
+      } else {
+        results.sms = { success: false, error: "No phone number configured" };
+      }
+    } catch (err) {
+      results.sms = { success: false, error: err.message };
+    }
+  }
+
+  if (channels?.includes("ntfy")) {
+    try {
+      const keysDoc = await db.collection("users").doc(uid).collection("config").doc("apiKeys").get();
+      const ntfyTopic = keysDoc.data()?.ntfyTopic;
+      if (ntfyTopic) {
+        await fetch(`https://ntfy.sh/${ntfyTopic}`, {
+          method: "POST",
+          body: message,
+          headers: { "Title": "JobSync", "Priority": "3", "Tags": "briefcase" },
+        });
+        results.ntfy = { success: true };
+      }
+    } catch (err) {
+      results.ntfy = { success: false, error: err.message };
+    }
+  }
+
+  return results;
 }
 
 // ============================================================
