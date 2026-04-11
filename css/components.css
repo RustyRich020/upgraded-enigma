@@ -67,7 +67,7 @@
   transition: border-color var(--transition-fast);
 }
 .panel::before { display: none; }
-.panel:hover { border-color: rgba(212,135,77,0.15); }
+.panel:hover { border-color: var(--color-primary-dim); box-shadow: var(--shadow-md); }
 
 /* ---- Grids ---- */
 .grid { display: grid; gap: 14px; min-width: 0; }

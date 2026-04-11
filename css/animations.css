@@ -2,7 +2,7 @@
    JobSync — Animations & Micro-Interactions
    ============================================================ */
 
-/* No TRON grid background */
+/* No grid background */
 body::before, body::after { display: none; }
 
 /* View transition */
