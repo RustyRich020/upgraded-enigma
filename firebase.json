@@ -6,9 +6,17 @@
       ".firebaserc",
       "node_modules",
       ".git",
+      ".claude",
       "package.json",
       "LICENSE",
-      "*.md"
+      "*.md",
+      "functions",
+      "assets/production-pack",
+      "JOB_GRID.html",
+      "JobSink-Welcome.pdf",
+      "auto-login.html",
+      "server.cjs",
+      "vite.config.js"
     ],
     "rewrites": [
       {

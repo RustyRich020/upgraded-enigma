@@ -8,7 +8,7 @@ import { getCurrentUser } from './auth.js';
 
 /**
  * Migrate all localStorage data to Firestore in a batch write.
- * Only runs once — sets 'jobsink_migrated' flag on completion.
+ * Only runs once — sets 'jobsynk_migrated' flag on completion.
  */
 export async function migrateToFirestore() {
   // Check if already migrated

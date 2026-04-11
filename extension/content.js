@@ -1,14 +1,14 @@
 /**
- * JobSink — Chrome Extension Content Script
+ * JobSynk — Chrome Extension Content Script
  * Extracts job data from supported job board pages and provides
- * a floating "Save to JobSink" button.
+ * a floating "Save to JobSynk" button.
  */
 
 (function () {
   'use strict';
 
   // Prevent double-injection
-  if (document.getElementById('jobsink-save-btn')) return;
+  if (document.getElementById('jobsynk-save-btn')) return;
 
   const EXTRACTORS = {
     'linkedin.com': extractLinkedIn,
@@ -84,16 +84,16 @@
 
   function injectSaveButton(job) {
     const btn = document.createElement('div');
-    btn.id = 'jobsink-save-btn';
+    btn.id = 'jobsynk-save-btn';
     btn.innerHTML = `
-      <div id="jobsink-popup" style="display:none;">
-        <div style="font-weight:700;font-size:13px;margin-bottom:8px;color:#ff1a1a;">Save to JobSink</div>
+      <div id="jobsynk-popup" style="display:none;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:8px;color:#ff1a1a;">Save to JobSynk</div>
         <div style="font-size:12px;margin-bottom:4px;"><strong>${escapeHtml(job.title || 'Untitled')}</strong></div>
         <div style="font-size:11px;color:#888;margin-bottom:8px;">${escapeHtml(job.company || '')} — ${escapeHtml(job.source)}</div>
-        <button id="jobsink-confirm-save" style="background:#ff1a1a;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;width:100%;">SAVE TO TRACKER</button>
-        <div id="jobsink-save-status" style="font-size:11px;color:#888;margin-top:4px;text-align:center;"></div>
+        <button id="jobsynk-confirm-save" style="background:#ff1a1a;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;width:100%;">SAVE TO TRACKER</button>
+        <div id="jobsynk-save-status" style="font-size:11px;color:#888;margin-top:4px;text-align:center;"></div>
       </div>
-      <button id="jobsink-fab" title="Save to JobSink">
+      <button id="jobsynk-fab" title="Save to JobSynk">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="10" cy="10" r="9" stroke="#ff1a1a" stroke-width="2" fill="#050508"/>
           <text x="10" y="14" text-anchor="middle" fill="#ff1a1a" font-weight="900" font-size="11" font-family="Arial">T</text>
@@ -104,14 +104,14 @@
     document.body.appendChild(btn);
 
     // Toggle popup
-    document.getElementById('jobsink-fab').addEventListener('click', () => {
-      const popup = document.getElementById('jobsink-popup');
+    document.getElementById('jobsynk-fab').addEventListener('click', () => {
+      const popup = document.getElementById('jobsynk-popup');
       popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
     });
 
     // Save action
-    document.getElementById('jobsink-confirm-save').addEventListener('click', async () => {
-      const statusEl = document.getElementById('jobsink-save-status');
+    document.getElementById('jobsynk-confirm-save').addEventListener('click', async () => {
+      const statusEl = document.getElementById('jobsynk-save-status');
       statusEl.textContent = 'Saving...';
 
       try {
@@ -134,15 +134,15 @@
 
         // Also try to save to localStorage (if same origin)
         try {
-          const jobs = JSON.parse(localStorage.getItem('jobsink_jobs') || '[]');
+          const jobs = JSON.parse(localStorage.getItem('jobsynk_jobs') || '[]');
           jobs.push(jobData);
-          localStorage.setItem('jobsink_jobs', JSON.stringify(jobs));
+          localStorage.setItem('jobsynk_jobs', JSON.stringify(jobs));
         } catch (e) { /* cross-origin, expected */ }
 
-        statusEl.textContent = '✓ Saved to JobSink!';
+        statusEl.textContent = '✓ Saved to JobSynk!';
         statusEl.style.color = '#00ff6a';
-        document.getElementById('jobsink-confirm-save').disabled = true;
-        document.getElementById('jobsink-confirm-save').textContent = 'SAVED';
+        document.getElementById('jobsynk-confirm-save').disabled = true;
+        document.getElementById('jobsynk-confirm-save').textContent = 'SAVED';
 
         // Badge notification
         if (typeof chrome !== 'undefined' && chrome.action) {

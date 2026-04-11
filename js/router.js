@@ -96,7 +96,7 @@ function handleRoute() {
   const main = document.getElementById('main-content');
   if (main) main.scrollTop = 0;
 
-  document.title = `JobSink - ${TITLES[view] || view}`;
+  document.title = `JobSynk - ${TITLES[view] || view}`;
   announceToScreenReader(`Navigated to ${TITLES[view] || view}`);
   window.dispatchEvent(new CustomEvent('routechange', { detail: { view } }));
 

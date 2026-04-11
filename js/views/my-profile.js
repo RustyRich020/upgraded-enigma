@@ -10,7 +10,7 @@ import { renderCompanies } from './companies.js';
 import { enableTabKeyboardNavigation, setActiveTab } from '../ui/a11y.js';
 import { initSwipeCards } from '../ui/swipe-cards.js';
 
-const SESSION_KEY = 'jobsink_myProfile_activeTab';
+const SESSION_KEY = 'jobsynk_myProfile_activeTab';
 
 /**
  * Render the consolidated My Profile view with 3 tabs:
