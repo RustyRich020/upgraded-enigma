@@ -7,6 +7,7 @@
 import { navigate } from '../router.js';
 import { signInAnonymously } from '../firebase/auth.js';
 import { STORAGE_KEYS } from '../config.js';
+import { initSwipeCards } from '../ui/swipe-cards.js';
 
 /* Use the branded logo SVG asset */
 const LOGO_IMG = `<img src="assets/icons/logo.svg" alt="JobSink" style="width:56px;height:56px;border-radius:12px">`;
@@ -886,6 +887,9 @@ export function renderLanding(container) {
   container.querySelector('#landingSignUp')?.addEventListener('click', signUp);
   container.querySelector('#landingSignUp2')?.addEventListener('click', signUp);
   container.querySelector('#landingSignIn')?.addEventListener('click', signIn);
+
+  // Swipe carousel for feature cards on mobile
+  initSwipeCards(container.querySelector('.lp-features'), { label: 'Features', wide: true });
   container.querySelector('#landingGuest')?.addEventListener('click', guest);
 
   /* ===== Feature Detail Overlay ===== */

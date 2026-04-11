@@ -8,6 +8,7 @@ import { renderJobSearch } from './job-search.js';
 import { renderATSOptimizer } from './ats-optimizer.js';
 import { renderAgentDashboard } from './agent-dashboard.js';
 import { enableTabKeyboardNavigation, setActiveTab } from '../ui/a11y.js';
+import { initSwipeCards } from '../ui/swipe-cards.js';
 
 const SEARCH_DB_KEY = 'jobsink_search_results';
 const SESSION_KEY = 'jobsink_findJobs_activeTab';
@@ -81,6 +82,9 @@ export function renderFindJobs(container, state, addJob) {
       <div class="tab-content ${savedTab !== 'agent' ? 'hidden' : ''}" id="tab-agent"></div>
     </div>
   `;
+
+  // Swipe carousel for mobile
+  initSwipeCards(container.querySelector('.glance-grid'), { label: 'Find Jobs stats' });
 
   const tabBar = container.querySelector('.view-tabs');
   const panes = {

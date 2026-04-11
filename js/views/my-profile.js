@@ -8,6 +8,7 @@ import { renderResumeCenter } from './resume-center.js';
 import { renderAiTools } from './ai-tools.js';
 import { renderCompanies } from './companies.js';
 import { enableTabKeyboardNavigation, setActiveTab } from '../ui/a11y.js';
+import { initSwipeCards } from '../ui/swipe-cards.js';
 
 const SESSION_KEY = 'jobsink_myProfile_activeTab';
 
@@ -70,6 +71,9 @@ export function renderMyProfile(container, state, addJob) {
       <div class="tab-content ${savedTab !== 'companies' ? 'hidden' : ''}" id="tab-companies"></div>
     </div>
   `;
+
+  // Swipe carousel for mobile
+  initSwipeCards(container.querySelector('.glance-grid'), { label: 'My Profile stats' });
 
   const tabBar = container.querySelector('.view-tabs');
   const panes = {

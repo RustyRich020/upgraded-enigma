@@ -11,6 +11,7 @@ import { toast } from '../components/toast.js';
 import { renderJobComparison } from '../services/jd-intelligence.js';
 import { buildCareerProfile, evaluateOpportunity } from '../services/career-ops-lite.js';
 import { enableTabKeyboardNavigation, setActiveTab } from '../ui/a11y.js';
+import { initSwipeCards } from '../ui/swipe-cards.js';
 
 const SESSION_KEY = 'jobsink_myJobs_activeTab';
 
@@ -101,6 +102,9 @@ export function renderMyJobs(container, state, { addJob, updateJob, removeJob })
       </div>
     </div>
   `;
+
+  // Swipe carousel for mobile
+  initSwipeCards(container.querySelector('.glance-grid'), { label: 'My Jobs stats' });
 
   const tabBar = container.querySelector('.view-tabs');
   const panes = {
