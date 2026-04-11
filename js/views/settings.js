@@ -9,6 +9,7 @@ import { getUserTier, setUserTier, resetUsage } from '../services/usage-tracker.
 import { renderPricingTable, renderUsageDashboard } from '../components/upgrade-banner.js';
 import { saveUserApiKeys, setUserTierInFirestore } from '../firebase/provisioning.js';
 import { completeChecklistItem } from '../components/getting-started.js';
+import { sendSMS } from '../services/notifications.js';
 
 /**
  * Render the settings view.
@@ -28,7 +29,8 @@ export function renderSettings(container, apiKeys, onSave, onClear) {
     apiAbstractKey: 'abstractKey',
     apiCareerOneStopKey: 'careerOneStopKey',
     apiCareerOneStopUser: 'careerOneStopUser',
-    apiNtfyTopic: 'ntfyTopic'
+    apiNtfyTopic: 'ntfyTopic',
+    apiPhoneNumber: 'phoneNumber'
   };
 
   Object.entries(fields).forEach(([elId, keyName]) => {
@@ -71,6 +73,20 @@ export function renderSettings(container, apiKeys, onSave, onClear) {
       updateStatuses();
       toast('All API keys cleared', 'info');
       if (onClear) onClear();
+    };
+  }
+
+  // SMS test button
+  const testSmsBtn = document.getElementById('testSmsBtn');
+  if (testSmsBtn) {
+    testSmsBtn.onclick = async () => {
+      const phone = document.getElementById('apiPhoneNumber')?.value?.trim();
+      if (!phone) { toast('Enter a phone number first', 'error'); return; }
+      testSmsBtn.disabled = true;
+      testSmsBtn.textContent = 'Sending...';
+      const result = await sendSMS(phone, 'JobSync test: SMS notifications are working! You will receive alerts for follow-ups and new job matches.');
+      testSmsBtn.disabled = false;
+      testSmsBtn.textContent = 'Send Test SMS';
     };
   }
 
@@ -120,6 +136,7 @@ function updateStatuses() {
   setStatus('abstractStatus', hasApi('abstractKey'));
   setStatus('careerOneStopStatus', hasApi('careerOneStopKey'));
   setStatus('ntfyStatus', !!getApi('ntfyTopic'));
+  setStatus('smsStatus', !!getApi('phoneNumber'));
   setStatus('browserNotifStatus', typeof Notification !== 'undefined' && Notification.permission === 'granted');
 
   // Header API tag — count all active keyed APIs + always-free ones

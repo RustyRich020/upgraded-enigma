@@ -453,7 +453,8 @@
           </div>
           <div class="panel">
             <h3>NOTIFICATIONS (2 APIs)</h3>
-            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="ntfyStatus"></span>NTFY.SH (Push)</h4><input id="apiNtfyTopic" class="input" placeholder="Your topic name (e.g., jobgrid-alerts)"><div class="muted" style="font-size:11px;margin-top:4px">Free, no account — <a href="https://ntfy.sh/" target="_blank" rel="noopener" style="color:var(--color-info)">Learn more</a></div></label>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="ntfyStatus"></span>NTFY.SH (Push)</h4><input id="apiNtfyTopic" class="input" placeholder="Your topic name (e.g., jobsync-alerts)"><div class="muted" style="font-size:11px;margin-top:4px">Free, no account — <a href="https://ntfy.sh/" target="_blank" rel="noopener" style="color:var(--color-info)">Learn more</a></div></label>
+            <label style="display:block;margin:12px 0"><h4><span class="api-status" id="smsStatus"></span>SMS (Twilio)</h4><input id="apiPhoneNumber" class="input" placeholder="Your phone number (e.g., 9046628966)"><div class="muted" style="font-size:11px;margin-top:4px">Requires Twilio setup in Cloud Functions — <button class="btn small" id="testSmsBtn" style="margin-left:4px;">Send Test SMS</button></div></label>
             <label style="display:block;margin:12px 0"><h4><span class="api-status" id="browserNotifStatus"></span>BROWSER NOTIFICATIONS</h4><button class="btn small green" id="requestNotifPerm">GRANT PERMISSION</button></label>
           </div>
         </div>
