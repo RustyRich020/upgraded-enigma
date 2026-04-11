@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="160" viewBox="0 0 240 160" fill="none">
+  <defs>
+    <linearGradient id="pg1" x1="0" y1="0" x2="240" y2="160" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2D8B5F" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#C47B3A" stop-opacity="0.08"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="160" rx="12" fill="url(#pg1)"/>
+
+  <!-- Kanban columns -->
+  <!-- Column 1: Saved -->
+  <rect x="24" y="32" width="56" height="96" rx="6" stroke="#C47B3A" stroke-width="1.5" fill="none" opacity="0.2"/>
+  <text x="52" y="46" font-family="system-ui" font-size="8" font-weight="600" fill="#C47B3A" text-anchor="middle" opacity="0.5">Saved</text>
+  <rect x="30" y="52" width="44" height="20" rx="4" fill="#C47B3A" opacity="0.12"/>
+  <rect x="30" y="76" width="44" height="20" rx="4" fill="#C47B3A" opacity="0.08"/>
+  <rect x="30" y="100" width="44" height="20" rx="4" fill="#C47B3A" opacity="0.06"/>
+
+  <!-- Column 2: Applied -->
+  <rect x="88" y="32" width="56" height="96" rx="6" stroke="#C47B3A" stroke-width="1.5" fill="none" opacity="0.2"/>
+  <text x="116" y="46" font-family="system-ui" font-size="8" font-weight="600" fill="#C47B3A" text-anchor="middle" opacity="0.5">Applied</text>
+  <rect x="94" y="52" width="44" height="20" rx="4" fill="#C47B3A" opacity="0.15"/>
+  <rect x="94" y="76" width="44" height="20" rx="4" fill="#C47B3A" opacity="0.1"/>
+
+  <!-- Column 3: Interview -->
+  <rect x="152" y="32" width="56" height="96" rx="6" stroke="#2D8B5F" stroke-width="1.5" fill="none" opacity="0.2"/>
+  <text x="180" y="46" font-family="system-ui" font-size="8" font-weight="600" fill="#2D8B5F" text-anchor="middle" opacity="0.5">Interview</text>
+  <rect x="158" y="52" width="44" height="20" rx="4" fill="#2D8B5F" opacity="0.15"/>
+
+  <!-- Column 4: Offer -->
+  <rect x="216" y="32" width="10" height="96" rx="5" stroke="#2D8B5F" stroke-width="1.5" fill="none" opacity="0.15"/>
+
+  <!-- Arrow showing flow -->
+  <path d="M78 62h8" stroke="#C47B3A" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+  <path d="M142 62h8" stroke="#2D8B5F" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+</svg>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="160" viewBox="0 0 240 160" fill="none">
+  <defs>
+    <linearGradient id="sg1" x1="0" y1="0" x2="240" y2="160" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#C47B3A" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#2D8B5F" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="160" rx="12" fill="url(#sg1)"/>
+
+  <!-- Search magnifier -->
+  <circle cx="100" cy="72" r="28" stroke="#C47B3A" stroke-width="3" fill="none" opacity="0.9"/>
+  <line x1="120" y1="92" x2="138" y2="110" stroke="#C47B3A" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+
+  <!-- Result cards stacked behind magnifier -->
+  <rect x="48" y="52" width="56" height="12" rx="3" fill="#C47B3A" opacity="0.15"/>
+  <rect x="48" y="68" width="40" height="8" rx="2" fill="#C47B3A" opacity="0.1"/>
+  <rect x="48" y="80" width="48" height="8" rx="2" fill="#C47B3A" opacity="0.1"/>
+
+  <!-- Source dots (4 sources) -->
+  <circle cx="148" cy="46" r="6" fill="#C47B3A" opacity="0.3"/>
+  <circle cx="168" cy="46" r="6" fill="#2D8B5F" opacity="0.3"/>
+  <circle cx="188" cy="46" r="6" fill="#C47B3A" opacity="0.2"/>
+  <circle cx="148" cy="62" r="6" fill="#2D8B5F" opacity="0.2"/>
+
+  <!-- Connection lines -->
+  <line x1="148" y1="52" x2="128" y2="68" stroke="#C47B3A" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.2"/>
+  <line x1="168" y1="52" x2="128" y2="72" stroke="#2D8B5F" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.2"/>
+
+  <!-- "500+" badge -->
+  <rect x="150" y="90" width="52" height="22" rx="11" fill="#C47B3A" opacity="0.12"/>
+  <text x="176" y="105" font-family="system-ui" font-size="11" font-weight="600" fill="#C47B3A" text-anchor="middle" opacity="0.7">500+</text>
+</svg>

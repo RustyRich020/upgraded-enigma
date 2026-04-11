@@ -7,15 +7,18 @@ import { navigate } from '../router.js';
 import { signInAnonymously } from '../firebase/auth.js';
 import { STORAGE_KEYS } from '../config.js';
 
-const LOGO_SVG = `<svg width="64" height="64" viewBox="0 0 48 48" fill="none">
-  <rect x="4" y="6" width="40" height="36" rx="5" stroke="currentColor" stroke-width="2.5" fill="none"/>
-  <path d="M28 8v6c0 1.5-1 2.5-2.5 2.5h-1c-1.5 0-2.5 1-2.5 2.5v3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-  <path d="M30 14h-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-  <circle cx="22" cy="24" r="1" fill="currentColor" opacity="0.5"/>
-  <circle cx="24" cy="26" r="1" fill="currentColor" opacity="0.35"/>
-  <circle cx="20" cy="25.5" r="0.8" fill="currentColor" opacity="0.4"/>
-  <path d="M10 30h28v4c0 2.2-1.8 4-4 4H14c-2.2 0-4-1.8-4-4v-4z" fill="currentColor" opacity="0.6"/>
-</svg>`;
+/* Use the branded logo SVG asset */
+const LOGO_IMG = `<img src="assets/icons/logo.svg" alt="JobSink" style="width:56px;height:56px;border-radius:12px">`;
+const LOGO_IMG_SM = `<img src="assets/icons/logo.svg" alt="JobSink" style="width:40px;height:40px;border-radius:8px">`;
+
+const FEATURES = [
+  { img: 'assets/icons/feat-search.svg', title: 'Unified job search', desc: 'One search across 4 job boards. Results stored permanently so you can filter, sort, and revisit anytime.', accent: 'primary' },
+  { img: 'assets/icons/feat-ats.svg', title: 'ATS keyword optimizer', desc: 'Paste a job description, see your score, and click to add missing keywords directly to your resume.', accent: 'accent' },
+  { img: 'assets/icons/feat-ai.svg', title: 'AI cover letters', desc: 'Select a tracked job and your resume from dropdowns — Gemini generates a tailored cover letter in seconds.', accent: 'primary' },
+  { img: 'assets/icons/feat-pipeline.svg', title: 'Pipeline tracking', desc: 'Kanban board, table view, follow-up reminders, and a timeline of every application you\'ve submitted.', accent: 'accent' },
+  { img: 'assets/icons/feat-agent.svg', title: 'Automated agent', desc: 'Set your preferences once. The job agent searches on a schedule, deduplicates, and queues matches for review.', accent: 'primary' },
+  { img: 'assets/icons/feat-interview.svg', title: 'Interview prep', desc: 'AI generates 10 tailored questions for any role — behavioral, technical, and questions to ask the interviewer.', accent: 'accent' },
+];
 
 export function renderLanding(container) {
   container.innerHTML = `
@@ -24,7 +27,7 @@ export function renderLanding(container) {
       <!-- ===== HERO ===== -->
       <section class="lp-hero">
         <div class="lp-hero-inner">
-          <div class="lp-logo-mark">${LOGO_SVG}</div>
+          <div class="lp-logo-mark">${LOGO_IMG}</div>
           <h1 class="lp-headline">Everything flows<br>into one place</h1>
           <p class="lp-subhead">Search jobs across 4 sources. Optimize your resume for ATS. Generate cover letters with AI. Track your entire pipeline. All in one app.</p>
           <div class="lp-cta-row">
@@ -65,48 +68,17 @@ export function renderLanding(container) {
         <p class="lp-eyebrow">What's inside</p>
         <h2 class="lp-section-title">Built for the way job search actually works</h2>
         <div class="lp-features">
-          <div class="lp-feature">
-            <div class="lp-feature-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          ${FEATURES.map((f, i) => `
+            <div class="lp-feature" style="animation-delay:${i * 80}ms">
+              <div class="lp-feature-img">
+                <img src="${f.img}" alt="${f.title}" loading="lazy">
+              </div>
+              <div class="lp-feature-body">
+                <h3>${f.title}</h3>
+                <p>${f.desc}</p>
+              </div>
             </div>
-            <h3>Unified job search</h3>
-            <p>One search across 4 job boards. Results stored permanently so you can filter, sort, and revisit anytime.</p>
-          </div>
-          <div class="lp-feature">
-            <div class="lp-feature-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </div>
-            <h3>ATS keyword optimizer</h3>
-            <p>Paste a job description, see your score, and click to add missing keywords directly to your resume.</p>
-          </div>
-          <div class="lp-feature">
-            <div class="lp-feature-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            </div>
-            <h3>AI cover letters</h3>
-            <p>Select a tracked job and your resume from dropdowns — Gemini generates a tailored cover letter in seconds.</p>
-          </div>
-          <div class="lp-feature">
-            <div class="lp-feature-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            </div>
-            <h3>Pipeline tracking</h3>
-            <p>Kanban board, table view, follow-up reminders, and a timeline of every application you've submitted.</p>
-          </div>
-          <div class="lp-feature">
-            <div class="lp-feature-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </div>
-            <h3>Automated agent</h3>
-            <p>Set your preferences once. The job agent searches on a schedule, deduplicates, and queues matches for review.</p>
-          </div>
-          <div class="lp-feature">
-            <div class="lp-feature-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-            </div>
-            <h3>Interview prep</h3>
-            <p>AI generates 10 tailored questions for any role — behavioral, technical, and questions to ask the interviewer.</p>
-          </div>
+          `).join('')}
         </div>
       </section>
 
@@ -124,7 +96,7 @@ export function renderLanding(container) {
 
       <!-- ===== FINAL CTA ===== -->
       <section class="lp-final-cta">
-        <div class="lp-logo-mark lp-logo-small">${LOGO_SVG}</div>
+        <div class="lp-logo-mark lp-logo-small">${LOGO_IMG_SM}</div>
         <h2>Start your search today</h2>
         <p>Free to use. No credit card. Set up in under a minute.</p>
         <div class="lp-cta-row">
@@ -152,14 +124,15 @@ export function renderLanding(container) {
       .lp-hero-inner { max-width: 640px; text-align: center; }
       .lp-logo-mark {
         width: 80px; height: 80px; margin: 0 auto 24px;
-        color: var(--color-primary);
-        background: var(--color-primary-dim);
         border-radius: 20px;
         display: flex; align-items: center; justify-content: center;
         animation: fadeIn 0.6s ease-out;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(196,123,58,0.2);
       }
-      .lp-logo-small { width: 56px; height: 56px; border-radius: 14px; margin-bottom: 20px; }
-      .lp-logo-small svg { width: 36px; height: 36px; }
+      .lp-logo-mark img { border-radius: inherit; }
+      .lp-logo-small { width: 56px; height: 56px; border-radius: 14px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(196,123,58,0.15); }
+      .lp-logo-small img { width: 100%; height: 100%; }
       .lp-headline {
         font-family: var(--font-display);
         font-size: clamp(32px, 5vw, 48px);
@@ -245,24 +218,37 @@ export function renderLanding(container) {
       .lp-features {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
+        gap: 20px;
       }
       .lp-feature {
         background: var(--color-surface);
         border: 1px solid var(--color-surface-border);
-        border-radius: 14px; padding: 24px;
+        border-radius: 16px;
+        overflow: hidden;
         box-shadow: var(--shadow-sm);
-        transition: all 0.2s;
+        transition: all 0.25s ease;
+        animation: fadeIn 0.5s ease-out backwards;
       }
-      .lp-feature:hover { border-color: var(--color-primary-dim); box-shadow: var(--shadow-md); transform: translateY(-2px); }
-      .lp-feature-icon {
-        width: 48px; height: 48px; border-radius: 12px;
-        background: var(--color-bg-secondary);
+      .lp-feature:hover {
+        border-color: var(--color-primary-dim);
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-4px);
+      }
+      .lp-feature-img {
+        width: 100%; height: 140px;
         display: flex; align-items: center; justify-content: center;
-        margin-bottom: 16px;
+        overflow: hidden;
+        border-bottom: 1px solid var(--color-surface-border);
       }
-      .lp-feature h3 { font-size: 15px; font-weight: 600; color: var(--color-text-heading); margin-bottom: 8px; letter-spacing: 0; text-transform: none; }
-      .lp-feature p { font-size: 13px; color: var(--color-text-dim); line-height: 1.6; }
+      .lp-feature-img img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+      .lp-feature:hover .lp-feature-img img { transform: scale(1.04); }
+      .lp-feature-body { padding: 20px; }
+      .lp-feature-body h3 { font-size: 16px; font-weight: 650; color: var(--color-text-heading); margin-bottom: 8px; letter-spacing: -0.01em; text-transform: none; }
+      .lp-feature-body p { font-size: 13px; color: var(--color-text-dim); line-height: 1.65; }
 
       /* Trust */
       .lp-trust {

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 200 200" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" fill="none">
   <!-- Background -->
   <rect width="200" height="200" rx="32" fill="#1A1A1E"/>
 
@@ -21,6 +21,7 @@
   <!-- Basin / sink bowl -->
   <path d="M42 132h116v20c0 10-8 18-18 18H60c-10 0-18-8-18-18v-20z" fill="#D4874D" opacity="0.8"/>
 
+  <!-- Data elements falling in -->
   <!-- Envelope -->
   <g transform="translate(48, 72) rotate(-12)">
     <rect width="28" height="20" rx="3" stroke="#D4874D" stroke-width="2.5" fill="none" opacity="0.6"/>
