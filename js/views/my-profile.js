@@ -9,7 +9,7 @@ import { renderAiTools } from './ai-tools.js';
 import { renderCompanies } from './companies.js';
 import { enableTabKeyboardNavigation, setActiveTab } from '../ui/a11y.js';
 
-const SESSION_KEY = 'tron_myProfile_activeTab';
+const SESSION_KEY = 'jobsink_myProfile_activeTab';
 
 /**
  * Render the consolidated My Profile view with 3 tabs:

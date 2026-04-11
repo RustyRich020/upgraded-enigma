@@ -2,7 +2,7 @@
    components/jd-storage.js — Job Description Storage
    ============================================================ */
 
-const STORAGE_KEY = 'tron_job_descriptions';
+const STORAGE_KEY = 'jobsink_job_descriptions';
 
 let jdCache = {};
 

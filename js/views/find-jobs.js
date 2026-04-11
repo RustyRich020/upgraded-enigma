@@ -9,8 +9,8 @@ import { renderATSOptimizer } from './ats-optimizer.js';
 import { renderAgentDashboard } from './agent-dashboard.js';
 import { enableTabKeyboardNavigation, setActiveTab } from '../ui/a11y.js';
 
-const SEARCH_DB_KEY = 'tron_search_results';
-const SESSION_KEY = 'tron_findJobs_activeTab';
+const SEARCH_DB_KEY = 'jobsink_search_results';
+const SESSION_KEY = 'jobsink_findJobs_activeTab';
 
 function getStoredSearchCount() {
   try {

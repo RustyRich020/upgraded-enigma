@@ -28,25 +28,71 @@ export const COLLECTIONS = {
 
 // localStorage key prefixes
 export const STORAGE_KEYS = {
-  jobs: 'tron_jobs',
-  resumes: 'tron_resumes',
-  companies: 'tron_companies',
-  contacts: 'tron_contacts',
-  interviews: 'tron_interviews',
-  networking: 'tron_networking',
-  offers: 'tron_offers',
-  stories: 'tron_stories',
-  filters: 'tron_filters',
-  settings: 'tron_settings',
-  apiKeys: 'tron_api_keys',
-  migrated: 'tron_migrated',
-  theme: 'tron_theme',
-  onboarded: 'tron_onboarded',
-  tourDone: 'tron_tour_done',
-  authUser: 'tron_auth_user',
-  agentConfig: 'tron_agent_config',
-  agentRuns: 'tron_agent_runs'
+  jobs: 'jobsink_jobs',
+  resumes: 'jobsink_resumes',
+  companies: 'jobsink_companies',
+  contacts: 'jobsink_contacts',
+  interviews: 'jobsink_interviews',
+  networking: 'jobsink_networking',
+  offers: 'jobsink_offers',
+  stories: 'jobsink_stories',
+  filters: 'jobsink_filters',
+  settings: 'jobsink_settings',
+  apiKeys: 'jobsink_api_keys',
+  migrated: 'jobsink_migrated',
+  theme: 'jobsink_theme',
+  onboarded: 'jobsink_onboarded',
+  tourDone: 'jobsink_tour_done',
+  authUser: 'jobsink_auth_user',
+  agentConfig: 'jobsink_agent_config',
+  agentRuns: 'jobsink_agent_runs'
 };
+
+/**
+ * One-time migration: copy tron_ keys to jobsink_ keys, then remove old ones.
+ * Safe to call multiple times — only runs if old keys exist and new ones don't.
+ */
+export function migrateStorageKeys() {
+  const OLD_PREFIX = 'tron_';
+  const NEW_PREFIX = 'jobsink_';
+  let migrated = false;
+
+  // Migrate STORAGE_KEYS values
+  Object.values(STORAGE_KEYS).forEach(newKey => {
+    const oldKey = newKey.replace(NEW_PREFIX, OLD_PREFIX);
+    if (oldKey === newKey) return;
+    const oldVal = localStorage.getItem(oldKey);
+    if (oldVal !== null && localStorage.getItem(newKey) === null) {
+      localStorage.setItem(newKey, oldVal);
+      migrated = true;
+    }
+  });
+
+  // Migrate other known tron_ keys
+  const extraKeys = [
+    ['tron_checklist', 'jobsink_checklist'],
+    ['tron_job_descriptions', 'jobsink_job_descriptions'],
+    ['tron_search_results', 'jobsink_search_results'],
+    ['tron_findJobs_activeTab', 'jobsink_findJobs_activeTab'],
+    ['tron_myJobs_activeTab', 'jobsink_myJobs_activeTab'],
+    ['tron_myProfile_activeTab', 'jobsink_myProfile_activeTab'],
+    ['tron_api_usage', 'jobsink_api_usage'],
+    ['tron_user_tier', 'jobsink_user_tier'],
+  ];
+  extraKeys.forEach(([oldKey, newKey]) => {
+    const oldVal = localStorage.getItem(oldKey);
+    if (oldVal !== null && localStorage.getItem(newKey) === null) {
+      localStorage.setItem(newKey, oldVal);
+      migrated = true;
+    }
+  });
+
+  // Clean up old keys if migration happened
+  if (migrated) {
+    const allOld = Object.keys(localStorage).filter(k => k.startsWith(OLD_PREFIX));
+    allOld.forEach(k => localStorage.removeItem(k));
+  }
+}
 
 // Job statuses
 export const STATUSES = ['Saved', 'Applied', 'Interview', 'Offer', 'Closed'];

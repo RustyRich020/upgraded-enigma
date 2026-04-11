@@ -18,7 +18,7 @@ import { completeChecklistItem } from '../components/getting-started.js';
 import { uid, today } from '../utils.js';
 import { buildCareerProfile, evaluateOpportunity } from '../services/career-ops-lite.js';
 
-const SEARCH_DB_KEY = 'tron_search_results';
+const SEARCH_DB_KEY = 'jobsink_search_results';
 
 /**
  * Load persistent search results from localStorage.

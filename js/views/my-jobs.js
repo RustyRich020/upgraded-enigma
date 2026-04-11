@@ -12,7 +12,7 @@ import { renderJobComparison } from '../services/jd-intelligence.js';
 import { buildCareerProfile, evaluateOpportunity } from '../services/career-ops-lite.js';
 import { enableTabKeyboardNavigation, setActiveTab } from '../ui/a11y.js';
 
-const SESSION_KEY = 'tron_myJobs_activeTab';
+const SESSION_KEY = 'jobsink_myJobs_activeTab';
 
 /**
  * Render the consolidated My Jobs view with 3 tabs:
