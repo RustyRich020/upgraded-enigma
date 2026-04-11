@@ -1,6 +1,7 @@
 /* ============================================================
    views/landing.js — Showcase landing page for JobSink
-   Professional SaaS landing with sections, animations, and CTAs
+   Professional SaaS landing with hero, product preview,
+   social proof, features, trust badges, and footer
    ============================================================ */
 
 import { navigate } from '../router.js';
@@ -12,30 +13,170 @@ const LOGO_IMG = `<img src="assets/icons/logo.svg" alt="JobSink" style="width:56
 const LOGO_IMG_SM = `<img src="assets/icons/logo.svg" alt="JobSink" style="width:40px;height:40px;border-radius:8px">`;
 
 const FEATURES = [
-  { img: 'assets/icons/feat-search.svg', title: 'Unified job search', desc: 'One search across 4 job boards. Results stored permanently so you can filter, sort, and revisit anytime.', accent: 'primary' },
-  { img: 'assets/icons/feat-ats.svg', title: 'ATS keyword optimizer', desc: 'Paste a job description, see your score, and click to add missing keywords directly to your resume.', accent: 'accent' },
-  { img: 'assets/icons/feat-ai.svg', title: 'AI cover letters', desc: 'Select a tracked job and your resume from dropdowns — Gemini generates a tailored cover letter in seconds.', accent: 'primary' },
-  { img: 'assets/icons/feat-pipeline.svg', title: 'Pipeline tracking', desc: 'Kanban board, table view, follow-up reminders, and a timeline of every application you\'ve submitted.', accent: 'accent' },
-  { img: 'assets/icons/feat-agent.svg', title: 'Automated agent', desc: 'Set your preferences once. The job agent searches on a schedule, deduplicates, and queues matches for review.', accent: 'primary' },
-  { img: 'assets/icons/feat-interview.svg', title: 'Interview prep', desc: 'AI generates 10 tailored questions for any role — behavioral, technical, and questions to ask the interviewer.', accent: 'accent' },
+  { img: 'assets/icons/feat-search.svg', title: 'Unified job search', desc: 'One search across 4 job boards. Results stored permanently so you can filter, sort, and revisit anytime.' },
+  { img: 'assets/icons/feat-ats.svg', title: 'ATS keyword optimizer', desc: 'Paste a job description, see your score, and click to add missing keywords directly to your resume.' },
+  { img: 'assets/icons/feat-ai.svg', title: 'AI cover letters', desc: 'Select a tracked job and your resume from dropdowns — Gemini generates a tailored cover letter in seconds.' },
+  { img: 'assets/icons/feat-pipeline.svg', title: 'Pipeline tracking', desc: 'Kanban board, table view, follow-up reminders, and a timeline of every application you\'ve submitted.' },
+  { img: 'assets/icons/feat-agent.svg', title: 'Automated agent', desc: 'Set your preferences once. The job agent searches on a schedule, deduplicates, and queues matches for review.' },
+  { img: 'assets/icons/feat-interview.svg', title: 'Interview prep', desc: 'AI generates 10 tailored questions for any role — behavioral, technical, and questions to ask the interviewer.' },
 ];
 
+const STATS = [
+  { value: '4', label: 'Job Sources' },
+  { value: '200+', label: 'ATS Keywords' },
+  { value: 'AI', label: 'Powered Analysis' },
+  { value: '< 60s', label: 'Setup Time' },
+];
+
+const TRUST_BADGES = [
+  { name: 'Google Gemini', icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>` },
+  { name: 'Firebase', icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 20l2.4-15.2L10 12l2-4 8 12H4z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>` },
+  { name: 'Groq LLM', icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M12 2v4m0 12v4m10-10h-4M6 12H2m15.07-7.07l-2.83 2.83M9.76 14.24l-2.83 2.83m11.14 0l-2.83-2.83M9.76 9.76L6.93 6.93" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>` },
+  { name: 'Remotive', icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 21h8m-4-4v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>` },
+  { name: 'Adzuna', icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>` },
+];
+
+/* ---- Product mockup SVG (browser frame showing dashboard) ---- */
+const PRODUCT_MOCKUP = `
+<svg class="lp-mockup-svg" viewBox="0 0 800 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Browser frame -->
+  <rect x="0" y="0" width="800" height="480" rx="12" fill="#1A1A1E"/>
+  <rect x="0" y="0" width="800" height="36" rx="12" fill="#2A2A2E"/>
+  <rect x="0" y="24" width="800" height="12" fill="#2A2A2E"/>
+  <!-- Window dots -->
+  <circle cx="20" cy="18" r="5" fill="#FF605C"/>
+  <circle cx="38" cy="18" r="5" fill="#FFBD44"/>
+  <circle cx="56" cy="18" r="5" fill="#00CA4E"/>
+  <!-- URL bar -->
+  <rect x="160" y="9" width="480" height="18" rx="9" fill="#1A1A1E" opacity="0.6"/>
+  <text x="400" y="22" font-family="system-ui" font-size="10" fill="#888" text-anchor="middle">jobsink.app</text>
+
+  <!-- Sidebar -->
+  <rect x="0" y="36" width="180" height="444" fill="#222226"/>
+  <!-- Sidebar logo -->
+  <rect x="16" y="50" width="28" height="28" rx="7" fill="#C47B3A" opacity="0.2"/>
+  <text x="52" y="69" font-family="system-ui" font-size="13" font-weight="600" fill="#D4874D">JobSink</text>
+  <!-- Nav items -->
+  <rect x="14" y="96" width="152" height="32" rx="8" fill="#C47B3A" opacity="0.12"/>
+  <text x="30" y="116" font-family="system-ui" font-size="11" fill="#D4874D">Home</text>
+  <text x="30" y="148" font-family="system-ui" font-size="11" fill="#777">Find Jobs</text>
+  <text x="30" y="176" font-family="system-ui" font-size="11" fill="#777">My Jobs</text>
+  <text x="30" y="204" font-family="system-ui" font-size="11" fill="#777">My Profile</text>
+  <text x="30" y="232" font-family="system-ui" font-size="11" fill="#777">Settings</text>
+
+  <!-- Main content area -->
+  <rect x="180" y="36" width="620" height="444" fill="#F8F7F5"/>
+
+  <!-- Dashboard header -->
+  <text x="210" y="72" font-family="system-ui" font-size="18" font-weight="700" fill="#1A1A1E">Career Dashboard</text>
+  <text x="210" y="90" font-family="system-ui" font-size="11" fill="#888">Welcome back — here's your job search overview</text>
+
+  <!-- Stat cards row -->
+  <rect x="210" y="106" width="136" height="72" rx="10" fill="white" stroke="#E8E5E0" stroke-width="1"/>
+  <text x="226" y="130" font-family="system-ui" font-size="10" fill="#999">Pipeline</text>
+  <text x="226" y="156" font-family="system-ui" font-size="26" font-weight="700" fill="#C47B3A">12</text>
+
+  <rect x="358" y="106" width="136" height="72" rx="10" fill="white" stroke="#E8E5E0" stroke-width="1"/>
+  <text x="374" y="130" font-family="system-ui" font-size="10" fill="#999">Applied</text>
+  <text x="374" y="156" font-family="system-ui" font-size="26" font-weight="700" fill="#2D8B5F">8</text>
+
+  <rect x="506" y="106" width="136" height="72" rx="10" fill="white" stroke="#E8E5E0" stroke-width="1"/>
+  <text x="522" y="130" font-family="system-ui" font-size="10" fill="#999">Interviews</text>
+  <text x="522" y="156" font-family="system-ui" font-size="26" font-weight="700" fill="#C47B3A">3</text>
+
+  <rect x="654" y="106" width="136" height="72" rx="10" fill="white" stroke="#E8E5E0" stroke-width="1"/>
+  <text x="670" y="130" font-family="system-ui" font-size="10" fill="#999">ATS Score</text>
+  <text x="670" y="156" font-family="system-ui" font-size="26" font-weight="700" fill="#2D8B5F">85%</text>
+
+  <!-- Chart area -->
+  <rect x="210" y="194" width="290" height="160" rx="10" fill="white" stroke="#E8E5E0" stroke-width="1"/>
+  <text x="226" y="218" font-family="system-ui" font-size="11" font-weight="600" fill="#1A1A1E">Application Pipeline</text>
+  <!-- Donut chart mock -->
+  <circle cx="355" cy="290" r="40" stroke="#E8E5E0" stroke-width="10" fill="none"/>
+  <circle cx="355" cy="290" r="40" stroke="#C47B3A" stroke-width="10" fill="none" stroke-dasharray="100 152" transform="rotate(-90 355 290)"/>
+  <circle cx="355" cy="290" r="40" stroke="#2D8B5F" stroke-width="10" fill="none" stroke-dasharray="60 192" stroke-dashoffset="-100" transform="rotate(-90 355 290)"/>
+
+  <!-- Recent jobs table -->
+  <rect x="514" y="194" width="276" height="160" rx="10" fill="white" stroke="#E8E5E0" stroke-width="1"/>
+  <text x="530" y="218" font-family="system-ui" font-size="11" font-weight="600" fill="#1A1A1E">Recent Jobs</text>
+  <!-- Table rows -->
+  <rect x="530" y="230" width="244" height="1" fill="#E8E5E0"/>
+  <text x="530" y="250" font-family="system-ui" font-size="10" fill="#333">Senior Developer</text>
+  <rect x="710" y="240" width="48" height="16" rx="8" fill="#2D8B5F" opacity="0.15"/>
+  <text x="734" y="252" font-family="system-ui" font-size="8" fill="#2D8B5F" text-anchor="middle">Applied</text>
+  <text x="530" y="278" font-family="system-ui" font-size="10" fill="#333">Product Manager</text>
+  <rect x="710" y="268" width="48" height="16" rx="8" fill="#C47B3A" opacity="0.15"/>
+  <text x="734" y="280" font-family="system-ui" font-size="8" fill="#C47B3A" text-anchor="middle">Interview</text>
+  <text x="530" y="306" font-family="system-ui" font-size="10" fill="#333">UX Designer</text>
+  <rect x="710" y="296" width="48" height="16" rx="8" fill="#888" opacity="0.15"/>
+  <text x="734" y="308" font-family="system-ui" font-size="8" fill="#888" text-anchor="middle">Saved</text>
+
+  <!-- Getting started card -->
+  <rect x="210" y="370" width="580" height="90" rx="10" fill="white" stroke="#E8E5E0" stroke-width="1"/>
+  <text x="226" y="396" font-family="system-ui" font-size="11" font-weight="600" fill="#1A1A1E">Getting Started</text>
+  <!-- Checklist -->
+  <rect x="226" y="410" width="14" height="14" rx="3" fill="#2D8B5F" opacity="0.2"/>
+  <path d="M230 417l2 2 4-4" stroke="#2D8B5F" stroke-width="1.5" stroke-linecap="round"/>
+  <text x="248" y="422" font-family="system-ui" font-size="10" fill="#666">Upload resume</text>
+  <rect x="356" y="410" width="14" height="14" rx="3" stroke="#C47B3A" stroke-width="1" fill="none" opacity="0.4"/>
+  <text x="378" y="422" font-family="system-ui" font-size="10" fill="#666">Search jobs</text>
+  <rect x="476" y="410" width="14" height="14" rx="3" stroke="#C47B3A" stroke-width="1" fill="none" opacity="0.4"/>
+  <text x="498" y="422" font-family="system-ui" font-size="10" fill="#666">Add to tracker</text>
+
+  <!-- Subtle shine overlay -->
+  <rect x="180" y="36" width="620" height="444" fill="url(#mockupShine)" opacity="0.03"/>
+  <defs>
+    <linearGradient id="mockupShine" x1="180" y1="36" x2="800" y2="480">
+      <stop offset="0%" stop-color="white"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+</svg>`;
+
 export function renderLanding(container) {
+  /* --- Enhancement #7: Hide sidebar/hamburger on landing --- */
+  document.body.classList.add('lp-active');
+
   container.innerHTML = `
     <div class="lp">
 
       <!-- ===== HERO ===== -->
       <section class="lp-hero">
+        <!-- Floating ambient shapes -->
+        <div class="lp-hero-shapes">
+          <div class="lp-shape lp-shape-1"></div>
+          <div class="lp-shape lp-shape-2"></div>
+          <div class="lp-shape lp-shape-3"></div>
+        </div>
+
         <div class="lp-hero-inner">
           <div class="lp-logo-mark">${LOGO_IMG}</div>
-          <h1 class="lp-headline">Everything flows<br>into one place</h1>
-          <p class="lp-subhead">Search jobs across 4 sources. Optimize your resume for ATS. Generate cover letters with AI. Track your entire pipeline. All in one app.</p>
+          <h1 class="lp-headline">Everything flows<br><span class="lp-headline-accent">into one place</span></h1>
+          <p class="lp-subhead">Search jobs across 4 sources. Optimize your resume for ATS. Generate cover letters with AI. Track your entire pipeline — all in one app.</p>
           <div class="lp-cta-row">
-            <button class="lp-cta-primary" id="landingSignUp">Get started free</button>
+            <button class="lp-cta-primary" id="landingSignUp">
+              Get started free
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14m-7-7l7 7-7 7"/></svg>
+            </button>
             <button class="lp-cta-secondary" id="landingSignIn">Sign in</button>
           </div>
           <p class="lp-note">No credit card required</p>
         </div>
+
+        <!-- Product mockup -->
+        <div class="lp-mockup">
+          ${PRODUCT_MOCKUP}
+        </div>
+      </section>
+
+      <!-- ===== SOCIAL PROOF STATS ===== -->
+      <section class="lp-stats-bar">
+        ${STATS.map(s => `
+          <div class="lp-stat">
+            <span class="lp-stat-value">${s.value}</span>
+            <span class="lp-stat-label">${s.label}</span>
+          </div>
+        `).join('')}
       </section>
 
       <!-- ===== HOW IT WORKS ===== -->
@@ -45,18 +186,27 @@ export function renderLanding(container) {
         <div class="lp-steps">
           <div class="lp-step">
             <div class="lp-step-num">1</div>
+            <div class="lp-step-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15l3 3 3-3"/></svg>
+            </div>
             <h3>Upload your resume</h3>
             <p>Parse a PDF and we extract your skills, experience level, and best-fit roles automatically.</p>
           </div>
-          <div class="lp-step-arrow">→</div>
+          <div class="lp-step-connector"><div class="lp-step-line"></div></div>
           <div class="lp-step">
             <div class="lp-step-num">2</div>
+            <div class="lp-step-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            </div>
             <h3>Search & match</h3>
             <p>One click searches Remotive, Arbeitnow, Adzuna, and JSearch. Results are deduplicated and scored.</p>
           </div>
-          <div class="lp-step-arrow">→</div>
+          <div class="lp-step-connector"><div class="lp-step-line"></div></div>
           <div class="lp-step">
             <div class="lp-step-num">3</div>
+            <div class="lp-step-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+            </div>
             <h3>Track & apply</h3>
             <p>Add jobs to your pipeline. Get ATS scores, AI cover letters, interview prep — and never miss a follow-up.</p>
           </div>
@@ -83,27 +233,47 @@ export function renderLanding(container) {
       </section>
 
       <!-- ===== TRUST ===== -->
-      <section class="lp-section">
+      <section class="lp-section lp-trust-section">
         <p class="lp-eyebrow">Powered by</p>
         <div class="lp-trust">
-          <span>Google Gemini AI</span>
-          <span>Firebase</span>
-          <span>Groq LLM</span>
-          <span>Remotive API</span>
-          <span>Adzuna API</span>
+          ${TRUST_BADGES.map(t => `
+            <div class="lp-trust-badge">
+              <span class="lp-trust-icon">${t.icon}</span>
+              <span class="lp-trust-name">${t.name}</span>
+            </div>
+          `).join('')}
         </div>
       </section>
 
       <!-- ===== FINAL CTA ===== -->
       <section class="lp-final-cta">
         <div class="lp-logo-mark lp-logo-small">${LOGO_IMG_SM}</div>
-        <h2>Start your search today</h2>
-        <p>Free to use. No credit card. Set up in under a minute.</p>
+        <h2>Ready to streamline your job search?</h2>
+        <p class="lp-final-metric">Join and search <strong>thousands of jobs</strong> across 4 sources in seconds.</p>
         <div class="lp-cta-row">
-          <button class="lp-cta-primary" id="landingSignUp2">Get started free</button>
+          <button class="lp-cta-primary" id="landingSignUp2">
+            Get started free
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14m-7-7l7 7-7 7"/></svg>
+          </button>
         </div>
         <button class="lp-guest-link" id="landingGuest">or continue as guest</button>
       </section>
+
+      <!-- ===== FOOTER ===== -->
+      <footer class="lp-footer">
+        <div class="lp-footer-inner">
+          <div class="lp-footer-brand">
+            <img src="assets/icons/logo.svg" alt="JobSink" width="24" height="24" style="border-radius:6px">
+            <span>JobSink</span>
+          </div>
+          <div class="lp-footer-links">
+            <a href="#auth" class="lp-footer-link">Sign In</a>
+            <span class="lp-footer-sep">&middot;</span>
+            <a href="https://github.com/RustyRich020/upgraded-enigma" target="_blank" rel="noopener" class="lp-footer-link">GitHub</a>
+          </div>
+          <p class="lp-footer-copy">&copy; ${new Date().getFullYear()} JobSink. Built with care.</p>
+        </div>
+      </footer>
 
     </div>
 
@@ -111,46 +281,85 @@ export function renderLanding(container) {
       /* ===== Landing page scoped styles ===== */
       .lp { max-width: 100%; overflow-x: hidden; }
 
-      /* Hero */
+      /* Enhancement #7: Hide app chrome on landing */
+      body.lp-active header { border-bottom-color: transparent; background: transparent; backdrop-filter: none; box-shadow: none; }
+      body.lp-active .hamburger { display: none; }
+      body.lp-active header .brand h1 { display: none; }
+      body.lp-active header .brand .logo { display: none; }
+      body.lp-active header .brand .tag { display: none; }
+
+      /* ===== Hero ===== */
       .lp-hero {
+        position: relative;
         min-height: calc(100vh - var(--header-height));
-        display: flex; align-items: center; justify-content: center;
-        padding: 60px 24px;
+        display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+        padding: 48px 24px 0;
         background:
-          radial-gradient(ellipse at 50% 0%, rgba(196,123,58,0.08), transparent 50%),
-          radial-gradient(ellipse at 80% 100%, rgba(45,139,95,0.05), transparent 40%),
+          radial-gradient(ellipse at 30% 10%, rgba(196,123,58,0.1), transparent 50%),
+          radial-gradient(ellipse at 70% 80%, rgba(45,139,95,0.06), transparent 40%),
+          radial-gradient(ellipse at 50% 50%, rgba(196,123,58,0.03), transparent 70%),
           var(--color-bg);
+        overflow: hidden;
       }
-      .lp-hero-inner { max-width: 640px; text-align: center; }
+
+      /* Ambient floating shapes */
+      .lp-hero-shapes { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+      .lp-shape {
+        position: absolute; border-radius: 50%;
+        background: var(--color-primary);
+        opacity: 0.04;
+        animation: lpFloat 20s ease-in-out infinite;
+      }
+      .lp-shape-1 { width: 300px; height: 300px; top: -80px; right: -60px; animation-delay: 0s; }
+      .lp-shape-2 { width: 200px; height: 200px; bottom: 20%; left: -40px; animation-delay: -7s; background: var(--color-accent); }
+      .lp-shape-3 { width: 150px; height: 150px; top: 40%; right: 10%; animation-delay: -14s; }
+
+      @keyframes lpFloat {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        33% { transform: translate(20px, -30px) scale(1.05); }
+        66% { transform: translate(-15px, 20px) scale(0.95); }
+      }
+
+      .lp-hero-inner { max-width: 640px; text-align: center; position: relative; z-index: 1; }
+
       .lp-logo-mark {
-        width: 80px; height: 80px; margin: 0 auto 24px;
-        border-radius: 20px;
+        width: 88px; height: 88px; margin: 0 auto 28px;
+        border-radius: 22px;
         display: flex; align-items: center; justify-content: center;
         animation: fadeIn 0.6s ease-out;
         overflow: hidden;
-        box-shadow: 0 4px 20px rgba(196,123,58,0.2);
+        box-shadow: 0 8px 32px rgba(196,123,58,0.2), 0 0 0 1px rgba(196,123,58,0.08);
       }
-      .lp-logo-mark img { border-radius: inherit; }
-      .lp-logo-small { width: 56px; height: 56px; border-radius: 14px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(196,123,58,0.15); }
+      .lp-logo-mark img { border-radius: inherit; width: 100%; height: 100%; }
+      .lp-logo-small { width: 56px; height: 56px; border-radius: 14px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(196,123,58,0.15); }
       .lp-logo-small img { width: 100%; height: 100%; }
+
       .lp-headline {
         font-family: var(--font-display);
-        font-size: clamp(32px, 5vw, 48px);
+        font-size: clamp(36px, 5.5vw, 56px);
         font-weight: 700;
-        line-height: 1.1;
-        letter-spacing: -0.02em;
+        line-height: 1.08;
+        letter-spacing: -0.03em;
         color: var(--color-text-heading);
-        margin-bottom: 16px;
+        margin-bottom: 20px;
         animation: fadeIn 0.6s ease-out 0.1s backwards;
       }
+      .lp-headline-accent {
+        background: linear-gradient(135deg, var(--color-primary), #E8A862);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
       .lp-subhead {
         font-size: clamp(15px, 2vw, 18px);
-        line-height: 1.6;
+        line-height: 1.65;
         color: var(--color-text-dim);
         max-width: 520px;
-        margin: 0 auto 32px;
+        margin: 0 auto 36px;
         animation: fadeIn 0.6s ease-out 0.2s backwards;
       }
+
       .lp-cta-row {
         display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
         animation: fadeIn 0.6s ease-out 0.3s backwards;
@@ -159,66 +368,126 @@ export function renderLanding(container) {
         background: var(--color-primary); color: #fff; border: none;
         padding: 14px 32px; border-radius: 12px;
         font-family: var(--font-body); font-size: 16px; font-weight: 600;
-        cursor: pointer; transition: all 0.15s;
+        cursor: pointer; transition: all 0.2s;
         box-shadow: 0 2px 12px rgba(196,123,58,0.25);
+        display: inline-flex; align-items: center; gap: 8px;
       }
-      .lp-cta-primary:hover { background: var(--color-primary-bright); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(196,123,58,0.3); }
+      .lp-cta-primary:hover { background: var(--color-primary-bright); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(196,123,58,0.35); }
+      .lp-cta-primary:active { transform: translateY(0); }
+
       .lp-cta-secondary {
         background: var(--color-surface); color: var(--color-text);
         border: 1px solid var(--color-surface-border);
         padding: 14px 28px; border-radius: 12px;
         font-family: var(--font-body); font-size: 16px; font-weight: 600;
-        cursor: pointer; transition: all 0.15s;
+        cursor: pointer; transition: all 0.2s;
       }
-      .lp-cta-secondary:hover { border-color: var(--color-primary); }
+      .lp-cta-secondary:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
       .lp-note { font-size: 13px; color: var(--color-muted); margin-top: 16px; animation: fadeIn 0.6s ease-out 0.4s backwards; }
 
-      /* Sections */
-      .lp-section { padding: 64px 24px; max-width: 960px; margin: 0 auto; }
-      .lp-section-alt { background: var(--color-bg-secondary); max-width: 100%; }
-      .lp-section-alt > * { max-width: 960px; margin-left: auto; margin-right: auto; }
+      /* ===== Product Mockup ===== */
+      .lp-mockup {
+        width: 100%; max-width: 860px;
+        margin: 48px auto 0;
+        position: relative; z-index: 1;
+        animation: lpMockupIn 0.8s ease-out 0.5s backwards;
+        filter: drop-shadow(0 24px 64px rgba(0,0,0,0.15));
+      }
+      .lp-mockup-svg { width: 100%; height: auto; border-radius: 12px; }
+
+      @keyframes lpMockupIn {
+        from { opacity: 0; transform: translateY(40px) scale(0.96); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      /* ===== Stats Bar ===== */
+      .lp-stats-bar {
+        display: flex; justify-content: center; gap: 0; flex-wrap: wrap;
+        background: var(--color-surface);
+        border-top: 1px solid var(--color-surface-border);
+        border-bottom: 1px solid var(--color-surface-border);
+        padding: 0;
+      }
+      .lp-stat {
+        flex: 1; min-width: 140px; max-width: 240px;
+        display: flex; flex-direction: column; align-items: center;
+        padding: 28px 20px;
+        border-right: 1px solid var(--color-surface-border);
+      }
+      .lp-stat:last-child { border-right: none; }
+      .lp-stat-value {
+        font-family: var(--font-display);
+        font-size: 28px; font-weight: 700;
+        color: var(--color-primary);
+        letter-spacing: -0.02em;
+        line-height: 1;
+      }
+      .lp-stat-label {
+        font-size: 13px; font-weight: 500;
+        color: var(--color-text-dim);
+        margin-top: 6px;
+      }
+
+      /* ===== Sections ===== */
+      .lp-section { padding: 80px 24px; max-width: 1040px; margin: 0 auto; }
+      .lp-section-alt { background: var(--color-bg-secondary); max-width: 100%; padding: 80px 24px; }
+      .lp-section-alt > * { max-width: 1040px; margin-left: auto; margin-right: auto; }
       .lp-eyebrow {
         font-size: 12px; font-weight: 700; text-transform: uppercase;
-        letter-spacing: 1.5px; color: var(--color-primary);
-        margin-bottom: 8px; text-align: center;
+        letter-spacing: 2px; color: var(--color-primary);
+        margin-bottom: 10px; text-align: center;
       }
       .lp-section-title {
         font-family: var(--font-display);
-        font-size: clamp(24px, 3.5vw, 32px);
+        font-size: clamp(24px, 3.5vw, 36px);
         font-weight: 700; color: var(--color-text-heading);
-        text-align: center; margin-bottom: 40px;
-        letter-spacing: -0.01em;
+        text-align: center; margin-bottom: 48px;
+        letter-spacing: -0.02em;
       }
 
-      /* How it works steps */
+      /* ===== How It Works ===== */
       .lp-steps {
         display: flex; align-items: flex-start; justify-content: center;
-        gap: 12px; flex-wrap: wrap;
+        gap: 0; flex-wrap: wrap;
       }
       .lp-step {
-        flex: 1; min-width: 200px; max-width: 260px;
+        flex: 1; min-width: 220px; max-width: 280px;
         background: var(--color-surface);
         border: 1px solid var(--color-surface-border);
-        border-radius: 16px; padding: 28px 24px;
+        border-radius: 16px; padding: 32px 24px;
         text-align: center;
         box-shadow: var(--shadow-sm);
+        position: relative;
+        transition: all 0.2s;
       }
+      .lp-step:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
       .lp-step-num {
-        width: 36px; height: 36px; border-radius: 50%;
+        width: 32px; height: 32px; border-radius: 50%;
         background: var(--color-primary); color: #fff;
-        font-family: var(--font-display); font-size: 16px; font-weight: 700;
+        font-family: var(--font-display); font-size: 14px; font-weight: 700;
         display: flex; align-items: center; justify-content: center;
-        margin: 0 auto 14px;
+        margin: 0 auto 12px;
       }
+      .lp-step-icon { margin-bottom: 16px; }
       .lp-step h3 { font-size: 16px; font-weight: 600; color: var(--color-text-heading); margin-bottom: 8px; letter-spacing: 0; text-transform: none; }
       .lp-step p { font-size: 14px; color: var(--color-text-dim); line-height: 1.6; }
-      .lp-step-arrow { font-size: 24px; color: var(--color-muted); padding-top: 40px; }
 
-      /* Features grid */
+      .lp-step-connector {
+        display: flex; align-items: center; padding: 0 4px; height: 100px;
+      }
+      .lp-step-line {
+        width: 40px; height: 2px;
+        background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%);
+        opacity: 0.3;
+        border-radius: 1px;
+      }
+
+      /* ===== Features ===== */
       .lp-features {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
+        gap: 24px;
       }
       .lp-feature {
         background: var(--color-surface);
@@ -230,47 +499,63 @@ export function renderLanding(container) {
         animation: fadeIn 0.5s ease-out backwards;
       }
       .lp-feature:hover {
-        border-color: var(--color-primary-dim);
-        box-shadow: var(--shadow-lg);
+        border-color: rgba(196,123,58,0.2);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.08);
         transform: translateY(-4px);
       }
       .lp-feature-img {
-        width: 100%; height: 140px;
+        width: 100%; height: 180px;
         display: flex; align-items: center; justify-content: center;
         overflow: hidden;
         border-bottom: 1px solid var(--color-surface-border);
+        padding: 12px;
       }
       .lp-feature-img img {
         width: 100%; height: 100%;
-        object-fit: cover;
+        object-fit: contain;
         transition: transform 0.3s ease;
       }
-      .lp-feature:hover .lp-feature-img img { transform: scale(1.04); }
-      .lp-feature-body { padding: 20px; }
+      .lp-feature:hover .lp-feature-img img { transform: scale(1.06); }
+      .lp-feature-body { padding: 22px; }
       .lp-feature-body h3 { font-size: 16px; font-weight: 650; color: var(--color-text-heading); margin-bottom: 8px; letter-spacing: -0.01em; text-transform: none; }
       .lp-feature-body p { font-size: 13px; color: var(--color-text-dim); line-height: 1.65; }
 
-      /* Trust */
+      /* ===== Trust Badges ===== */
+      .lp-trust-section { padding-top: 48px; padding-bottom: 48px; }
       .lp-trust {
-        display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;
-        opacity: 0.5;
+        display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;
       }
-      .lp-trust span { font-size: 14px; font-weight: 500; color: var(--color-text-dim); }
+      .lp-trust-badge {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 10px 18px;
+        background: var(--color-surface);
+        border: 1px solid var(--color-surface-border);
+        border-radius: 100px;
+        font-size: 13px; font-weight: 500;
+        color: var(--color-text-dim);
+        transition: all 0.15s;
+      }
+      .lp-trust-badge:hover { border-color: var(--color-primary-dim); color: var(--color-text-heading); }
+      .lp-trust-icon { display: flex; align-items: center; color: var(--color-primary); opacity: 0.7; }
 
-      /* Final CTA */
+      /* ===== Final CTA ===== */
       .lp-final-cta {
-        text-align: center; padding: 64px 24px;
+        text-align: center; padding: 80px 24px 64px;
         background:
-          radial-gradient(ellipse at 50% 100%, rgba(196,123,58,0.06), transparent 50%),
+          radial-gradient(ellipse at 50% 100%, rgba(196,123,58,0.08), transparent 50%),
+          radial-gradient(ellipse at 20% 50%, rgba(45,139,95,0.04), transparent 40%),
           var(--color-bg);
       }
       .lp-final-cta h2 {
         font-family: var(--font-display);
-        font-size: 28px; font-weight: 700;
+        font-size: clamp(24px, 3.5vw, 32px); font-weight: 700;
         color: var(--color-text-heading);
-        margin-bottom: 8px;
+        margin-bottom: 12px;
+        letter-spacing: -0.02em;
       }
-      .lp-final-cta p { font-size: 15px; color: var(--color-text-dim); margin-bottom: 24px; }
+      .lp-final-metric { font-size: 16px; color: var(--color-text-dim); margin-bottom: 32px; line-height: 1.6; }
+      .lp-final-metric strong { color: var(--color-text-heading); font-weight: 600; }
+
       .lp-guest-link {
         display: block; margin-top: 16px;
         background: none; border: none;
@@ -280,19 +565,55 @@ export function renderLanding(container) {
       }
       .lp-guest-link:hover { color: var(--color-primary); }
 
-      /* Responsive */
+      /* ===== Footer ===== */
+      .lp-footer {
+        border-top: 1px solid var(--color-surface-border);
+        background: var(--color-surface);
+        padding: 32px 24px;
+      }
+      .lp-footer-inner {
+        max-width: 960px; margin: 0 auto;
+        display: flex; align-items: center; justify-content: space-between;
+        flex-wrap: wrap; gap: 16px;
+      }
+      .lp-footer-brand {
+        display: flex; align-items: center; gap: 10px;
+        font-size: 15px; font-weight: 600;
+        color: var(--color-text-heading);
+      }
+      .lp-footer-links { display: flex; align-items: center; gap: 8px; }
+      .lp-footer-link {
+        font-size: 13px; color: var(--color-text-dim);
+        text-decoration: none; transition: color 0.15s;
+      }
+      .lp-footer-link:hover { color: var(--color-primary); }
+      .lp-footer-sep { color: var(--color-muted); font-size: 12px; }
+      .lp-footer-copy { font-size: 12px; color: var(--color-muted); }
+
+      /* ===== Responsive ===== */
       @media (max-width: 768px) {
-        .lp-hero { padding: 40px 16px; }
+        .lp-hero { padding: 32px 16px 0; min-height: auto; }
+        .lp-mockup { margin-top: 32px; }
         .lp-steps { flex-direction: column; align-items: center; }
         .lp-step { max-width: 100%; }
-        .lp-step-arrow { display: none; }
+        .lp-step-connector { height: auto; padding: 8px 0; }
+        .lp-step-line { width: 2px; height: 24px; }
+        .lp-step-connector { flex-direction: column; }
         .lp-features { grid-template-columns: 1fr; }
-        .lp-section { padding: 40px 16px; }
+        .lp-section, .lp-section-alt { padding: 48px 16px; }
+        .lp-stats-bar { flex-direction: column; }
+        .lp-stat { border-right: none; border-bottom: 1px solid var(--color-surface-border); padding: 20px; flex-direction: row; gap: 12px; max-width: 100%; }
+        .lp-stat:last-child { border-bottom: none; }
+        .lp-footer-inner { flex-direction: column; text-align: center; }
+      }
+      @media (min-width: 769px) and (max-width: 1024px) {
+        .lp-features { grid-template-columns: repeat(2, 1fr); }
       }
       @media (max-width: 480px) {
-        .lp-headline { font-size: 28px; }
-        .lp-cta-primary, .lp-cta-secondary { width: 100%; }
-        .lp-features { gap: 12px; }
+        .lp-headline { font-size: 32px; }
+        .lp-cta-primary, .lp-cta-secondary { width: 100%; justify-content: center; }
+        .lp-features { gap: 16px; }
+        .lp-feature-img { height: 140px; }
       }
     </style>
   `;
