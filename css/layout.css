@@ -126,7 +126,7 @@ body.auth-mode .layout { grid-template-columns: 1fr; }
 /* Main */
 main {
   padding: 24px;
-  background: var(--color-bg);
+  background: var(--color-bg-secondary);
   overflow-x: hidden;
   overflow-y: auto;
   min-width: 0;

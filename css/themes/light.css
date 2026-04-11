@@ -1,42 +1,41 @@
 /* ============================================================
-   JobSync — Light Theme
-   Warm whites + copper accent
+   JobSync — Dark Mode (alternate)
+   Warm charcoal for users who prefer dark
    ============================================================ */
 [data-theme="light"] {
-  --color-bg: #FAFAF9;
-  --color-bg-secondary: #F5F5F4;
-  --color-surface: #FFFFFF;
-  --color-surface-hover: #F9FAFB;
-  --color-surface-border: #E4E4E7;
-  --color-primary: #C17A42;
-  --color-primary-bright: #D4874D;
-  --color-primary-glow: rgba(193, 122, 66, 0.12);
-  --color-primary-dim: rgba(193, 122, 66, 0.06);
-  --color-primary-subtle: rgba(193, 122, 66, 0.03);
-  --color-accent: #0D9488;
-  --color-accent-bright: #14B8A6;
-  --color-accent-glow: rgba(13, 148, 136, 0.1);
-  --color-accent-dim: rgba(13, 148, 136, 0.05);
-  --color-success: #16A34A;
-  --color-info: #2563EB;
-  --color-danger: #DC2626;
-  --color-warning: #D97706;
-  --color-text: #1C1C1E;
-  --color-text-dim: #6B6B76;
-  --color-text-heading: #09090B;
-  --color-muted: #A1A1AA;
+  --color-bg: #1C1C20;
+  --color-bg-secondary: #222226;
+  --color-surface: #28282E;
+  --color-surface-hover: #2E2E34;
+  --color-surface-border: #3A3A42;
+  --color-primary: #D4874D;
+  --color-primary-bright: #E09960;
+  --color-primary-glow: rgba(212, 135, 77, 0.2);
+  --color-primary-dim: rgba(212, 135, 77, 0.1);
+  --color-primary-subtle: rgba(212, 135, 77, 0.05);
+  --color-accent: #38A169;
+  --color-accent-bright: #48BB78;
+  --color-success: #38A169;
+  --color-success-dim: rgba(56, 161, 105, 0.1);
+  --color-info: #60A5FA;
+  --color-info-dim: rgba(96, 165, 250, 0.1);
+  --color-danger: #F87171;
+  --color-danger-dim: rgba(248, 113, 113, 0.1);
+  --color-warning: #FBBF24;
+  --color-warning-dim: rgba(251, 191, 36, 0.1);
+  --color-text: #E4E4E7;
+  --color-text-dim: #A1A1AA;
+  --color-text-heading: #FAFAFA;
+  --color-muted: #6B6B76;
   --grid-opacity: 0;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 8px rgba(0,0,0,0.06);
-  --shadow-lg: 0 8px 16px rgba(0,0,0,0.08);
-  --shadow-glow: none;
-  --shadow-glow-lg: none;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
-[data-theme="light"] .panel { box-shadow: var(--shadow-sm); }
-[data-theme="light"] .panel:hover { border-color: var(--color-surface-border); }
-[data-theme="light"] header { background: var(--color-surface); }
-[data-theme="light"] nav { background: var(--color-surface); }
+[data-theme="light"] .panel { border-color: var(--color-surface-border); }
+[data-theme="light"] header { background: var(--color-bg); }
+[data-theme="light"] nav { background: var(--color-bg); }
 [data-theme="light"] .modal .content { box-shadow: var(--shadow-lg); }
 [data-theme="light"] ::-webkit-scrollbar-track { background: var(--color-bg); }
 [data-theme="light"] ::-webkit-scrollbar-thumb { background: var(--color-surface-border); }

@@ -1,23 +1,25 @@
 /* ============================================================
-   JobSync — Dark Theme (Default)
-   Warm charcoal + copper accent
+   JobSync — Default Theme (White + Copper + Green)
+   Clean professional SaaS aesthetic
    ============================================================ */
 [data-theme="tron"],
 :root {
-  --color-bg: #1a1a1e;
-  --color-bg-secondary: #1e1e22;
-  --color-surface: #242428;
-  --color-surface-hover: #2a2a30;
-  --color-surface-border: #333338;
-  --color-primary: #D4874D;
-  --color-primary-bright: #E09960;
-  --color-primary-glow: rgba(212, 135, 77, 0.25);
-  --color-primary-dim: rgba(212, 135, 77, 0.1);
-  --color-primary-subtle: rgba(212, 135, 77, 0.05);
-  --color-accent: #4ECDC4;
-  --color-text: #E4E4E7;
-  --color-text-dim: #A1A1AA;
-  --color-text-heading: #FAFAFA;
-  --color-muted: #6B6B76;
+  --color-bg: #FFFFFF;
+  --color-bg-secondary: #F8F8F6;
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #F5F5F3;
+  --color-surface-border: #E8E8E4;
+  --color-primary: #C47B3A;
+  --color-primary-bright: #D4874D;
+  --color-primary-glow: rgba(196, 123, 58, 0.15);
+  --color-primary-dim: rgba(196, 123, 58, 0.08);
+  --color-primary-subtle: rgba(196, 123, 58, 0.04);
+  --color-accent: #2D8B5F;
+  --color-accent-bright: #38A169;
+  --color-success: #2D8B5F;
+  --color-text: #2D2D2D;
+  --color-text-dim: #6B7280;
+  --color-text-heading: #1A1A1A;
+  --color-muted: #9CA3AF;
   --grid-opacity: 0;
 }
