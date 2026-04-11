@@ -10,10 +10,10 @@ const STORAGE_KEY = 'tron_checklist';
 const STEPS = [
   { key: 'accountCreated', label: 'Create your account', done: true, view: null },
   { key: 'profileSetup', label: 'Set up your profile', done: true, view: null },
-  { key: 'firstJobAdded', label: 'Add your first job', cta: 'ADD JOB', view: 'tracker', action: 'addJob' },
-  { key: 'firstSearch', label: 'Try a job search', cta: 'SEARCH', view: 'search' },
-  { key: 'apiKeyConnected', label: 'Connect an AI key', cta: 'SETTINGS', view: 'settings' },
-  { key: 'resumeUploaded', label: 'Upload a resume', cta: 'RESUME', view: 'resume' },
+  { key: 'firstJobAdded', label: 'Add your first job', cta: 'ADD JOB →', view: 'my-jobs', action: 'addJob' },
+  { key: 'firstSearch', label: 'Try a job search', cta: 'SEARCH →', view: 'find-jobs' },
+  { key: 'apiKeyConnected', label: 'Connect an AI key', cta: 'SETTINGS →', view: 'settings' },
+  { key: 'resumeUploaded', label: 'Upload a resume', cta: 'UPLOAD →', view: 'my-profile' },
 ];
 
 /**
@@ -98,7 +98,7 @@ export function renderChecklistHTML(userName) {
             <div class="checklist-item ${done ? 'done' : ''}">
               <div class="checklist-check">${done ? '✓' : ''}</div>
               <span class="checklist-label">${step.label}</span>
-              ${!done && step.cta ? `<button class="btn small checklist-cta" data-view="${step.view}" data-action="${step.action || ''}">${step.cta} →</button>` : ''}
+              ${!done && step.cta ? `<button class="btn small checklist-cta" data-view="${step.view}" data-action="${step.action || ''}">${step.cta}</button>` : ''}
             </div>
           `;
         }).join('')}
