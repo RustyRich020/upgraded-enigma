@@ -11,6 +11,7 @@ import { getApi } from '../services/api-keys.js';
 import { renderChecklistHTML, bindChecklistEvents, isChecklistDismissed } from '../components/getting-started.js';
 import { buildCareerProfile, evaluateOpportunity, summarizeLearningGaps } from '../services/career-ops-lite.js';
 import { navigate } from '../router.js';
+import { initSwipeCards } from '../ui/swipe-cards.js';
 
 function computeStats(jobs) {
   const byStatus = { Saved: 0, Applied: 0, Interview: 0, Offer: 0, Closed: 0 };
@@ -348,6 +349,9 @@ export function renderDashboard(container, state) {
       </div>
     `).join('');
   }
+
+  // Swipe carousel for mobile
+  initSwipeCards(metricsEl, { label: 'Dashboard stats' });
 
   container.querySelectorAll('[data-dash-nav]').forEach(btn => {
     btn.addEventListener('click', () => navigate(btn.dataset.dashNav));
