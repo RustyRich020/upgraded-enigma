@@ -284,20 +284,10 @@ export function renderSettings(container, apiKeys, onSave, onClear) {
     updateStatuses(container);
   });
 
-  // Pricing table
+  // Pricing table — links open Stripe Checkout directly
   const pricingEl = container.querySelector('#pricingSection');
   if (pricingEl) {
     pricingEl.innerHTML = renderPricingTable();
-    pricingEl.querySelectorAll('.pricing-select').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const t = btn.dataset.tier;
-        setUserTier(t);
-        setUserTierInFirestore(t).catch(() => {});
-        if (t !== 'free') resetUsage();
-        toast(`Switched to ${t.charAt(0).toUpperCase() + t.slice(1)} tier`, 'success');
-        renderSettings(container, apiKeys, onSave, onClear);
-      });
-    });
   }
 
   // Usage dashboard

@@ -24,6 +24,13 @@ const LIMITS = {
   clearbit: 20,        // Free logos — generous
 };
 
+// Stripe price IDs and payment links
+export const STRIPE = {
+  '1mo':  { priceId: 'price_1TL6n9Ips6vNrtexKjcH82ul', link: 'https://buy.stripe.com/00w7sL6nM6Ib38K9VMdUY00' },
+  '3mo':  { priceId: 'price_1TL6nAIps6vNrtexTt9m0QuQ', link: 'https://buy.stripe.com/9B600jeUi0jN9x8gkadUY01' },
+  '6mo':  { priceId: 'price_1TL6nBIps6vNrtexk2JaSizA', link: 'https://buy.stripe.com/6oU14nh2qc2v10C2tkdUY02' },
+};
+
 // Tier definitions
 export const TIERS = {
   free: {
@@ -38,31 +45,52 @@ export const TIERS = {
       'Browser notifications',
     ]
   },
-  pro: {
-    name: 'Pro',
-    price: '$9/mo',
-    limits: null, // unlimited
+  '1mo': {
+    name: '1 Month',
+    price: '$29',
+    priceDetail: '$0.97/day',
+    originalPrice: '$49',
+    limits: null,
+    badge: null,
     features: [
       'Unlimited API calls',
       'AI resume matching (Gemini + Groq)',
       'Priority job search (4 sources)',
-      'Email automation (EmailJS)',
+      'AI cover letters & interview prep',
+      'Automated job agent',
       'Company enrichment',
-      'Push notifications (ntfy.sh)',
+      'Push + SMS notifications',
       'Cloud sync (Firebase)',
+      '30-day money-back guarantee',
     ]
   },
-  enterprise: {
-    name: 'Enterprise',
-    price: '$29/mo',
+  '3mo': {
+    name: '3 Months',
+    price: '$69',
+    priceDetail: '$0.77/day',
+    originalPrice: '$115',
     limits: null,
+    badge: 'Most Popular',
     features: [
-      'Everything in Pro',
-      'Team dashboards',
-      'Custom API integrations',
+      'Everything in 1-Month plan',
+      'Save 20% vs monthly',
       'Priority support',
-      'SSO authentication',
+      'Early access to new features',
+    ]
+  },
+  '6mo': {
+    name: '6 Months',
+    price: '$109',
+    priceDetail: '$0.61/day',
+    originalPrice: '$199',
+    limits: null,
+    badge: 'Best Value',
+    features: [
+      'Everything in 3-Month plan',
+      'Save 38% vs monthly',
+      'Custom API integrations',
       'Advanced analytics',
+      'Team dashboards',
     ]
   }
 };
@@ -116,7 +144,7 @@ export function setUserTier(tier) {
  */
 export function getLimit(apiName) {
   const tier = getUserTier();
-  if (tier !== 'free') return Infinity;
+  if (tier !== 'free') return Infinity; // All paid tiers are unlimited
   return LIMITS[apiName] || DAILY_LIMIT;
 }
 
