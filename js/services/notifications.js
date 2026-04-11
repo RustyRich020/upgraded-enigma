@@ -34,7 +34,7 @@ export async function requestPermission() {
     if (perm === 'granted') {
       toast('Notifications enabled!', 'success');
       // Send a test notification
-      new Notification('JobSync', {
+      new Notification('JobSink', {
         body: 'Notifications are working! You\'ll get reminders for follow-ups.',
         icon: getNotificationIcon(),
       });
@@ -78,10 +78,10 @@ export function checkFollowUps(jobs, ntfyTopic) {
     // Browser notification (if granted)
     if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
       try {
-        new Notification('JobSync Follow-Up', {
+        new Notification('JobSink Follow-Up', {
           body: message,
           icon: getNotificationIcon(),
-          tag: 'jobsync-followup-' + j.id,
+          tag: 'jobsink-followup-' + j.id,
           requireInteraction: false,
         });
       } catch (e) {
@@ -113,7 +113,7 @@ export async function sendNtfy(message, topic) {
       method: 'POST',
       body: message,
       headers: {
-        'Title': 'JobSync',
+        'Title': 'JobSink',
         'Priority': '3',
         'Tags': 'briefcase',
       }
@@ -182,7 +182,7 @@ export async function sendAllChannels(message, options = {}) {
   // Browser notification
   if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
     try {
-      new Notification('JobSync', { body: message, icon: getNotificationIcon() });
+      new Notification('JobSink', { body: message, icon: getNotificationIcon() });
       results.browser = true;
     } catch (e) { /* silent */ }
   }

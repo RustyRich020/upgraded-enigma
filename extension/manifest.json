@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "JobSync — Job Saver",
+  "name": "JobSink — Job Saver",
   "version": "1.0.0",
-  "description": "Save jobs from LinkedIn, Indeed, Glassdoor, and other job boards directly to your JobSync tracker.",
+  "description": "Save jobs from LinkedIn, Indeed, Glassdoor, and other job boards directly to your JobSink tracker.",
   "permissions": ["activeTab", "storage"],
   "host_permissions": [
     "https://www.linkedin.com/*",

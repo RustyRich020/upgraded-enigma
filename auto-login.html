@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>JobSink — Auto Login</title>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+  <style>
+    body { font-family: system-ui; background: #f8f8f6; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+    .card { background: #fff; border: 1px solid #e8e8e4; border-radius: 16px; padding: 40px; max-width: 400px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+    h1 { color: #1a1a1a; font-size: 24px; margin-bottom: 8px; }
+    p { color: #6b7280; font-size: 15px; }
+    .status { margin-top: 20px; padding: 12px; border-radius: 8px; font-size: 14px; }
+    .loading { background: #f0f0ec; color: #6b7280; }
+    .success { background: #e8f5e9; color: #2d8b5f; }
+    .error { background: #fdecea; color: #dc3545; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>JobSink Auto Login</h1>
+    <p>Signing in and configuring API keys...</p>
+    <div class="status loading" id="status">Initializing Firebase...</div>
+  </div>
+  <script>
+    const status = document.getElementById('status');
+
+    // Initialize Firebase
+    firebase.initializeApp({
+      apiKey: 'AIzaSyAUbPGPfSHTxl8OFmSaVfg8jIJlwV4YWfA',
+      authDomain: 'jobgrid-pro.firebaseapp.com',
+      projectId: 'jobgrid-pro',
+      storageBucket: 'jobgrid-pro.firebasestorage.app',
+      messagingSenderId: '995536477473',
+      appId: '1:995536477473:web:4ae5484fa8b21a2025f260'
+    });
+
+    async function run() {
+      try {
+        status.textContent = 'Signing in...';
+        await firebase.auth().signInWithEmailAndPassword('james.t.debruhl@gmail.com', 'JamesTest2026!');
+        status.textContent = 'Setting up profile...';
+
+        // Set onboarded + tour done
+        localStorage.setItem('tron_onboarded', 'true');
+        localStorage.setItem('tron_tour_done', 'true');
+
+        // Set settings
+        localStorage.setItem('tron_settings', JSON.stringify({
+          name: 'James DeBruhl',
+          role: 'Candidate',
+          targetRoles: ['Security Analyst', 'Network Security Analyst', 'Cybersecurity Analyst'],
+          searchKeywords: 'security analyst firewall',
+          searchLocation: 'Jacksonville FL',
+          experienceLevel: 'senior'
+        }));
+
+        // Set API keys
+        localStorage.setItem('tron_api_keys', JSON.stringify({
+          adzunaId: '4acc0ee6',
+          adzunaKey: '17f9270151dc46f41f008f0fbaccceb6',
+          jsearchKey: 'c6ddf3a8femsh0607f385fcfb42bp13e934jsn586753a0d585',
+          geminiKey: 'AIzaSyA6jWxh_Lu5Rw6oKJDAB5i6PEl_CHLAP-U',
+          groqKey: 'YOUR_GROQ_KEY_HERE',
+          abstractKey: '28cd39c681c64855b6de81e8ae5f83d3',
+          emailjsPublic: 'xhQzVSvGKLxWEW_Gs',
+          emailjsService: 'service_kq9i455',
+          emailjsTemplate: 'template_ihn953s',
+          hunterKey: '2436bb4231c0b3af81e8cb3a6d5b2738dbba53fc',
+          careerOneStopUser: '5SChEMbRiNEoMld',
+          careerOneStopKey: 'z00F9A+R/8CuobKkUKthN+zi00xJ6t69d5Jb2v9zgRyjJX1d6X++x8kEuGfEg6qljjLUk6bt1+gDp1/EY5phZw==',
+          ntfyTopic: 'jobsink-james',
+          phoneNumber: '9046628966'
+        }));
+
+        // Set resume
+        localStorage.setItem('tron_resumes', JSON.stringify([
+          {
+            id: 'james_2026',
+            name: 'James DeBruhl - Sr Network Security Analyst',
+            skills: ['sql','excel','vba','powershell','python','linux','data analysis','devops','leadership','communication','agile','api','rest','git','terraform','ansible','firewall','palo alto','check point','cisco','compliance','governance','risk management'],
+            text: 'James T DeBruhl - Senior Network Security Analyst. Jacksonville FL. Network security analyst with expertise in firewall compliance (Palo Alto, Check Point), specializing in Information Security metrics, automation, and compliance reporting. Skilled in SQL and VBA automation for large-scale data analysis. Strong Cisco networking background. Skills: Advanced Excel, VBA, Power Query, SQL (Impala), Cognos Analytics, AI foundations, LLM, Ansible, Palo Alto, Check Point, Fortinet, firewall rule analysis, PowerShell, reporting pipelines, dashboards, risk metrics, compliance reporting, incident response, governance audit support. Experience: Citibank (3 years) Senior Network Security Analyst. Bank of America (6 years) Network Engineer. Certifications: CCNA, CCENT, CompTIA A+, CompTIA Network+.'
+          }
+        ]));
+
+        // Set sample jobs
+        localStorage.setItem('tron_jobs', JSON.stringify([
+          { id: 'j1', title: 'Cybersecurity Analyst I', company: 'FIS Global', status: 'Saved', salary: '', source: 'JSearch', follow: '2026-04-14', _added: '2026-04-11', url: '', location: 'Jacksonville, Florida', description: 'Mainframe Security Compliance team. Managing audit processes, compliance with industry standards, implementing security controls.' },
+          { id: 'j2', title: 'Corporate Security Analyst', company: 'First Horizon Bank', status: 'Saved', salary: '56189', source: 'Adzuna', follow: '2026-04-14', _added: '2026-04-11', url: '', location: 'Memphis, Shelby County' },
+          { id: 'j3', title: 'Security Analyst with Clearance', company: 'MANTECH', status: 'Applied', salary: '105139', source: 'Adzuna', follow: '2026-04-17', _added: '2026-04-11', url: '', location: 'Arlington, VA' },
+          { id: 'j4', title: 'Senior Network Security Analyst', company: 'Citibank', status: 'Interview', salary: '135000', source: 'LinkedIn', follow: '2026-04-12', _added: '2026-04-10', url: '' }
+        ]));
+
+        status.className = 'status success';
+        status.innerHTML = '✅ Signed in as <strong>James DeBruhl</strong> — all API keys and data loaded!<br><br>Redirecting to dashboard in 2 seconds...';
+
+        setTimeout(() => {
+          window.location.href = '/index.html#dashboard';
+        }, 2000);
+
+      } catch (err) {
+        status.className = 'status error';
+        status.textContent = '❌ Error: ' + err.message;
+      }
+    }
+
+    run();
+  </script>
+</body>
+</html>

@@ -79,7 +79,7 @@ export function renderChecklistHTML(userName) {
       <div class="checklist-header">
         <div>
           <h3 style="margin-bottom:2px;font-size:var(--text-base);letter-spacing:0;">Getting Started</h3>
-          <span class="muted">Welcome${userName ? ', ' + userName : ''}! Complete these to unlock JobSync.</span>
+          <span class="muted">Welcome${userName ? ', ' + userName : ''}! Complete these to unlock JobSink.</span>
         </div>
         <button class="btn small ghost" id="checklistDismiss" style="flex-shrink:0;">DISMISS</button>
       </div>

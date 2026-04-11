@@ -12,12 +12,22 @@ export function renderLanding(container) {
     <div class="landing-hero">
       <div class="landing-shell">
         <div class="landing-logo">
-          <svg width="44" height="44" viewBox="0 0 40 40" fill="none">
-            <path d="M20 6c-1.5 0-2.5 1-2.5 2.5v4c0 .8-.4 1.5-1 2l-1 .8c-.8.5-1.5 1.5-1.5 2.7v2h12v-2c0-1.2-.7-2.2-1.5-2.7l-1-.8c-.6-.5-1-1.2-1-2v-4C22.5 7 21.5 6 20 6z" fill="var(--color-primary)"/>
-            <path d="M12 22h16v3c0 1.7-1.3 3-3 3h-2v4h-6v-4h-2c-1.7 0-3-1.3-3-3v-3z" fill="var(--color-primary)" opacity="0.6"/>
-            <circle cx="17" cy="18.5" r="0.8" fill="var(--color-bg)"/>
-            <circle cx="20" cy="19.5" r="0.8" fill="var(--color-bg)"/>
-            <circle cx="23" cy="18.5" r="0.8" fill="var(--color-bg)"/>
+          <svg width="52" height="52" viewBox="0 0 48 48" fill="none">
+            <!-- Rounded square frame -->
+            <rect x="4" y="6" width="40" height="36" rx="4" stroke="var(--color-primary)" stroke-width="2.5" fill="none"/>
+            <!-- Faucet -->
+            <path d="M28 8v6c0 1.5-1 2.5-2.5 2.5h-1c-1.5 0-2.5 1-2.5 2.5v3" stroke="var(--color-primary)" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+            <path d="M30 14h-4" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round"/>
+            <!-- Water drops -->
+            <circle cx="22" cy="24" r="1" fill="var(--color-primary)" opacity="0.6"/>
+            <circle cx="24" cy="26" r="1" fill="var(--color-primary)" opacity="0.4"/>
+            <circle cx="20" cy="25.5" r="0.8" fill="var(--color-primary)" opacity="0.5"/>
+            <!-- Basin -->
+            <path d="M10 30h28v4c0 2.2-1.8 4-4 4H14c-2.2 0-4-1.8-4-4v-4z" fill="var(--color-primary)" opacity="0.7"/>
+            <!-- Data elements falling in -->
+            <rect x="12" cy="18" width="6" height="5" rx="1" fill="var(--color-primary)" opacity="0.35" transform="rotate(-15 12 18)"/>
+            <circle cx="34" cy="20" r="3" stroke="var(--color-primary)" stroke-width="1.5" fill="none" opacity="0.4"/>
+            <path d="M34 20v-3" stroke="var(--color-primary)" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>
           </svg>
         </div>
 
@@ -28,8 +38,8 @@ export function renderLanding(container) {
         </div>
 
         <div class="section-title-row">
-          <h1 class="landing-title">Land your next role with less chaos and better follow-through</h1>
-          <p class="landing-subtitle">Search across multiple sources, capture applications fast, optimize resumes, and keep follow-ups organized in one focused workspace.</p>
+          <h1 class="landing-title">Everything flows into one place</h1>
+          <p class="landing-subtitle">Search jobs across 4 sources, optimize your resume for ATS, generate cover letters with AI, and track your entire pipeline — all in JobSink.</p>
         </div>
 
         <div class="landing-actions">

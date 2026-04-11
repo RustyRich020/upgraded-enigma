@@ -1,5 +1,5 @@
 /* ============================================================
-   app.js — Main entry point for JobSync
+   app.js — Main entry point for JobSink
    ============================================================ */
 
 // Config & utilities
@@ -607,7 +607,7 @@ async function boot() {
     toast(`Added "${title}" to tracker`, 'success');
   };
 
-  console.log('JobSync initialized');
+  console.log('JobSink initialized');
 }
 
 // Run boot when DOM is ready
