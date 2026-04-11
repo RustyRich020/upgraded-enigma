@@ -680,6 +680,238 @@ async function fetchBLSSalary() {
 }
 
 // ============================================================
+// 7. STRIPE WEBHOOK — Handle subscription events
+// ============================================================
+
+/**
+ * Stripe webhook endpoint (HTTPS, NOT callable).
+ * Receives events from Stripe and updates user tier in Firestore.
+ *
+ * Setup:
+ *   1. Set STRIPE_WEBHOOK_SECRET in environment
+ *   2. In Stripe Dashboard → Webhooks → Add endpoint:
+ *      URL: https://<region>-<project>.cloudfunctions.net/stripeWebhook
+ *      Events: checkout.session.completed, customer.subscription.updated,
+ *              customer.subscription.deleted
+ */
+exports.stripeWebhook = functions.https.onRequest(async (req, res) => {
+  if (req.method !== "POST") {
+    res.status(405).send("Method not allowed");
+    return;
+  }
+
+  const STRIPE_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
+
+  // Verify Stripe signature if secret is configured
+  if (STRIPE_SECRET) {
+    const sig = req.headers["stripe-signature"];
+    if (!sig) {
+      console.error("Stripe webhook: missing signature header");
+      res.status(400).send("Missing signature");
+      return;
+    }
+
+    // Verify using Stripe's signing scheme (v1)
+    const payload = req.rawBody ? req.rawBody.toString() : JSON.stringify(req.body);
+    const timestamp = sig.split(",").find(s => s.startsWith("t="))?.split("=")[1];
+    const sigHash = sig.split(",").find(s => s.startsWith("v1="))?.split("=")[1];
+
+    if (!timestamp || !sigHash) {
+      res.status(400).send("Invalid signature format");
+      return;
+    }
+
+    // Compute expected signature
+    const crypto = require("crypto");
+    const signedPayload = `${timestamp}.${payload}`;
+    const expected = crypto.createHmac("sha256", STRIPE_SECRET).update(signedPayload).digest("hex");
+
+    if (expected !== sigHash) {
+      console.error("Stripe webhook: signature mismatch");
+      res.status(400).send("Signature verification failed");
+      return;
+    }
+
+    // Check timestamp tolerance (5 minutes)
+    const age = Math.abs(Date.now() / 1000 - parseInt(timestamp));
+    if (age > 300) {
+      console.error("Stripe webhook: timestamp too old", age);
+      res.status(400).send("Timestamp too old");
+      return;
+    }
+  }
+
+  try {
+    const event = req.body;
+    console.log(`Stripe webhook: ${event.type}`, event.id);
+
+    switch (event.type) {
+      case "checkout.session.completed": {
+        const session = event.data.object;
+        const customerEmail = session.customer_details?.email || session.customer_email;
+        const subscriptionId = session.subscription;
+        const customerId = session.customer;
+
+        if (!customerEmail) {
+          console.warn("checkout.session.completed: no customer email");
+          break;
+        }
+
+        // Determine tier from the price
+        const tier = await getTierFromSubscription(subscriptionId);
+
+        // Find user by email in Firebase Auth
+        try {
+          const userRecord = await admin.auth().getUserByEmail(customerEmail);
+          const uid = userRecord.uid;
+
+          // Update Firestore user profile with tier + Stripe IDs
+          await db.collection("users").doc(uid).set({
+            tier,
+            stripeCustomerId: customerId,
+            stripeSubscriptionId: subscriptionId,
+            tierUpdatedAt: new Date().toISOString(),
+          }, { merge: true });
+
+          console.log(`User ${uid} (${customerEmail}) upgraded to ${tier}`);
+        } catch (authErr) {
+          // User not found in Firebase Auth — store pending upgrade
+          console.warn(`User not found for ${customerEmail}, storing pending upgrade`);
+          await db.collection("pendingUpgrades").doc(customerEmail).set({
+            tier,
+            customerId,
+            subscriptionId,
+            email: customerEmail,
+            createdAt: new Date().toISOString(),
+          });
+        }
+        break;
+      }
+
+      case "customer.subscription.updated": {
+        const sub = event.data.object;
+        const customerId = sub.customer;
+
+        // Find user by stripeCustomerId
+        const usersSnap = await db.collection("users")
+          .where("stripeCustomerId", "==", customerId)
+          .limit(1).get();
+
+        if (!usersSnap.empty) {
+          const uid = usersSnap.docs[0].id;
+          const priceId = sub.items?.data?.[0]?.price?.id;
+          const tier = mapPriceToTier(priceId);
+          const active = sub.status === "active" || sub.status === "trialing";
+
+          await db.collection("users").doc(uid).set({
+            tier: active ? tier : "free",
+            stripeSubscriptionStatus: sub.status,
+            tierUpdatedAt: new Date().toISOString(),
+          }, { merge: true });
+
+          console.log(`Subscription updated for ${uid}: ${sub.status} → ${tier}`);
+        }
+        break;
+      }
+
+      case "customer.subscription.deleted": {
+        const sub = event.data.object;
+        const customerId = sub.customer;
+
+        const usersSnap = await db.collection("users")
+          .where("stripeCustomerId", "==", customerId)
+          .limit(1).get();
+
+        if (!usersSnap.empty) {
+          const uid = usersSnap.docs[0].id;
+          await db.collection("users").doc(uid).set({
+            tier: "free",
+            stripeSubscriptionStatus: "canceled",
+            tierUpdatedAt: new Date().toISOString(),
+          }, { merge: true });
+
+          console.log(`Subscription canceled for ${uid}, downgraded to free`);
+        }
+        break;
+      }
+
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+    }
+
+    res.status(200).json({ received: true });
+  } catch (err) {
+    console.error("Stripe webhook error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * Callable function for frontend to check/sync tier from Firestore.
+ * Called on app boot to sync Firestore tier → localStorage.
+ */
+exports.checkTier = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError("unauthenticated", "Must be signed in");
+  }
+  const uid = context.auth.uid;
+  const userDoc = await db.collection("users").doc(uid).get();
+  const userData = userDoc.exists ? userDoc.data() : {};
+
+  // Check for pending upgrade by email
+  const email = context.auth.token?.email;
+  if (email && userData.tier === "free") {
+    const pendingDoc = await db.collection("pendingUpgrades").doc(email).get();
+    if (pendingDoc.exists) {
+      const pending = pendingDoc.data();
+      await db.collection("users").doc(uid).set({
+        tier: pending.tier,
+        stripeCustomerId: pending.customerId,
+        stripeSubscriptionId: pending.subscriptionId,
+        tierUpdatedAt: new Date().toISOString(),
+      }, { merge: true });
+      await pendingDoc.ref.delete();
+      return { tier: pending.tier, synced: true };
+    }
+  }
+
+  return { tier: userData.tier || "free", synced: false };
+});
+
+// Price ID → tier mapping
+const PRICE_TO_TIER = {
+  "price_1TL6n9Ips6vNrtexKjcH82ul": "1mo",
+  "price_1TL6nAIps6vNrtexTt9m0QuQ": "3mo",
+  "price_1TL6nBIps6vNrtexk2JaSizA": "6mo",
+};
+
+function mapPriceToTier(priceId) {
+  return PRICE_TO_TIER[priceId] || "1mo";
+}
+
+/**
+ * Look up the subscription to determine the tier from the price.
+ */
+async function getTierFromSubscription(subscriptionId) {
+  if (!subscriptionId) return "1mo";
+
+  const STRIPE_KEY = process.env.STRIPE_SECRET_KEY || "";
+  if (!STRIPE_KEY) return "1mo";
+
+  try {
+    const resp = await fetch(`https://api.stripe.com/v1/subscriptions/${subscriptionId}`, {
+      headers: { "Authorization": `Bearer ${STRIPE_KEY}` },
+    });
+    if (!resp.ok) return "1mo";
+    const sub = await resp.json();
+    const priceId = sub.items?.data?.[0]?.price?.id;
+    return mapPriceToTier(priceId);
+  } catch {
+    return "1mo";
+  }
+}
+
+// ============================================================
 // UTILITIES
 // ============================================================
 
