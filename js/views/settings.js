@@ -1,5 +1,5 @@
 /* ============================================================
-   views/settings.js — API key configuration (all 13 APIs)
+   views/settings.js — Settings with accordion sections
    ============================================================ */
 
 import { getApi, hasApi, saveAllKeys, clearKeys, loadKeys } from '../services/api-keys.js';
@@ -11,156 +11,332 @@ import { saveUserApiKeys, setUserTierInFirestore } from '../firebase/provisionin
 import { completeChecklistItem } from '../components/getting-started.js';
 import { sendSMS } from '../services/notifications.js';
 
-/**
- * Render the settings view.
- */
+function countConnected() {
+  const keyed = [
+    hasApi('adzunaId'), hasApi('jsearchKey'), hasApi('geminiKey'), hasApi('groqKey'),
+    hasApi('emailjsPublic'), hasApi('hunterKey'), hasApi('abstractKey'),
+    hasApi('careerOneStopKey'), !!getApi('ntfyTopic')
+  ].filter(Boolean).length;
+  return keyed + 3; // +3 always-free: Remotive, Arbeitnow, BLS
+}
+
+function apiField(statusId, label, inputs, hint) {
+  return `
+    <div class="settings-api-row">
+      <div class="settings-api-header">
+        <span class="api-status" id="${statusId}"></span>
+        <span class="settings-api-label">${label}</span>
+      </div>
+      ${inputs || ''}
+      ${hint ? `<div class="settings-api-hint">${hint}</div>` : ''}
+    </div>`;
+}
+
+function inp(id, placeholder, style) {
+  return `<input id="${id}" class="input" placeholder="${placeholder}" ${style || ''}>`;
+}
+
+function link(url, text) {
+  return `<a href="${url}" target="_blank" rel="noopener" class="settings-link">${text}</a>`;
+}
+
 export function renderSettings(container, apiKeys, onSave, onClear) {
-  // All API key field mappings: DOM id → storage key
   const fields = {
-    apiAdzunaId: 'adzunaId',
-    apiAdzunaKey: 'adzunaKey',
-    apiJSearchKey: 'jsearchKey',
-    apiGeminiKey: 'geminiKey',
-    apiGroqKey: 'groqKey',
-    apiEmailjsPublic: 'emailjsPublic',
-    apiEmailjsService: 'emailjsService',
-    apiEmailjsTemplate: 'emailjsTemplate',
-    apiHunterKey: 'hunterKey',
-    apiAbstractKey: 'abstractKey',
-    apiCareerOneStopKey: 'careerOneStopKey',
-    apiCareerOneStopUser: 'careerOneStopUser',
-    apiNtfyTopic: 'ntfyTopic',
-    apiPhoneNumber: 'phoneNumber'
+    apiAdzunaId: 'adzunaId', apiAdzunaKey: 'adzunaKey',
+    apiJSearchKey: 'jsearchKey', apiGeminiKey: 'geminiKey', apiGroqKey: 'groqKey',
+    apiEmailjsPublic: 'emailjsPublic', apiEmailjsService: 'emailjsService', apiEmailjsTemplate: 'emailjsTemplate',
+    apiHunterKey: 'hunterKey', apiAbstractKey: 'abstractKey',
+    apiCareerOneStopKey: 'careerOneStopKey', apiCareerOneStopUser: 'careerOneStopUser',
+    apiNtfyTopic: 'ntfyTopic', apiPhoneNumber: 'phoneNumber'
   };
 
+  const connected = countConnected();
+  const tier = getUserTier();
+
+  container.innerHTML = `
+    <div class="section-shell">
+      <div class="section-intro">
+        <div class="section-title-row">
+          <p class="eyebrow">Configuration</p>
+          <h2>Settings</h2>
+          <p class="section-copy">Connect API keys, manage your tier, and configure notifications. Free sources work out of the box.</p>
+        </div>
+      </div>
+
+      <div class="section-hero">
+        <div class="glance-grid">
+          <div class="glance-card">
+            <div class="glance-label">APIs Connected</div>
+            <div class="glance-value">${connected}</div>
+            <div class="glance-copy">${connected > 3 ? 'Premium sources are active and expanding your reach.' : '3 free sources ready. Add API keys to unlock more.'}</div>
+          </div>
+          <div class="glance-card">
+            <div class="glance-label">Current Tier</div>
+            <div class="glance-value" style="text-transform:capitalize">${tier}</div>
+            <div class="glance-copy">${tier === 'free' ? 'Upgrade for higher daily limits and priority support.' : 'You have expanded daily limits and premium features.'}</div>
+          </div>
+          <div class="glance-card">
+            <div class="glance-label">Quick Actions</div>
+            <div class="glance-value" style="font-size:16px;letter-spacing:0">
+              <button class="btn brand small" id="saveApiSettings">Save All</button>
+              <button class="btn danger small" id="clearApiSettings" style="margin-left:6px">Clear Keys</button>
+            </div>
+            <div class="glance-copy">Save syncs keys to Firestore for cross-device access.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-accordions">
+        <details class="settings-section" open>
+          <summary class="settings-section-header">Job Search <span class="chip">4 sources</span></summary>
+          <div class="settings-section-body">
+            ${apiField('remotiveStatus', 'Remotive (Free)', '', 'Remote jobs — always active, no key needed')}
+            ${apiField('arbeitnowStatus', 'Arbeitnow (Free)', '', `EU + remote jobs — always active — ${link('https://www.arbeitnow.com/blog/job-board-api', 'Docs')}`)}
+            ${apiField('adzunaStatus', 'Adzuna', `${inp('apiAdzunaId', 'App ID')}${inp('apiAdzunaKey', 'App Key')}`, `Free: 250 req/day — ${link('https://developer.adzuna.com/', 'Get keys')}`)}
+            ${apiField('jsearchStatus', 'JSearch (RapidAPI)', inp('apiJSearchKey', 'RapidAPI Key'), `Free: 500 req/mo — aggregates LinkedIn, Indeed — ${link('https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch', 'Get key')}`)}
+          </div>
+        </details>
+
+        <details class="settings-section">
+          <summary class="settings-section-header">AI & NLP <span class="chip">2 models</span></summary>
+          <div class="settings-section-body">
+            ${apiField('geminiStatus', 'Google Gemini', inp('apiGeminiKey', 'API Key'), `Free: 15 req/min — ${link('https://aistudio.google.com/app/apikey', 'Get key')}`)}
+            ${apiField('groqStatus', 'Groq (Fast LLM)', inp('apiGroqKey', 'API Key'), `Free tier — Llama 3.3 70B — ${link('https://console.groq.com/keys', 'Get key')}`)}
+          </div>
+        </details>
+
+        <details class="settings-section">
+          <summary class="settings-section-header">Company Data <span class="chip">2 sources</span></summary>
+          <div class="settings-section-body">
+            ${apiField('clearbitStatus', 'Clearbit Logos (Free)', '', 'Company logos by domain — always active, no key')}
+            ${apiField('abstractStatus', 'Abstract Company', inp('apiAbstractKey', 'API Key'), `Free: 100 req/mo — ${link('https://www.abstractapi.com/api/company-enrichment', 'Get key')}`)}
+          </div>
+        </details>
+
+        <details class="settings-section">
+          <summary class="settings-section-header">Salary Data <span class="chip">2 sources</span></summary>
+          <div class="settings-section-body">
+            ${apiField('blsStatus', 'BLS (Free)', '', 'Bureau of Labor Statistics — national salary benchmarks, no key')}
+            ${apiField('careerOneStopStatus', 'CareerOneStop', `${inp('apiCareerOneStopKey', 'API Token')}${inp('apiCareerOneStopUser', 'User ID')}`, `Free (gov) — salary by occupation + location — ${link('https://www.careeronestop.org/Developers/WebAPI/registration.aspx', 'Register')}`)}
+          </div>
+        </details>
+
+        <details class="settings-section">
+          <summary class="settings-section-header">Email & Contacts <span class="chip">2 services</span></summary>
+          <div class="settings-section-body">
+            ${apiField('emailjsStatus', 'EmailJS', `${inp('apiEmailjsPublic', 'Public Key')}${inp('apiEmailjsService', 'Service ID')}${inp('apiEmailjsTemplate', 'Template ID')}`, `Free: 200 emails/mo — ${link('https://www.emailjs.com/', 'Setup')}`)}
+            ${apiField('hunterStatus', 'Hunter.io', inp('apiHunterKey', 'API Key'), `Free: 25 verifications/mo — ${link('https://hunter.io/api', 'Get key')}`)}
+          </div>
+        </details>
+
+        <details class="settings-section">
+          <summary class="settings-section-header">Notifications <span class="chip">3 channels</span></summary>
+          <div class="settings-section-body">
+            ${apiField('ntfyStatus', 'ntfy.sh (Push)', inp('apiNtfyTopic', 'Your topic name (e.g., jobsink-alerts)'), `Free, no account — ${link('https://ntfy.sh/', 'Learn more')}`)}
+            ${apiField('smsStatus', 'SMS (Twilio)', `${inp('apiPhoneNumber', 'Your phone number (e.g., 9046628966)')}<button class="btn small" id="testSmsBtn" style="margin-top:6px">Send Test SMS</button>`, 'Requires Twilio setup in Cloud Functions')}
+            ${apiField('browserNotifStatus', 'Browser Notifications', '<button class="btn small green" id="requestNotifPerm">Grant Permission</button>', 'Desktop push notifications for follow-ups and matches')}
+          </div>
+        </details>
+
+        <details class="settings-section">
+          <summary class="settings-section-header">Firebase</summary>
+          <div class="settings-section-body">
+            <div class="settings-api-hint">Configure in js/config.js to enable cloud sync. Anonymous auth is used by default.</div>
+            <div id="firebaseStatus" class="muted" style="margin-top:8px">Not configured</div>
+          </div>
+        </details>
+      </div>
+
+      <div id="pricingSection" style="margin-top:24px"></div>
+      <div id="usageDashboard" style="margin-top:16px"></div>
+    </div>
+
+    <style>
+      .settings-accordions { display: flex; flex-direction: column; gap: 8px; }
+      .settings-section {
+        border: 1px solid var(--color-surface-border);
+        border-radius: var(--radius-lg);
+        background: var(--color-surface);
+        overflow: hidden;
+        transition: box-shadow 0.2s;
+      }
+      .settings-section[open] { box-shadow: var(--shadow-sm); }
+      .settings-section-header {
+        padding: 16px 20px;
+        font-size: 15px; font-weight: 600;
+        color: var(--color-text-heading);
+        cursor: pointer;
+        display: flex; align-items: center; gap: 10px;
+        list-style: none;
+        user-select: none;
+        transition: background 0.15s;
+      }
+      .settings-section-header:hover { background: var(--color-bg-secondary); }
+      .settings-section-header::-webkit-details-marker { display: none; }
+      .settings-section-header::before {
+        content: '\\25B8';
+        font-size: 12px;
+        color: var(--color-muted);
+        transition: transform 0.2s;
+        flex-shrink: 0;
+      }
+      .settings-section[open] > .settings-section-header::before { transform: rotate(90deg); }
+      .settings-section-header .chip {
+        margin-left: auto;
+        font-size: 11px;
+      }
+      .settings-section-body {
+        padding: 4px 20px 20px;
+        border-top: 1px solid var(--color-surface-border);
+      }
+      .settings-api-row {
+        padding: 12px 0;
+        border-bottom: 1px solid var(--color-surface-border);
+      }
+      .settings-api-row:last-child { border-bottom: none; }
+      .settings-api-header {
+        display: flex; align-items: center; gap: 8px;
+        margin-bottom: 6px;
+      }
+      .settings-api-label {
+        font-size: 14px; font-weight: 600;
+        color: var(--color-text-heading);
+      }
+      .settings-api-row .input {
+        margin-top: 4px;
+        display: block;
+        width: 100%;
+      }
+      .settings-api-hint {
+        font-size: 12px;
+        color: var(--color-text-dim);
+        margin-top: 6px;
+        line-height: 1.5;
+      }
+      .settings-link { color: var(--color-info); }
+      .settings-link:hover { text-decoration: underline; }
+
+      @media (max-width: 768px) {
+        .settings-section-body { padding: 4px 14px 14px; }
+        .settings-section-header { padding: 14px 14px; }
+      }
+    </style>
+  `;
+
+  // Populate field values
   Object.entries(fields).forEach(([elId, keyName]) => {
-    const el = document.getElementById(elId);
+    const el = container.querySelector('#' + elId);
     if (el) el.value = getApi(keyName);
   });
 
-  updateStatuses();
+  // Set always-active statuses
+  ['remotiveStatus', 'arbeitnowStatus', 'clearbitStatus', 'blsStatus'].forEach(id => {
+    const el = container.querySelector('#' + id);
+    if (el) el.className = 'api-status active';
+  });
+
+  updateStatuses(container);
 
   // Save button
-  const saveBtn = document.getElementById('saveApiSettings');
-  if (saveBtn) {
-    saveBtn.onclick = () => {
-      const keys = {};
-      Object.entries(fields).forEach(([elId, keyName]) => {
-        const el = document.getElementById(elId);
-        if (el) keys[keyName] = el.value.trim();
-      });
-      saveAllKeys(keys);
-      // Also save to Firestore for cloud sync
-      saveUserApiKeys(keys).catch(() => {});
-      // Check if any AI/NLP key was set
-      if (keys.geminiKey || keys.groqKey) completeChecklistItem('apiKeyConnected');
-      updateStatuses();
-      toast('API settings saved!', 'success');
-      if (onSave) onSave(keys);
-    };
-  }
+  container.querySelector('#saveApiSettings')?.addEventListener('click', () => {
+    const keys = {};
+    Object.entries(fields).forEach(([elId, keyName]) => {
+      const el = container.querySelector('#' + elId);
+      if (el) keys[keyName] = el.value.trim();
+    });
+    saveAllKeys(keys);
+    saveUserApiKeys(keys).catch(() => {});
+    if (keys.geminiKey || keys.groqKey) completeChecklistItem('apiKeyConnected');
+    updateStatuses(container);
+    toast('API settings saved!', 'success');
+    if (onSave) onSave(keys);
+  });
 
   // Clear button
-  const clearBtn = document.getElementById('clearApiSettings');
-  if (clearBtn) {
-    clearBtn.onclick = () => {
-      if (!confirm('Clear all API keys?')) return;
-      clearKeys();
-      Object.keys(fields).forEach(elId => {
-        const el = document.getElementById(elId);
-        if (el) el.value = '';
-      });
-      updateStatuses();
-      toast('All API keys cleared', 'info');
-      if (onClear) onClear();
-    };
-  }
+  container.querySelector('#clearApiSettings')?.addEventListener('click', () => {
+    if (!confirm('Clear all API keys?')) return;
+    clearKeys();
+    Object.keys(fields).forEach(elId => {
+      const el = container.querySelector('#' + elId);
+      if (el) el.value = '';
+    });
+    updateStatuses(container);
+    toast('All API keys cleared', 'info');
+    if (onClear) onClear();
+  });
 
-  // SMS test button
-  const testSmsBtn = document.getElementById('testSmsBtn');
+  // SMS test
+  const testSmsBtn = container.querySelector('#testSmsBtn');
   if (testSmsBtn) {
-    testSmsBtn.onclick = async () => {
-      const phone = document.getElementById('apiPhoneNumber')?.value?.trim();
+    testSmsBtn.addEventListener('click', async () => {
+      const phone = container.querySelector('#apiPhoneNumber')?.value?.trim();
       if (!phone) { toast('Enter a phone number first', 'error'); return; }
-      testSmsBtn.disabled = true;
-      testSmsBtn.textContent = 'Sending...';
-      const result = await sendSMS(phone, 'JobSink test: SMS notifications are working! You will receive alerts for follow-ups and new job matches.');
-      testSmsBtn.disabled = false;
-      testSmsBtn.textContent = 'Send Test SMS';
-    };
+      testSmsBtn.disabled = true; testSmsBtn.textContent = 'Sending...';
+      await sendSMS(phone, 'JobSink test: SMS notifications are working!');
+      testSmsBtn.disabled = false; testSmsBtn.textContent = 'Send Test SMS';
+    });
   }
 
-  // Request notification permission button
-  const notifBtn = document.getElementById('requestNotifPerm');
-  if (notifBtn) {
-    notifBtn.onclick = async () => {
-      const granted = await requestPermission();
-      toast(granted ? 'Notifications enabled!' : 'Notification permission denied', granted ? 'success' : 'error');
-      updateStatuses();
-    };
-  }
+  // Notification permission
+  container.querySelector('#requestNotifPerm')?.addEventListener('click', async () => {
+    const granted = await requestPermission();
+    toast(granted ? 'Notifications enabled!' : 'Notification permission denied', granted ? 'success' : 'error');
+    updateStatuses(container);
+  });
 
-  // Render pricing table
-  const pricingEl = document.getElementById('pricingSection');
+  // Pricing table
+  const pricingEl = container.querySelector('#pricingSection');
   if (pricingEl) {
     pricingEl.innerHTML = renderPricingTable();
-    // Bind tier selection buttons
     pricingEl.querySelectorAll('.pricing-select').forEach(btn => {
       btn.addEventListener('click', () => {
-        const tier = btn.dataset.tier;
-        setUserTier(tier);
-        setUserTierInFirestore(tier).catch(() => {});
-        if (tier !== 'free') resetUsage();
-        toast(`Switched to ${tier.toUpperCase()} tier`, 'success');
-        pricingEl.innerHTML = renderPricingTable();
-        // Re-bind buttons after re-render
+        const t = btn.dataset.tier;
+        setUserTier(t);
+        setUserTierInFirestore(t).catch(() => {});
+        if (t !== 'free') resetUsage();
+        toast(`Switched to ${t.charAt(0).toUpperCase() + t.slice(1)} tier`, 'success');
         renderSettings(container, apiKeys, onSave, onClear);
       });
     });
   }
 
-  // Render usage dashboard
-  const usageEl = document.getElementById('usageDashboard');
-  if (usageEl) {
-    usageEl.innerHTML = renderUsageDashboard();
-  }
+  // Usage dashboard
+  const usageEl = container.querySelector('#usageDashboard');
+  if (usageEl) usageEl.innerHTML = renderUsageDashboard();
 }
 
-function updateStatuses() {
-  setStatus('adzunaStatus', hasApi('adzunaId') && hasApi('adzunaKey'));
-  setStatus('jsearchStatus', hasApi('jsearchKey'));
-  setStatus('geminiStatus', hasApi('geminiKey'));
-  setStatus('groqStatus', hasApi('groqKey'));
-  setStatus('emailjsStatus', hasApi('emailjsPublic'));
-  setStatus('hunterStatus', hasApi('hunterKey'));
-  setStatus('abstractStatus', hasApi('abstractKey'));
-  setStatus('careerOneStopStatus', hasApi('careerOneStopKey'));
-  setStatus('ntfyStatus', !!getApi('ntfyTopic'));
-  setStatus('smsStatus', !!getApi('phoneNumber'));
-  setStatus('browserNotifStatus', typeof Notification !== 'undefined' && Notification.permission === 'granted');
+function updateStatuses(root) {
+  const doc = root || document;
+  const set = (id, active) => {
+    const el = doc.querySelector('#' + id);
+    if (el) el.className = 'api-status ' + (active ? 'active' : 'inactive');
+  };
+  set('adzunaStatus', hasApi('adzunaId') && hasApi('adzunaKey'));
+  set('jsearchStatus', hasApi('jsearchKey'));
+  set('geminiStatus', hasApi('geminiKey'));
+  set('groqStatus', hasApi('groqKey'));
+  set('emailjsStatus', hasApi('emailjsPublic'));
+  set('hunterStatus', hasApi('hunterKey'));
+  set('abstractStatus', hasApi('abstractKey'));
+  set('careerOneStopStatus', hasApi('careerOneStopKey'));
+  set('ntfyStatus', !!getApi('ntfyTopic'));
+  set('smsStatus', !!getApi('phoneNumber'));
+  set('browserNotifStatus', typeof Notification !== 'undefined' && Notification.permission === 'granted');
 
-  // Header API tag — count all active keyed APIs + always-free ones
+  // Header API tag
   const keyedActive = [
     hasApi('adzunaId'), hasApi('jsearchKey'), hasApi('geminiKey'), hasApi('groqKey'),
     hasApi('emailjsPublic'), hasApi('hunterKey'), hasApi('abstractKey'),
     hasApi('careerOneStopKey'), !!getApi('ntfyTopic')
   ].filter(Boolean).length;
-  const alwaysFree = 3; // Remotive, Arbeitnow, BLS (no key needed)
   const tag = document.getElementById('apiStatusTag');
   if (tag) {
-    const total = keyedActive + alwaysFree;
     tag.style.display = '';
-    tag.textContent = `${total} APIs Active`;
+    tag.textContent = `${keyedActive + 3} APIs Active`;
   }
 
-  // AI mode indicator
   const aiMode = document.getElementById('aiMode');
   if (aiMode) aiMode.style.display = (hasApi('geminiKey') || hasApi('groqKey')) ? '' : 'none';
-}
-
-function setStatus(elId, active) {
-  const el = document.getElementById(elId);
-  if (el) el.className = 'api-status ' + (active ? 'active' : 'inactive');
 }
 
 export default { renderSettings };
