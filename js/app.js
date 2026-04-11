@@ -45,6 +45,9 @@ import { renderContacts } from './views/contacts.js';
 import { renderInsights } from './views/insights.js';
 import { renderSettings } from './views/settings.js';
 import { renderATSOptimizer } from './views/ats-optimizer.js';
+import { renderFindJobs } from './views/find-jobs.js';
+import { renderMyJobs } from './views/my-jobs.js';
+import { renderMyProfile } from './views/my-profile.js';
 import { renderInterviews } from './views/interviews.js';
 import { renderTimeline } from './views/timeline.js';
 import { renderNetworking } from './views/networking.js';
@@ -108,6 +111,9 @@ function renderCurrentView() {
     contacts: () => renderContacts(getSection('contacts'), state),
     insights: () => renderInsights(getSection('insights'), state),
     settings: () => renderSettings(getSection('settings'), null, null, null),
+    'find-jobs': () => renderFindJobs(getSection('find-jobs'), state, addJob),
+    'my-jobs': () => renderMyJobs(getSection('my-jobs'), state, { addJob, updateJob, removeJob }),
+    'my-profile': () => renderMyProfile(getSection('my-profile'), state, addJob),
     agent: () => renderAgentDashboard(getSection('agent'), state, addJob),
     ats: () => renderATSOptimizer(getSection('ats'), state),
     interviews: () => renderInterviews(getSection('interviews'), state),
@@ -434,6 +440,9 @@ async function boot() {
   router.registerView('profile', () => renderProfileSetup(getSection('profile'), state, handleProfileComplete));
   router.registerView('dashboard', () => renderDashboard(getSection('dashboard'), state));
   router.registerView('tracker', () => renderTracker(getSection('tracker'), state, { addJob, updateJob, removeJob }));
+  router.registerView('find-jobs', () => renderFindJobs(getSection('find-jobs'), state, addJob));
+  router.registerView('my-jobs', () => renderMyJobs(getSection('my-jobs'), state, { addJob, updateJob, removeJob }));
+  router.registerView('my-profile', () => renderMyProfile(getSection('my-profile'), state, addJob));
   router.registerView('search', () => renderJobSearch(getSection('search'), state, addJob));
   router.registerView('agent', () => renderAgentDashboard(getSection('agent'), state, addJob));
   router.registerView('ats', () => renderATSOptimizer(getSection('ats'), state));
