@@ -535,6 +535,17 @@ async function boot() {
               renderAll();
             }
           });
+          // Sync tier from Firestore (picks up Stripe webhook updates)
+          try {
+            const checkTier = window.firebase?.functions?.().httpsCallable('checkTier');
+            if (checkTier) {
+              const result = await checkTier();
+              const tier = result?.data?.tier || 'free';
+              const { setUserTier } = await import('./services/usage-tracker.js');
+              setUserTier(tier);
+              if (result?.data?.synced) console.log('Tier synced from Stripe:', tier);
+            }
+          } catch (tierErr) { console.warn('Tier sync skipped:', tierErr); }
         } catch (e) { console.warn('Firestore sync skipped:', e); }
 
         // If we're on landing or auth and user is authenticated, redirect
