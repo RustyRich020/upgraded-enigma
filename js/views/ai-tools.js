@@ -21,6 +21,59 @@ export function renderAiTools(container, state, addJob) {
   const aiMode = container.querySelector('#aiMode');
   if (aiMode) aiMode.style.display = hasApi('geminiKey') ? '' : 'none';
 
+  // ---- Populate Job Description dropdown from tracked jobs ----
+  const jdSelect = container.querySelector('#jdSelect');
+  const jdText = container.querySelector('#jdText');
+  if (jdSelect) {
+    const jobs = (state.get('jobs') || []).filter(j => j.id && j.id !== '_meta' && j.title);
+    jdSelect.innerHTML = '<option value="">— Select from My Jobs or paste below —</option>';
+    jobs.forEach((j, i) => {
+      const label = `${j.title || 'Untitled'}${j.company ? ' @ ' + j.company : ''}${j.source ? ' (' + j.source + ')' : ''}`;
+      jdSelect.innerHTML += `<option value="${i}">${escapeHtml(label)}</option>`;
+    });
+    jdSelect.onchange = () => {
+      const idx = parseInt(jdSelect.value);
+      if (!isNaN(idx) && jobs[idx]) {
+        const j = jobs[idx];
+        // Build a JD-like text from the job data
+        const parts = [];
+        if (j.title) parts.push(`Title: ${j.title}`);
+        if (j.company) parts.push(`Company: ${j.company}`);
+        if (j.location) parts.push(`Location: ${j.location}`);
+        if (j.salary) parts.push(`Salary: $${Number(j.salary).toLocaleString()}`);
+        if (j.source) parts.push(`Source: ${j.source}`);
+        if (j.description) parts.push(`\nDescription:\n${j.description}`);
+        if (j.tags) parts.push(`\nSkills/Tags: ${j.tags}`);
+        if (jdText) jdText.value = parts.join('\n');
+      }
+    };
+  }
+
+  // ---- Populate Resume dropdown from saved resumes ----
+  const resumeSelect = container.querySelector('#resumeSelect');
+  const resumeText = container.querySelector('#resumeText');
+  if (resumeSelect) {
+    const resumes = (state.get('resumes') || []).filter(r => r.id && r.id !== '_meta');
+    resumeSelect.innerHTML = '<option value="">— Select from My Resumes or paste below —</option>';
+    resumes.forEach((r, i) => {
+      const skills = (r.skills || []).slice(0, 5).join(', ');
+      const label = `${r.name || 'Untitled'}${skills ? ' — ' + skills + '...' : ''}`;
+      resumeSelect.innerHTML += `<option value="${i}">${escapeHtml(label)}</option>`;
+    });
+    resumeSelect.onchange = () => {
+      const idx = parseInt(resumeSelect.value);
+      if (!isNaN(idx) && resumes[idx]) {
+        const r = resumes[idx];
+        if (r.text && resumeText) {
+          resumeText.value = r.text.slice(0, 4000);
+        } else if (r.skills?.length && resumeText) {
+          // Fallback: build text from skills + name
+          resumeText.value = `${r.name || 'Resume'}\n\nSkills: ${r.skills.join(', ')}`;
+        }
+      }
+    };
+  }
+
   // Local analysis button
   const analyzeBtn = container.querySelector('#analyzeBtn');
   if (analyzeBtn) {
