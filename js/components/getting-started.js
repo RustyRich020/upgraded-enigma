@@ -5,7 +5,7 @@
 
 import { navigate } from '../router.js';
 
-const STORAGE_KEY = 'tron_checklist';
+const STORAGE_KEY = 'jobsink_checklist';
 
 const STEPS = [
   { key: 'accountCreated', label: 'Create your account', done: true, view: null },

@@ -134,9 +134,9 @@
 
         // Also try to save to localStorage (if same origin)
         try {
-          const jobs = JSON.parse(localStorage.getItem('tron_jobs') || '[]');
+          const jobs = JSON.parse(localStorage.getItem('jobsink_jobs') || '[]');
           jobs.push(jobData);
-          localStorage.setItem('tron_jobs', JSON.stringify(jobs));
+          localStorage.setItem('jobsink_jobs', JSON.stringify(jobs));
         } catch (e) { /* cross-origin, expected */ }
 
         statusEl.textContent = '✓ Saved to JobSink!';

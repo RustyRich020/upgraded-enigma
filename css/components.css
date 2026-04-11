@@ -8,7 +8,7 @@
   font-family: var(--font-body);
   font-size: 10px; padding: 2px 8px;
   background: var(--color-primary-dim);
-  border: 1px solid rgba(212,135,77,0.2);
+  border: 1px solid var(--color-primary-border);
   border-radius: var(--radius-full);
   color: var(--color-primary-bright);
   text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
@@ -82,13 +82,13 @@
 .panel {
   background: var(--color-surface);
   border: 1px solid var(--color-surface-border);
-  border-radius: 18px; padding: 20px;
+  border-radius: var(--radius-2xl); padding: 20px;
   box-shadow: var(--shadow-sm);
   min-width: 0; overflow: hidden; word-wrap: break-word;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
 }
 .panel::before { display: none; }
-.panel:hover { border-color: rgba(196, 123, 58, 0.18); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.panel:hover { border-color: var(--color-primary-border); box-shadow: var(--shadow-md); transform: translateY(-1px); }
 main > section.panel:hover {
   transform: none;
   box-shadow: var(--shadow-sm);
@@ -273,7 +273,7 @@ textarea { resize: vertical; min-height: 80px; }
   border-radius: var(--radius-lg); padding: 16px; margin: 10px 0;
   transition: border-color var(--transition-fast);
 }
-.search-result:hover { border-color: rgba(212,135,77,0.2); }
+.search-result:hover { border-color: var(--color-primary-border); }
 .search-result h4 { color: var(--color-text-heading); text-transform: none; letter-spacing: 0; font-size: var(--text-base); font-weight: 600; margin-bottom: 2px; }
 .search-result .company-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
 .search-result .company-logo { width: 20px; height: 20px; border-radius: var(--radius-sm); object-fit: contain; background: var(--color-bg-elevated); }
@@ -471,8 +471,8 @@ textarea { resize: vertical; min-height: 80px; }
   display: grid;
   gap: 14px;
   padding: 18px;
-  border: 1px solid rgba(196, 123, 58, 0.18);
-  border-radius: 20px;
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-2xl);
   background:
     radial-gradient(circle at top right, rgba(196, 123, 58, 0.1), transparent 28%),
     var(--color-surface-gradient);

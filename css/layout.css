@@ -40,9 +40,9 @@ header .brand {
 }
 
 .logo {
-  width: 32px; height: 32px;
+  width: var(--size-logo); height: var(--size-logo);
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--color-primary-dim), rgba(45, 139, 95, 0.12));
+  background: var(--gradient-brand);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
   box-shadow: inset 0 0 0 1px rgba(196, 123, 58, 0.12);

@@ -3,7 +3,7 @@
    ============================================================ */
 
 // Config & utilities
-import { STORAGE_KEYS, FEATURES } from './config.js';
+import { STORAGE_KEYS, FEATURES, migrateStorageKeys } from './config.js';
 import { uid, today, download } from './utils.js';
 
 // State
@@ -360,6 +360,9 @@ function setupUpgradeButton() {
    Boot sequence
    ============================================================ */
 async function boot() {
+  // 0. Migrate legacy tron_ storage keys to jobsink_
+  migrateStorageKeys();
+
   // 1. Initialize theme + wire toggle button
   initTheme();
   const themeBtn = document.getElementById('themeToggle');
@@ -431,7 +434,7 @@ async function boot() {
   if (exportBtn) {
     exportBtn.addEventListener('click', () => {
       const csv = exportJobsCsv(state.get('jobs') || []);
-      download('tron-jobs.csv', csv, 'text/csv');
+      download('jobsink-export.csv', csv, 'text/csv');
       toast('Exported ' + (state.get('jobs') || []).length + ' jobs', 'success');
     });
   }

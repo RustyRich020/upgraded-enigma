@@ -41,11 +41,11 @@
         status.textContent = 'Setting up profile...';
 
         // Set onboarded + tour done
-        localStorage.setItem('tron_onboarded', 'true');
-        localStorage.setItem('tron_tour_done', 'true');
+        localStorage.setItem('jobsink_onboarded', 'true');
+        localStorage.setItem('jobsink_tour_done', 'true');
 
         // Set settings
-        localStorage.setItem('tron_settings', JSON.stringify({
+        localStorage.setItem('jobsink_settings', JSON.stringify({
           name: 'James DeBruhl',
           role: 'Candidate',
           targetRoles: ['Security Analyst', 'Network Security Analyst', 'Cybersecurity Analyst'],
@@ -55,7 +55,7 @@
         }));
 
         // Set API keys
-        localStorage.setItem('tron_api_keys', JSON.stringify({
+        localStorage.setItem('jobsink_api_keys', JSON.stringify({
           adzunaId: '4acc0ee6',
           adzunaKey: '17f9270151dc46f41f008f0fbaccceb6',
           jsearchKey: 'c6ddf3a8femsh0607f385fcfb42bp13e934jsn586753a0d585',
@@ -73,7 +73,7 @@
         }));
 
         // Set resume
-        localStorage.setItem('tron_resumes', JSON.stringify([
+        localStorage.setItem('jobsink_resumes', JSON.stringify([
           {
             id: 'james_2026',
             name: 'James DeBruhl - Sr Network Security Analyst',
@@ -83,7 +83,7 @@
         ]));
 
         // Set sample jobs
-        localStorage.setItem('tron_jobs', JSON.stringify([
+        localStorage.setItem('jobsink_jobs', JSON.stringify([
           { id: 'j1', title: 'Cybersecurity Analyst I', company: 'FIS Global', status: 'Saved', salary: '', source: 'JSearch', follow: '2026-04-14', _added: '2026-04-11', url: '', location: 'Jacksonville, Florida', description: 'Mainframe Security Compliance team. Managing audit processes, compliance with industry standards, implementing security controls.' },
           { id: 'j2', title: 'Corporate Security Analyst', company: 'First Horizon Bank', status: 'Saved', salary: '56189', source: 'Adzuna', follow: '2026-04-14', _added: '2026-04-11', url: '', location: 'Memphis, Shelby County' },
           { id: 'j3', title: 'Security Analyst with Clearance', company: 'MANTECH', status: 'Applied', salary: '105139', source: 'Adzuna', follow: '2026-04-17', _added: '2026-04-11', url: '', location: 'Arlington, VA' },
