@@ -2,7 +2,7 @@
    JobSink — Dark Mode (alternate)
    Warm charcoal for users who prefer dark
    ============================================================ */
-[data-theme="light"] {
+[data-theme="dark"] {
   --color-bg: #1C1C20;
   --color-bg-secondary: #222226;
   --color-bg-elevated: #303038;
@@ -44,9 +44,9 @@
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
-[data-theme="light"] .panel { border-color: var(--color-surface-border); }
-[data-theme="light"] header { background: var(--color-shell-header); }
-[data-theme="light"] nav { background: var(--color-shell-nav); }
-[data-theme="light"] .modal .content { box-shadow: var(--shadow-lg); }
-[data-theme="light"] ::-webkit-scrollbar-track { background: var(--color-bg); }
-[data-theme="light"] ::-webkit-scrollbar-thumb { background: var(--color-surface-border); }
+[data-theme="dark"] .panel { border-color: var(--color-surface-border); }
+[data-theme="dark"] header { background: var(--color-shell-header); }
+[data-theme="dark"] nav { background: var(--color-shell-nav); }
+[data-theme="dark"] .modal .content { box-shadow: var(--shadow-lg); }
+[data-theme="dark"] ::-webkit-scrollbar-track { background: var(--color-bg); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: var(--color-surface-border); }

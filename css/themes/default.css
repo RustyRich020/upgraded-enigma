@@ -2,7 +2,7 @@
    JobSink — Default Theme (White + Copper + Green)
    Clean professional SaaS aesthetic
    ============================================================ */
-[data-theme="tron"],
+[data-theme="default"],
 :root {
   --color-bg: #FFFFFF;
   --color-bg-secondary: #F8F8F6;

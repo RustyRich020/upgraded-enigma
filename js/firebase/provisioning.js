@@ -51,7 +51,7 @@ export async function provisionUser(profile = {}, loadDemoData = false) {
       displayName: profile.name || user.displayName || null,
       isAnonymous: user.isAnonymous || false,
       role: profile.role || 'Candidate',
-      theme: profile.theme || 'tron',
+      theme: profile.theme || 'default',
       tier: 'free',
       createdAt: now,
       lastLogin: now,
