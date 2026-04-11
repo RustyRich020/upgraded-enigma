@@ -360,8 +360,20 @@
         <div class="grid cols-2">
           <div class="panel">
             <h3>JD ↔ RESUME MATCHER</h3>
-            <textarea id="jdText" class="input" rows="6" placeholder="PASTE JOB DESCRIPTION..."></textarea>
-            <textarea id="resumeText" class="input" rows="6" placeholder="PASTE RESUME..." style="margin-top:8px"></textarea>
+            <div style="margin-bottom:10px;">
+              <h4>Job Description</h4>
+              <select id="jdSelect" class="input" style="margin-bottom:6px;font-size:14px;">
+                <option value="">— Select from My Jobs or paste below —</option>
+              </select>
+              <textarea id="jdText" class="input" rows="5" placeholder="Or paste a job description here..." style="font-size:14px;"></textarea>
+            </div>
+            <div>
+              <h4>Your Resume</h4>
+              <select id="resumeSelect" class="input" style="margin-bottom:6px;font-size:14px;">
+                <option value="">— Select from My Resumes or paste below —</option>
+              </select>
+              <textarea id="resumeText" class="input" rows="5" placeholder="Or paste your resume here..." style="font-size:14px;"></textarea>
+            </div>
             <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
               <button class="btn brand" id="analyzeBtn">ANALYZE (LOCAL)</button>
               <button class="btn blue" id="analyzeAiBtn">ANALYZE (AI)</button>
