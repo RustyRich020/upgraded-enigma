@@ -3,7 +3,7 @@
    Shows usage meters and upgrade prompt when limits are hit.
    ============================================================ */
 
-import { checkLimit, getUsageSummary, getUserTier, TIERS } from '../services/usage-tracker.js';
+import { checkLimit, getUsageSummary, getUserTier, TIERS, STRIPE } from '../services/usage-tracker.js';
 
 /**
  * Show an inline upgrade banner at the top of a view container.
@@ -29,7 +29,7 @@ export function showUpgradeBanner(container, apiName) {
         <span class="upgrade-banner-detail">${formatApiName(apiName)}: ${used}/${limit} uses today (${tierInfo.name} tier)</span>
       </div>
       <div class="upgrade-banner-right">
-        <button class="btn brand small upgrade-cta">UPGRADE TO PRO — ${nextTier.price}</button>
+        <a href="${STRIPE['3mo'].link}" target="_blank" rel="noopener" class="btn brand small upgrade-cta" style="text-decoration:none">Upgrade — $69/3mo</a>
         <button class="btn ghost small upgrade-dismiss">✕</button>
       </div>
     </div>
@@ -76,30 +76,74 @@ export function showUsageMeter(container, apiName) {
 
 /**
  * Render a full pricing table (for Settings page).
+ * Mirrors JobLand-style pricing with Stripe payment links.
  * @returns {string} HTML string
  */
 export function renderPricingTable() {
   const currentTier = getUserTier();
+  const paidTiers = ['1mo', '3mo', '6mo'];
+  const isPaid = paidTiers.includes(currentTier);
 
   return `
-    <div class="pricing-grid">
-      ${Object.entries(TIERS).map(([key, tier]) => `
-        <div class="pricing-card ${key === currentTier ? 'current' : ''} ${key === 'pro' ? 'recommended' : ''}">
-          ${key === 'pro' ? '<div class="pricing-badge">RECOMMENDED</div>' : ''}
-          ${key === currentTier ? '<div class="pricing-badge current-badge">CURRENT PLAN</div>' : ''}
-          <h3 class="pricing-tier-name">${tier.name}</h3>
-          <div class="pricing-price">${tier.price}</div>
-          <ul class="pricing-features">
-            ${tier.features.map(f => `<li>✓ ${f}</li>`).join('')}
-          </ul>
-          ${key !== currentTier ? `
-            <button class="btn ${key === 'pro' ? 'brand' : 'ghost'} pricing-select" data-tier="${key}" style="width:100%;margin-top:12px">
-              ${key === 'free' ? 'DOWNGRADE' : 'UPGRADE'}
-            </button>
-          ` : '<div class="muted" style="text-align:center;margin-top:12px;font-size:11px">Active</div>'}
-        </div>
-      `).join('')}
+    <div class="pricing-header" style="text-align:center;margin-bottom:24px">
+      <p class="eyebrow">Plans & Pricing</p>
+      <h3 style="font-size:20px;font-weight:700;color:var(--color-text-heading);margin-bottom:6px">Unlock your full career potential</h3>
+      <p class="muted" style="font-size:14px">All plans include unlimited API calls, AI features, and cloud sync</p>
     </div>
+    <div class="pricing-grid">
+      ${paidTiers.map(key => {
+        const tier = TIERS[key];
+        const stripe = STRIPE[key];
+        const isCurrent = key === currentTier;
+        const isPopular = tier.badge === 'Most Popular';
+        const isBest = tier.badge === 'Best Value';
+        return `
+          <div class="pricing-card ${isCurrent ? 'current' : ''} ${isPopular ? 'recommended' : ''}">
+            ${tier.badge ? `<div class="pricing-badge ${isBest ? 'best-badge' : ''}">${tier.badge}</div>` : ''}
+            ${isCurrent ? '<div class="pricing-badge current-badge">Current Plan</div>' : ''}
+            <h3 class="pricing-tier-name">${tier.name}</h3>
+            <div class="pricing-price">
+              <span class="pricing-original">${tier.originalPrice}</span>
+              ${tier.price}
+            </div>
+            <div class="pricing-daily">${tier.priceDetail}</div>
+            <ul class="pricing-features">
+              ${tier.features.map(f => `<li>✓ ${f}</li>`).join('')}
+            </ul>
+            ${isCurrent
+              ? '<div class="muted" style="text-align:center;margin-top:12px;font-size:12px">Active</div>'
+              : `<a href="${stripe.link}" target="_blank" rel="noopener" class="btn ${isPopular ? 'brand' : 'ghost'} pricing-select" style="width:100%;margin-top:12px;text-align:center;display:block;text-decoration:none">
+                  Get my plan
+                </a>`
+            }
+          </div>`;
+      }).join('')}
+    </div>
+    ${isPaid ? '' : `
+      <div style="text-align:center;margin-top:16px">
+        <p class="muted" style="font-size:12px">30-day money-back guarantee · Cancel anytime · Secure checkout via Stripe</p>
+      </div>
+    `}
+    <style>
+      .pricing-original {
+        text-decoration: line-through;
+        color: var(--color-muted);
+        font-size: 14px;
+        font-weight: 400;
+        margin-right: 6px;
+      }
+      .pricing-daily {
+        font-size: 13px;
+        color: var(--color-accent);
+        font-weight: 600;
+        margin-top: 2px;
+        margin-bottom: 12px;
+      }
+      .pricing-badge.best-badge {
+        background: var(--color-accent);
+        color: #fff;
+      }
+    </style>
   `;
 }
 
