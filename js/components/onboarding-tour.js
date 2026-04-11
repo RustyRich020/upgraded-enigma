@@ -1,6 +1,6 @@
 /* ============================================================
    components/onboarding-tour.js — 6-step onboarding tour
-   Styled for JobSink copper/professional theme
+   Styled for JobSynk copper/professional theme
    ============================================================ */
 
 import { STORAGE_KEYS } from '../config.js';

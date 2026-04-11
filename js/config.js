@@ -28,33 +28,33 @@ export const COLLECTIONS = {
 
 // localStorage key prefixes
 export const STORAGE_KEYS = {
-  jobs: 'jobsink_jobs',
-  resumes: 'jobsink_resumes',
-  companies: 'jobsink_companies',
-  contacts: 'jobsink_contacts',
-  interviews: 'jobsink_interviews',
-  networking: 'jobsink_networking',
-  offers: 'jobsink_offers',
-  stories: 'jobsink_stories',
-  filters: 'jobsink_filters',
-  settings: 'jobsink_settings',
-  apiKeys: 'jobsink_api_keys',
-  migrated: 'jobsink_migrated',
-  theme: 'jobsink_theme',
-  onboarded: 'jobsink_onboarded',
-  tourDone: 'jobsink_tour_done',
-  authUser: 'jobsink_auth_user',
-  agentConfig: 'jobsink_agent_config',
-  agentRuns: 'jobsink_agent_runs'
+  jobs: 'jobsynk_jobs',
+  resumes: 'jobsynk_resumes',
+  companies: 'jobsynk_companies',
+  contacts: 'jobsynk_contacts',
+  interviews: 'jobsynk_interviews',
+  networking: 'jobsynk_networking',
+  offers: 'jobsynk_offers',
+  stories: 'jobsynk_stories',
+  filters: 'jobsynk_filters',
+  settings: 'jobsynk_settings',
+  apiKeys: 'jobsynk_api_keys',
+  migrated: 'jobsynk_migrated',
+  theme: 'jobsynk_theme',
+  onboarded: 'jobsynk_onboarded',
+  tourDone: 'jobsynk_tour_done',
+  authUser: 'jobsynk_auth_user',
+  agentConfig: 'jobsynk_agent_config',
+  agentRuns: 'jobsynk_agent_runs'
 };
 
 /**
- * One-time migration: copy tron_ keys to jobsink_ keys, then remove old ones.
+ * One-time migration: copy tron_ keys to jobsynk_ keys, then remove old ones.
  * Safe to call multiple times — only runs if old keys exist and new ones don't.
  */
 export function migrateStorageKeys() {
   const OLD_PREFIX = 'tron_';
-  const NEW_PREFIX = 'jobsink_';
+  const NEW_PREFIX = 'jobsynk_';
   let migrated = false;
 
   // Migrate STORAGE_KEYS values
@@ -70,14 +70,14 @@ export function migrateStorageKeys() {
 
   // Migrate other known tron_ keys
   const extraKeys = [
-    ['tron_checklist', 'jobsink_checklist'],
-    ['tron_job_descriptions', 'jobsink_job_descriptions'],
-    ['tron_search_results', 'jobsink_search_results'],
-    ['tron_findJobs_activeTab', 'jobsink_findJobs_activeTab'],
-    ['tron_myJobs_activeTab', 'jobsink_myJobs_activeTab'],
-    ['tron_myProfile_activeTab', 'jobsink_myProfile_activeTab'],
-    ['tron_api_usage', 'jobsink_api_usage'],
-    ['tron_user_tier', 'jobsink_user_tier'],
+    ['tron_checklist', 'jobsynk_checklist'],
+    ['tron_job_descriptions', 'jobsynk_job_descriptions'],
+    ['tron_search_results', 'jobsynk_search_results'],
+    ['tron_findJobs_activeTab', 'jobsynk_findJobs_activeTab'],
+    ['tron_myJobs_activeTab', 'jobsynk_myJobs_activeTab'],
+    ['tron_myProfile_activeTab', 'jobsynk_myProfile_activeTab'],
+    ['tron_api_usage', 'jobsynk_api_usage'],
+    ['tron_user_tier', 'jobsynk_user_tier'],
   ];
   extraKeys.forEach(([oldKey, newKey]) => {
     const oldVal = localStorage.getItem(oldKey);

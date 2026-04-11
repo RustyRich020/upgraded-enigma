@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jobsink-v2.1.0';
+const CACHE_NAME = 'jobsynk-v2.1.0';
 const APP_SHELL = [
   '/', '/index.html', '/manifest.json',
   '/css/variables.css', '/css/base.css', '/css/layout.css',

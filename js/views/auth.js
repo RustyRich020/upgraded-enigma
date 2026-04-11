@@ -21,7 +21,7 @@ export function renderAuth(container, callbacks = {}) {
       <div class="auth-container">
         <div class="auth-header">
           <div class="auth-logo">
-            <img src="assets/icons/logo.svg" alt="JobSink" width="64" height="64" style="border-radius:14px">
+            <img src="assets/icons/logo.svg" alt="JobSynk" width="64" height="64" style="border-radius:14px">
           </div>
           <h2>${mode === 'reset' ? 'Reset Password' : mode === 'signup' ? 'Create Account' : 'Welcome Back'}</h2>
           <p>${mode === 'reset' ? 'Enter your email to receive a reset link' : 'Track your job search with cloud sync'}</p>

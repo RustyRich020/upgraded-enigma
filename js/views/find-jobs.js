@@ -10,8 +10,8 @@ import { renderAgentDashboard } from './agent-dashboard.js';
 import { enableTabKeyboardNavigation, setActiveTab } from '../ui/a11y.js';
 import { initSwipeCards } from '../ui/swipe-cards.js';
 
-const SEARCH_DB_KEY = 'jobsink_search_results';
-const SESSION_KEY = 'jobsink_findJobs_activeTab';
+const SEARCH_DB_KEY = 'jobsynk_search_results';
+const SESSION_KEY = 'jobsynk_findJobs_activeTab';
 
 function getStoredSearchCount() {
   try {

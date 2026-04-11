@@ -132,7 +132,7 @@ export function renderSettings(container, apiKeys, onSave, onClear) {
         <details class="settings-section">
           <summary class="settings-section-header">Notifications <span class="chip">3 channels</span></summary>
           <div class="settings-section-body">
-            ${apiField('ntfyStatus', 'ntfy.sh (Push)', inp('apiNtfyTopic', 'Your topic name (e.g., jobsink-alerts)'), `Free, no account — ${link('https://ntfy.sh/', 'Learn more')}`)}
+            ${apiField('ntfyStatus', 'ntfy.sh (Push)', inp('apiNtfyTopic', 'Your topic name (e.g., jobsynk-alerts)'), `Free, no account — ${link('https://ntfy.sh/', 'Learn more')}`)}
             ${apiField('smsStatus', 'SMS (Twilio)', `${inp('apiPhoneNumber', 'Your phone number (e.g., 9046628966)')}<button class="btn small" id="testSmsBtn" style="margin-top:6px">Send Test SMS</button>`, 'Requires Twilio setup in Cloud Functions')}
             ${apiField('browserNotifStatus', 'Browser Notifications', '<button class="btn small green" id="requestNotifPerm">Grant Permission</button>', 'Desktop push notifications for follow-ups and matches')}
           </div>
@@ -272,7 +272,7 @@ export function renderSettings(container, apiKeys, onSave, onClear) {
       const phone = container.querySelector('#apiPhoneNumber')?.value?.trim();
       if (!phone) { toast('Enter a phone number first', 'error'); return; }
       testSmsBtn.disabled = true; testSmsBtn.textContent = 'Sending...';
-      await sendSMS(phone, 'JobSink test: SMS notifications are working!');
+      await sendSMS(phone, 'JobSynk test: SMS notifications are working!');
       testSmsBtn.disabled = false; testSmsBtn.textContent = 'Send Test SMS';
     });
   }

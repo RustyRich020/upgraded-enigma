@@ -13,7 +13,7 @@ import { buildCareerProfile, evaluateOpportunity } from '../services/career-ops-
 import { enableTabKeyboardNavigation, setActiveTab } from '../ui/a11y.js';
 import { initSwipeCards } from '../ui/swipe-cards.js';
 
-const SESSION_KEY = 'jobsink_myJobs_activeTab';
+const SESSION_KEY = 'jobsynk_myJobs_activeTab';
 
 /**
  * Render the consolidated My Jobs view with 3 tabs:

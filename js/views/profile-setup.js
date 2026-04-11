@@ -186,7 +186,7 @@ export function renderProfileSetup(container, state, onComplete) {
       try { const u = getCurrentUser(); if (u && profile.name) u.updateProfile({ displayName: profile.name }); } catch {}
       try { if (!(await isProvisioned())) await provisionUser({ name: profile.name, role: 'Candidate', theme: profile.theme }, true); } catch {}
       localStorage.setItem(STORAGE_KEYS.onboarded, 'true');
-      localStorage.setItem('jobsink_checklist', JSON.stringify({ accountCreated: true, profileSetup: true, firstJobAdded: false, firstSearch: false, apiKeyConnected: false, resumeUploaded: false, dismissed: false }));
+      localStorage.setItem('jobsynk_checklist', JSON.stringify({ accountCreated: true, profileSetup: true, firstJobAdded: false, firstSearch: false, apiKeyConnected: false, resumeUploaded: false, dismissed: false }));
       if (onComplete) onComplete();
       navigate('dashboard');
     }, 3000);

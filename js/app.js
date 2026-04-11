@@ -1,5 +1,5 @@
 /* ============================================================
-   app.js — Main entry point for JobSink
+   app.js — Main entry point for JobSynk
    ============================================================ */
 
 // Config & utilities
@@ -360,7 +360,7 @@ function setupUpgradeButton() {
    Boot sequence
    ============================================================ */
 async function boot() {
-  // 0. Migrate legacy tron_ storage keys to jobsink_
+  // 0. Migrate legacy tron_ storage keys to jobsynk_
   migrateStorageKeys();
 
   // 1. Initialize theme + wire toggle button
@@ -434,7 +434,7 @@ async function boot() {
   if (exportBtn) {
     exportBtn.addEventListener('click', () => {
       const csv = exportJobsCsv(state.get('jobs') || []);
-      download('jobsink-export.csv', csv, 'text/csv');
+      download('jobsynk-export.csv', csv, 'text/csv');
       toast('Exported ' + (state.get('jobs') || []).length + ' jobs', 'success');
     });
   }
@@ -621,7 +621,7 @@ async function boot() {
     toast(`Added "${title}" to tracker`, 'success');
   };
 
-  console.log('JobSink initialized');
+  console.log('JobSynk initialized');
 }
 
 // Run boot when DOM is ready

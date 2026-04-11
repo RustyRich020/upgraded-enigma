@@ -4,7 +4,7 @@
    Free tier: 5 uses per API per day.
    ============================================================ */
 
-const STORAGE_KEY = 'jobsink_api_usage';
+const STORAGE_KEY = 'jobsynk_api_usage';
 const DAILY_LIMIT = 5;
 
 // Per-API limits (override defaults for specific APIs)
@@ -129,14 +129,14 @@ function saveUsage(data) {
  * Get the current user's tier.
  */
 export function getUserTier() {
-  return localStorage.getItem('jobsink_user_tier') || 'free';
+  return localStorage.getItem('jobsynk_user_tier') || 'free';
 }
 
 /**
  * Set the user's tier (for testing/upgrade).
  */
 export function setUserTier(tier) {
-  localStorage.setItem('jobsink_user_tier', tier);
+  localStorage.setItem('jobsynk_user_tier', tier);
 }
 
 /**

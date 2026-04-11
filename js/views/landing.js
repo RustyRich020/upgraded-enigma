@@ -1,5 +1,5 @@
 /* ============================================================
-   views/landing.js — Showcase landing page for JobSink
+   views/landing.js — Showcase landing page for JobSynk
    Professional SaaS landing with hero, product preview,
    social proof, features, trust badges, and footer
    ============================================================ */
@@ -10,8 +10,8 @@ import { STORAGE_KEYS } from '../config.js';
 import { initSwipeCards } from '../ui/swipe-cards.js';
 
 /* Use the branded logo SVG asset */
-const LOGO_IMG = `<img src="assets/icons/logo.svg" alt="JobSink" style="width:56px;height:56px;border-radius:12px">`;
-const LOGO_IMG_SM = `<img src="assets/icons/logo.svg" alt="JobSink" style="width:40px;height:40px;border-radius:8px">`;
+const LOGO_IMG = `<img src="assets/icons/logo.svg" alt="JobSynk" style="width:56px;height:56px;border-radius:12px">`;
+const LOGO_IMG_SM = `<img src="assets/icons/logo.svg" alt="JobSynk" style="width:40px;height:40px;border-radius:8px">`;
 
 const FEATURES = [
   {
@@ -20,7 +20,7 @@ const FEATURES = [
     desc: 'One search across 4 job boards. Results stored permanently so you can filter, sort, and revisit anytime.',
     detail: {
       headline: 'Search everywhere. Store everything.',
-      intro: 'JobSink connects to 4 major job APIs simultaneously — Remotive, Arbeitnow, Adzuna, and JSearch — so you never have to tab between 10 browser windows again.',
+      intro: 'JobSynk connects to 4 major job APIs simultaneously — Remotive, Arbeitnow, Adzuna, and JSearch — so you never have to tab between 10 browser windows again.',
       highlights: [
         { icon: '🔍', label: '4 API Sources', text: 'One button triggers Remotive (remote jobs), Arbeitnow (EU/global), Adzuna (salary data), and JSearch (LinkedIn/Indeed aggregate) in parallel.' },
         { icon: '💾', label: 'Persistent Local DB', text: 'Every result is saved to a local database of up to 500 jobs. Filter by source, sort by date or salary, and revisit results days later.' },
@@ -37,7 +37,7 @@ const FEATURES = [
     desc: 'Paste a job description, see your score, and click to add missing keywords directly to your resume.',
     detail: {
       headline: 'Beat the bots. Land the interview.',
-      intro: 'Most resumes are rejected by Applicant Tracking Systems before a human ever sees them. JobSink\'s ATS optimizer analyzes job descriptions against your resume with 200+ keyword patterns.',
+      intro: 'Most resumes are rejected by Applicant Tracking Systems before a human ever sees them. JobSynk\'s ATS optimizer analyzes job descriptions against your resume with 200+ keyword patterns.',
       highlights: [
         { icon: '📊', label: 'Instant ATS Score', text: 'Paste any job description and get a weighted score across 6 categories: hard skills, certifications, soft skills, action verbs, experience level, and industry terms.' },
         { icon: '🏷️', label: '200+ Keyword Patterns', text: 'Regex-powered extraction catches keywords that simple word matching misses — including multi-word phrases like "machine learning" and "CI/CD".' },
@@ -54,7 +54,7 @@ const FEATURES = [
     desc: 'Select a tracked job and your resume from dropdowns — Gemini generates a tailored cover letter in seconds.',
     detail: {
       headline: 'Personalized cover letters in seconds.',
-      intro: 'Stop writing cover letters from scratch. Select a job from your tracker and a resume from your library — JobSink\'s AI generates a tailored, professional letter instantly.',
+      intro: 'Stop writing cover letters from scratch. Select a job from your tracker and a resume from your library — JobSynk\'s AI generates a tailored, professional letter instantly.',
       highlights: [
         { icon: '📝', label: 'Dropdown Selection', text: 'Pick from your tracked jobs and saved resumes via dropdown menus. The AI pulls the job description and your skills automatically.' },
         { icon: '⚡', label: 'Gemini 2.5 Flash', text: 'Powered by Google\'s latest Gemini model for fast, high-quality generation. Each letter is unique and contextual — never template-sounding.' },
@@ -74,7 +74,7 @@ const FEATURES = [
       intro: 'Track every application from "Saved" to "Offer" with multiple view modes, follow-up reminders, and a visual timeline that shows your full activity history.',
       highlights: [
         { icon: '📋', label: 'Multiple Views', text: 'Switch between table view (sortable columns), Kanban board (drag cards between stages), and visual timeline (chronological activity feed).' },
-        { icon: '🔔', label: 'Follow-Up Reminders', text: 'Set follow-up dates for any application. JobSink surfaces overdue follow-ups on your dashboard and sends notifications.' },
+        { icon: '🔔', label: 'Follow-Up Reminders', text: 'Set follow-up dates for any application. JobSynk surfaces overdue follow-ups on your dashboard and sends notifications.' },
         { icon: '📈', label: 'Pipeline Analytics', text: 'Chart.js visualizations show your pipeline breakdown (donut), source distribution (bar), and weekly activity trends.' },
         { icon: '☁️', label: 'Cross-Device Sync', text: 'Firebase Firestore keeps everything in sync across devices in real-time. Add a job on your phone, see it on your laptop instantly.' },
       ],
@@ -146,13 +146,13 @@ const PRODUCT_MOCKUP = `
   <circle cx="56" cy="18" r="5" fill="#00CA4E"/>
   <!-- URL bar -->
   <rect x="160" y="9" width="480" height="18" rx="9" fill="#1A1A1E" opacity="0.6"/>
-  <text x="400" y="22" font-family="system-ui" font-size="10" fill="#888" text-anchor="middle">jobsink.app</text>
+  <text x="400" y="22" font-family="system-ui" font-size="10" fill="#888" text-anchor="middle">jobsynk.app</text>
 
   <!-- Sidebar -->
   <rect x="0" y="36" width="180" height="444" fill="#222226"/>
   <!-- Sidebar logo -->
   <rect x="16" y="50" width="28" height="28" rx="7" fill="#C47B3A" opacity="0.2"/>
-  <text x="52" y="69" font-family="system-ui" font-size="13" font-weight="600" fill="#D4874D">JobSink</text>
+  <text x="52" y="69" font-family="system-ui" font-size="13" font-weight="600" fill="#D4874D">JobSynk</text>
   <!-- Nav items -->
   <rect x="14" y="96" width="152" height="32" rx="8" fill="#C47B3A" opacity="0.12"/>
   <text x="30" y="116" font-family="system-ui" font-size="11" fill="#D4874D">Home</text>
@@ -361,15 +361,15 @@ export function renderLanding(container) {
       <footer class="lp-footer">
         <div class="lp-footer-inner">
           <div class="lp-footer-brand">
-            <img src="assets/icons/logo.svg" alt="JobSink" width="24" height="24" style="border-radius:6px">
-            <span>JobSink</span>
+            <img src="assets/icons/logo.svg" alt="JobSynk" width="24" height="24" style="border-radius:6px">
+            <span>JobSynk</span>
           </div>
           <div class="lp-footer-links">
             <a href="#auth" class="lp-footer-link">Sign In</a>
             <span class="lp-footer-sep">&middot;</span>
             <a href="https://github.com/RustyRich020/upgraded-enigma" target="_blank" rel="noopener" class="lp-footer-link">GitHub</a>
           </div>
-          <p class="lp-footer-copy">&copy; ${new Date().getFullYear()} JobSink. Built with care.</p>
+          <p class="lp-footer-copy">&copy; ${new Date().getFullYear()} JobSynk. Built with care.</p>
         </div>
       </footer>
 
