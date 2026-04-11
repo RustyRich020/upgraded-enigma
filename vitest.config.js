@@ -1,9 +1,3 @@
-import { defineConfig } from 'vitest/config';
+import config from './vite.config.js';
 
-export default defineConfig({
-  test: {
-    environment: 'node',
-    include: ['tests/**/*.test.js'],
-    globals: false,
-  },
-});
+export default config;

@@ -180,20 +180,82 @@
       <!-- DASHBOARD -->
       <section id="view-dashboard" class="panel hidden">
         <div id="dashboardChecklist"></div>
-        <div class="toolbar"><h2>Dashboard</h2></div>
-        <div class="grid cols-3">
-          <div class="panel"><h4>PIPELINE STATUS</h4><canvas id="pipelineChart" height="200"></canvas></div>
-          <div class="panel"><h4>SOURCE DISTRIBUTION</h4><canvas id="sourceChart" height="200"></canvas></div>
-          <div class="panel">
-            <h4>UPCOMING ACTIONS</h4>
-            <div id="upcomingList" style="max-height:200px;overflow-y:auto"></div>
-            <div id="notifStatus" style="margin-top:8px;"></div>
-            <button class="btn small green" id="enableNotifBtn" style="width:100%">ENABLE NOTIFICATIONS</button>
+        <div class="dashboard-shell">
+          <div class="dashboard-hero-card">
+            <div class="section-intro">
+              <div class="section-title-row">
+                <p class="eyebrow">Overview</p>
+                <h2>Dashboard</h2>
+                <p class="section-copy">See your pipeline health, follow-up rhythm, and salary targets without bouncing between screens.</p>
+              </div>
+            </div>
+            <div class="metric-grid" id="dashboardMetrics"></div>
           </div>
-        </div>
-        <div class="grid cols-2" style="margin-top:16px">
-          <div class="panel"><h4>SALARY BENCHMARKS (BLS)</h4><div id="blsBenchmarks"><div class="muted" style="text-align:center;padding:20px">Click below to load national salary data</div><button class="btn small blue" id="loadBlsBtn" style="margin-top:8px">LOAD BLS DATA</button></div></div>
-          <div class="panel"><h4>WEEKLY ACTIVITY</h4><canvas id="weeklyChart" height="150"></canvas></div>
+          <div class="grid cols-3">
+            <div class="panel">
+              <div class="dashboard-panel-title">
+                <div>
+                  <h4>Pipeline Status</h4>
+                  <p class="muted">Where every application currently sits.</p>
+                </div>
+              </div>
+              <canvas id="pipelineChart" height="200"></canvas>
+            </div>
+            <div class="panel">
+              <div class="dashboard-panel-title">
+                <div>
+                  <h4>Source Distribution</h4>
+                  <p class="muted">Which channels are generating momentum.</p>
+                </div>
+              </div>
+              <canvas id="sourceChart" height="200"></canvas>
+            </div>
+            <div class="panel notification-panel">
+              <div class="dashboard-panel-title">
+                <div>
+                  <h4>Upcoming Actions</h4>
+                  <p class="muted">Stay ahead of follow-ups and outreach.</p>
+                </div>
+              </div>
+              <div id="upcomingList" class="list-stack"></div>
+              <div id="notifStatus" class="status-note"></div>
+              <button class="btn small green" id="enableNotifBtn">Enable Notifications</button>
+            </div>
+          </div>
+          <div class="grid cols-2">
+            <div class="panel">
+              <div class="dashboard-panel-title">
+                <div>
+                  <h4>Salary Benchmarks (BLS)</h4>
+                  <p class="muted">Compare your targets to the latest national median.</p>
+                </div>
+              </div>
+              <div id="blsBenchmarks" class="dashboard-grid-tight">
+                <div class="empty-inline">Load salary data to compare your target range against current national benchmarks.</div>
+                <div class="action-cluster">
+                  <button class="btn small blue" id="loadBlsBtn">Load BLS Data</button>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="dashboard-panel-title">
+                <div>
+                  <h4>Weekly Activity</h4>
+                  <p class="muted">Applications and follow-ups logged over the last 7 days.</p>
+                </div>
+              </div>
+              <canvas id="weeklyChart" height="150"></canvas>
+            </div>
+          </div>
+          <div class="panel career-ops-panel">
+            <div class="dashboard-panel-title">
+              <div>
+                <h4>Career Ops</h4>
+                <p class="muted">Surface your strongest roles, repeated gaps, and the next best moves across the whole pipeline.</p>
+              </div>
+            </div>
+            <div id="careerOpsPanel"></div>
+          </div>
         </div>
       </section>
 
@@ -491,39 +553,82 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <!-- ADD JOB MODAL -->
-<div class="modal" id="jobModal">
+<div class="modal" id="jobModal" aria-hidden="true">
   <div class="content">
-    <div class="toolbar"><h2>Add Job</h2><button class="btn" id="closeModal">CLOSE</button></div>
-    <div class="grid cols-2">
-      <div class="panel">
-        <label style="display:block;margin:12px 0"><h4>TITLE</h4><input id="jobTitle" class="input" placeholder="e.g., Data Analyst"></label>
-        <label style="display:block;margin:12px 0"><h4>COMPANY</h4><input id="jobCompany" class="input" placeholder="Company"></label>
-        <label style="display:block;margin:12px 0"><h4>STATUS</h4><select id="jobStatus" class="input"><option>Saved</option><option>Applied</option><option>Interview</option><option>Offer</option><option>Closed</option></select></label>
+    <div class="section-intro">
+      <div class="section-title-row">
+        <p class="eyebrow">Quick Capture</p>
+        <h2>Add Job</h2>
+        <p class="section-copy">Drop in the essentials now. You can enrich the record later from the tracker.</p>
       </div>
-      <div class="panel">
-        <label style="display:block;margin:12px 0"><h4>MAX SALARY</h4><input id="jobSalary" class="input" type="number" placeholder="e.g., 110000"></label>
-        <label style="display:block;margin:12px 0"><h4>SOURCE</h4><input id="jobSource" class="input" placeholder="LinkedIn / Indeed / ..."></label>
-        <label style="display:block;margin:12px 0"><h4>FOLLOW-UP</h4><input id="jobFollow" class="input" type="date"></label>
-        <label style="display:block;margin:12px 0"><h4>URL</h4><input id="jobUrl" class="input" placeholder="Job posting URL"></label>
+      <button class="btn ghost" id="closeModal">Close</button>
+    </div>
+    <div id="jobFormError" class="auth-error" style="display:block;min-height:20px;padding:0;border:none;background:none;margin-bottom:8px;"></div>
+    <div class="grid cols-2">
+      <div class="panel stack-md">
+        <label class="field-group">
+          <h4>Title</h4>
+          <input id="jobTitle" class="input" placeholder="e.g., Data Analyst" />
+        </label>
+        <label class="field-group">
+          <h4>Company</h4>
+          <input id="jobCompany" class="input" placeholder="Company" />
+        </label>
+        <label class="field-group">
+          <h4>Status</h4>
+          <select id="jobStatus" class="input">
+            <option>Saved</option><option>Applied</option><option>Interview</option><option>Offer</option><option>Closed</option>
+          </select>
+        </label>
+      </div>
+      <div class="panel stack-md">
+        <label class="field-group">
+          <h4>Max Salary</h4>
+          <input id="jobSalary" class="input" type="number" placeholder="e.g., 110000" />
+        </label>
+        <label class="field-group">
+          <h4>Source</h4>
+          <input id="jobSource" class="input" placeholder="LinkedIn / Indeed / ..." />
+        </label>
+        <label class="field-group">
+          <h4>Follow-Up</h4>
+          <input id="jobFollow" class="input" type="date" />
+        </label>
+        <label class="field-group">
+          <h4>URL</h4>
+          <input id="jobUrl" class="input" placeholder="Job posting URL" />
+        </label>
       </div>
     </div>
-    <div style="text-align:center;margin-top:16px"><button class="btn brand large" id="saveJob">SAVE JOB</button></div>
+    <div class="modal-actions">
+      <button class="btn brand large" id="saveJob" type="button">Save Job</button>
+    </div>
   </div>
 </div>
 
 <!-- IMPORT MODAL -->
-<div class="modal" id="importModal">
+<div class="modal" id="importModal" aria-hidden="true">
   <div class="content">
-    <div class="toolbar"><h2 id="importModalTitle">Import</h2><button class="btn" id="closeImportModal">CLOSE</button></div>
-    <div class="panel" style="margin-bottom:12px">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <label><strong>Type:</strong> <select id="importType" class="input" style="width:auto"><option value="jobs">Jobs</option><option value="companies">Companies</option></select></label>
+    <div class="section-intro">
+      <div class="section-title-row">
+        <p class="eyebrow">Bulk Data</p>
+        <h2 id="importModalTitle">Import</h2>
+        <p class="section-copy">Bring existing job or company data in with a simple CSV.</p>
+      </div>
+      <button class="btn ghost" id="closeImportModal">Close</button>
+    </div>
+    <div class="panel stack-md" style="margin-bottom:12px">
+      <div class="inline-form">
+        <label class="field-group compact">
+          <h4>Type</h4>
+          <select id="importType" class="input"><option value="jobs">Jobs</option><option value="companies">Companies</option></select>
+        </label>
         <label class="btn"><input id="importFileInput" type="file" accept=".csv" hidden>Choose CSV</label>
         <button class="btn brand" id="startImportBtn">Start Import</button>
       </div>
-      <div class="muted" style="margin-top:8px;font-size:11px">CSV headers — Jobs: title,company,status,follow,salary,source | Companies: name,notes</div>
+      <div class="muted" style="font-size:11px">CSV headers: Jobs use `title, company, status, follow, salary, source`. Companies use `name, notes`.</div>
     </div>
-    <div class="panel">
+    <div class="panel stack-sm">
       <h4>Progress</h4>
       <div id="importStats" class="muted">Waiting for file…</div>
       <div id="importLog" style="margin-top:8px;max-height:240px;overflow:auto;font-family:monospace;font-size:12px;border:1px solid var(--color-grid);padding:8px"></div>

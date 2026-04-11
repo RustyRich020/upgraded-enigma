@@ -1,122 +1,241 @@
 /* ============================================================
-   views/interviews.js — Interview Scheduler
+   views/interviews.js — Interview scheduler + story bank
    ============================================================ */
 
-import { escapeHtml, uid, fmtDate, today } from '../utils.js';
+import { escapeHtml, uid, today } from '../utils.js';
 import { toast } from '../components/toast.js';
+import { buildCareerProfile, buildInterviewPrep } from '../services/career-ops-lite.js';
 
-/**
- * Render the interview scheduler view.
- * @param {HTMLElement} container — section element
- * @param {object} state — state store
- */
-export function renderInterviews(container, state) {
-  const interviews = (state.get('interviews') || []).slice().sort((a, b) => {
-    const da = a.date + 'T' + (a.time || '00:00');
-    const db = b.date + 'T' + (b.time || '00:00');
-    return da < db ? -1 : da > db ? 1 : 0;
+function sortInterviews(list) {
+  return (list || []).slice().sort((a, b) => {
+    const da = `${a.date || ''}T${a.time || '00:00'}`;
+    const db = `${b.date || ''}T${b.time || '00:00'}`;
+    return da.localeCompare(db);
   });
-  const jobs = state.get('jobs') || [];
+}
+
+function parseStorySkills(value) {
+  return String(value || '')
+    .split(',')
+    .map(skill => skill.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+export function renderInterviews(container, state) {
+  const interviews = sortInterviews(state.get('interviews') || []);
+  const jobs = (state.get('jobs') || []).filter(job => job.id && job.id !== '_meta');
+  const stories = state.get('stories') || [];
+  const profile = buildCareerProfile({
+    resumes: state.get('resumes') || [],
+    jobs,
+    offers: state.get('offers') || [],
+    settings: state.get('settings') || {}
+  });
+  const todayStr = today();
+  const weekAhead = today(7);
+  const scheduledCount = interviews.filter(item => item.status === 'Scheduled').length;
+  const soonCount = interviews.filter(item => item.status === 'Scheduled' && item.date >= todayStr && item.date <= weekAhead).length;
+  const completedCount = interviews.filter(item => item.status === 'Completed').length;
+  const jobMap = new Map(jobs.map(job => [job.id, job]));
 
   container.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:16px">
-      <h2 style="margin:0">Interview Scheduler</h2>
-      <button class="btn" id="toggleInterviewForm">+ INTERVIEW</button>
-    </div>
+    <div class="section-shell">
+      <div class="section-intro">
+        <div class="section-title-row">
+          <p class="eyebrow">Interview Prep</p>
+          <h2>Interviews</h2>
+          <p class="section-copy">Schedule interviews, prepare with a structured fit brief, and keep a reusable story bank ready for behavioral rounds.</p>
+        </div>
+        <div class="action-cluster">
+          <button class="btn" id="toggleInterviewForm" type="button">+ Interview</button>
+          <button class="btn ghost" id="toggleStoryForm" type="button">+ Story</button>
+        </div>
+      </div>
 
-    <div id="interviewFormWrap" style="display:none;margin-bottom:20px;padding:16px;border:1px solid var(--border);border-radius:8px;background:var(--surface)">
-      <h3 style="margin:0 0 12px">Add Interview</h3>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
-        <div>
-          <label class="label">Date *</label>
-          <input type="date" class="input" id="intDate" value="${today()}">
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-value">${scheduledCount}</div>
+          <div class="metric-label">Scheduled</div>
+          <div class="metric-detail">Active interview loops in progress.</div>
         </div>
-        <div>
-          <label class="label">Time</label>
-          <input type="time" class="input" id="intTime" value="09:00">
+        <div class="metric-card">
+          <div class="metric-value">${soonCount}</div>
+          <div class="metric-label">Next 7 Days</div>
+          <div class="metric-detail">Upcoming conversations that need prep now.</div>
         </div>
-        <div>
-          <label class="label">Company *</label>
-          ${jobs.length > 0 ? `
-            <select class="input" id="intJob">
-              <option value="">-- Select job --</option>
-              ${jobs.map(j => `<option value="${j.id}" data-company="${escapeHtml(j.company || '')}" data-role="${escapeHtml(j.title || '')}">${escapeHtml(j.company || 'Unknown')} — ${escapeHtml(j.title || 'No title')}</option>`).join('')}
-              <option value="__custom">Other (type below)</option>
-            </select>
-            <input type="text" class="input" id="intCompanyCustom" placeholder="Company name" style="display:none;margin-top:6px">
-            <input type="text" class="input" id="intRoleCustom" placeholder="Role title" style="display:none;margin-top:6px">
-          ` : `
-            <input type="text" class="input" id="intCompanyCustom" placeholder="Company name">
-            <input type="text" class="input" id="intRoleCustom" placeholder="Role title" style="margin-top:6px">
-          `}
+        <div class="metric-card">
+          <div class="metric-value">${completedCount}</div>
+          <div class="metric-label">Completed</div>
+          <div class="metric-detail">Rounds already behind you.</div>
         </div>
-        <div>
-          <label class="label">Type</label>
-          <select class="input" id="intType">
-            <option>Phone</option>
-            <option>Video</option>
-            <option>Onsite</option>
-            <option>Technical</option>
-          </select>
+        <div class="metric-card">
+          <div class="metric-value">${stories.length}</div>
+          <div class="metric-label">Story Bank</div>
+          <div class="metric-detail">Reusable proof points for behavioral questions.</div>
         </div>
       </div>
-      <div style="margin-top:10px">
-        <label class="label">Prep Notes</label>
-        <textarea class="input" id="intNotes" rows="3" placeholder="Research topics, questions to ask, things to review..."></textarea>
-      </div>
-      <div style="margin-top:12px;display:flex;gap:8px">
-        <button class="btn" id="saveInterview">SAVE</button>
-        <button class="btn" id="cancelInterview">CANCEL</button>
-      </div>
-    </div>
 
-    <div id="interviewList">
-      ${interviews.length === 0
-        ? `<div class="empty-state"><div class="empty-state-icon">&#128197;</div><h3>No interviews scheduled</h3><p>Click "+ INTERVIEW" to add one</p></div>`
-        : interviews.map(iv => renderInterviewCard(iv)).join('')
-      }
+      <div class="grid cols-2">
+        <div class="panel stack-md">
+          <div id="interviewFormWrap" class="surface-inline hidden">
+            <div class="section-title-row">
+              <h3>Add Interview</h3>
+              <p class="section-copy">Link it to an existing job so the prep brief can use fit scoring and resume overlap.</p>
+            </div>
+            <div class="inline-form">
+              <label class="field-group compact">
+                <span class="muted">Date</span>
+                <input type="date" class="input" id="intDate" value="${todayStr}">
+              </label>
+              <label class="field-group compact">
+                <span class="muted">Time</span>
+                <input type="time" class="input" id="intTime" value="09:00">
+              </label>
+              <label class="field-group">
+                <span class="muted">Job / Company</span>
+                ${jobs.length > 0 ? `
+                  <select class="input" id="intJob">
+                    <option value="">Select a tracked job</option>
+                    ${jobs.map(job => `<option value="${job.id}" data-company="${escapeHtml(job.company || '')}" data-role="${escapeHtml(job.title || '')}">${escapeHtml(job.company || 'Unknown')} — ${escapeHtml(job.title || 'No title')}</option>`).join('')}
+                    <option value="__custom">Other</option>
+                  </select>
+                ` : `<input type="text" class="input" id="intCompanyCustom" placeholder="Company name">`}
+              </label>
+              <label class="field-group compact">
+                <span class="muted">Type</span>
+                <select class="input" id="intType">
+                  <option>Phone</option>
+                  <option>Video</option>
+                  <option>Onsite</option>
+                  <option>Technical</option>
+                  <option>Panel</option>
+                </select>
+              </label>
+            </div>
+            ${jobs.length > 0 ? `
+              <div id="intCustomWrap" class="inline-form hidden">
+                <label class="field-group">
+                  <span class="muted">Company</span>
+                  <input type="text" class="input" id="intCompanyCustom" placeholder="Company name">
+                </label>
+                <label class="field-group">
+                  <span class="muted">Role</span>
+                  <input type="text" class="input" id="intRoleCustom" placeholder="Role title">
+                </label>
+              </div>
+            ` : `
+              <div class="inline-form">
+                <label class="field-group">
+                  <span class="muted">Role</span>
+                  <input type="text" class="input" id="intRoleCustom" placeholder="Role title">
+                </label>
+              </div>
+            `}
+            <label class="field-group">
+              <span class="muted">Prep Notes</span>
+              <textarea class="input" id="intNotes" rows="3" placeholder="Research topics, people to ask about, or gaps to prepare for..."></textarea>
+            </label>
+            <div class="action-cluster">
+              <button class="btn brand" id="saveInterview" type="button">Save Interview</button>
+              <button class="btn ghost" id="cancelInterview" type="button">Cancel</button>
+            </div>
+          </div>
+
+          <div class="section-title-row">
+            <h3>Interview Queue</h3>
+            <p class="section-copy">Each entry now includes a quick prep brief driven by fit score and your story bank.</p>
+          </div>
+          <div class="stack-md" id="interviewList">
+            ${interviews.length
+              ? interviews.map(interview => renderInterviewCard(interview, jobMap.get(interview.jobId), stories, profile)).join('')
+              : '<div class="empty-inline">No interviews scheduled yet. Add one to generate a prep brief automatically.</div>'
+            }
+          </div>
+        </div>
+
+        <div class="panel stack-md">
+          <div id="storyFormWrap" class="surface-inline hidden">
+            <div class="section-title-row">
+              <h3>Add Story</h3>
+              <p class="section-copy">Capture one strong STAR-style example with the skills it proves.</p>
+            </div>
+            <div class="inline-form">
+              <label class="field-group">
+                <span class="muted">Story Title</span>
+                <input class="input" id="storyTitle" placeholder="Scaled a workflow, launched a migration, improved a metric..." />
+              </label>
+              <label class="field-group">
+                <span class="muted">Skills (comma-separated)</span>
+                <input class="input" id="storySkills" placeholder="python, leadership, experimentation" />
+              </label>
+            </div>
+            <label class="field-group">
+              <span class="muted">Situation / Task</span>
+              <textarea class="input" id="storySituation" rows="3" placeholder="What was the challenge or context?"></textarea>
+            </label>
+            <label class="field-group">
+              <span class="muted">Action / Result</span>
+              <textarea class="input" id="storyAction" rows="3" placeholder="What did you do, and what changed because of it?"></textarea>
+            </label>
+            <div class="action-cluster">
+              <button class="btn brand" id="saveStory" type="button">Save Story</button>
+              <button class="btn ghost" id="cancelStory" type="button">Cancel</button>
+            </div>
+          </div>
+
+          <div class="section-title-row">
+            <h3>Story Bank</h3>
+            <p class="section-copy">Keep concise proof points ready so interview prep becomes selection, not reinvention.</p>
+          </div>
+          <div class="stack-md" id="storyList">
+            ${stories.length
+              ? stories.map(story => renderStoryCard(story)).join('')
+              : '<div class="empty-inline">No stories yet. Add 3 to 5 great examples and your interview prep gets much faster.</div>'
+            }
+          </div>
+        </div>
+      </div>
     </div>
   `;
 
-  /* --- Toggle form --- */
-  container.querySelector('#toggleInterviewForm').onclick = () => {
-    const wrap = container.querySelector('#interviewFormWrap');
-    wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
-  };
+  const interviewFormWrap = container.querySelector('#interviewFormWrap');
+  const storyFormWrap = container.querySelector('#storyFormWrap');
+  const customWrap = container.querySelector('#intCustomWrap');
+  const jobSelect = container.querySelector('#intJob');
 
+  container.querySelector('#toggleInterviewForm')?.addEventListener('click', () => {
+    interviewFormWrap?.classList.toggle('hidden');
+  });
   container.querySelector('#cancelInterview')?.addEventListener('click', () => {
-    container.querySelector('#interviewFormWrap').style.display = 'none';
+    interviewFormWrap?.classList.add('hidden');
+  });
+  container.querySelector('#toggleStoryForm')?.addEventListener('click', () => {
+    storyFormWrap?.classList.toggle('hidden');
+  });
+  container.querySelector('#cancelStory')?.addEventListener('click', () => {
+    storyFormWrap?.classList.add('hidden');
   });
 
-  /* --- Job select -> custom toggle --- */
-  const jobSelect = container.querySelector('#intJob');
-  if (jobSelect) {
-    jobSelect.onchange = () => {
-      const custom = jobSelect.value === '__custom';
-      const cc = container.querySelector('#intCompanyCustom');
-      const rc = container.querySelector('#intRoleCustom');
-      if (cc) cc.style.display = custom ? 'block' : 'none';
-      if (rc) rc.style.display = custom ? 'block' : 'none';
-    };
+  if (jobSelect && customWrap) {
+    jobSelect.addEventListener('change', () => {
+      customWrap.classList.toggle('hidden', jobSelect.value !== '__custom');
+    });
   }
 
-  /* --- Save interview --- */
-  container.querySelector('#saveInterview').onclick = () => {
+  container.querySelector('#saveInterview')?.addEventListener('click', () => {
     const date = container.querySelector('#intDate')?.value;
     const time = container.querySelector('#intTime')?.value || '';
     const type = container.querySelector('#intType')?.value || 'Phone';
     const notes = container.querySelector('#intNotes')?.value || '';
-
     let company = '';
     let role = '';
     let jobId = '';
 
-    const sel = container.querySelector('#intJob');
-    if (sel && sel.value && sel.value !== '__custom') {
-      jobId = sel.value;
-      const opt = sel.selectedOptions[0];
-      company = opt?.dataset.company || '';
-      role = opt?.dataset.role || '';
+    if (jobSelect && jobSelect.value && jobSelect.value !== '__custom') {
+      jobId = jobSelect.value;
+      const selected = jobSelect.selectedOptions[0];
+      company = selected?.dataset.company || '';
+      role = selected?.dataset.role || '';
     } else {
       company = (container.querySelector('#intCompanyCustom')?.value || '').trim();
       role = (container.querySelector('#intRoleCustom')?.value || '').trim();
@@ -127,8 +246,8 @@ export function renderInterviews(container, state) {
       return;
     }
 
-    const list = state.get('interviews') || [];
-    list.push({
+    const nextInterviews = state.get('interviews') || [];
+    nextInterviews.push({
       id: uid(),
       jobId,
       company,
@@ -140,109 +259,149 @@ export function renderInterviews(container, state) {
       status: 'Scheduled',
       createdAt: new Date().toISOString()
     });
-    state.set('interviews', list);
+    state.set('interviews', nextInterviews);
     toast('Interview added', 'success');
     renderInterviews(container, state);
-  };
+  });
 
-  /* --- Card actions (delegation) --- */
-  container.querySelector('#interviewList').onclick = (e) => {
-    const btn = e.target.closest('[data-act]');
-    if (!btn) return;
-    const id = btn.dataset.id;
-    const act = btn.dataset.act;
+  container.querySelector('#saveStory')?.addEventListener('click', () => {
+    const title = (container.querySelector('#storyTitle')?.value || '').trim();
+    const skills = parseStorySkills(container.querySelector('#storySkills')?.value || '');
+    const situation = (container.querySelector('#storySituation')?.value || '').trim();
+    const action = (container.querySelector('#storyAction')?.value || '').trim();
+
+    if (!title || !action) {
+      toast('Story title and action/result are required', 'error');
+      return;
+    }
+
+    const nextStories = state.get('stories') || [];
+    nextStories.push({
+      id: uid(),
+      title,
+      skills,
+      situation,
+      action,
+      createdAt: new Date().toISOString()
+    });
+    state.set('stories', nextStories);
+    toast('Story saved', 'success');
+    renderInterviews(container, state);
+  });
+
+  container.querySelector('#interviewList')?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-act]');
+    if (!button) return;
+    const id = button.dataset.id;
+    const action = button.dataset.act;
     const list = state.get('interviews') || [];
-    const iv = list.find(x => x.id === id);
-    if (!iv) return;
+    const current = list.find(item => item.id === id);
+    if (!current) return;
 
-    if (act === 'complete') {
-      iv.status = 'Completed';
-      state.set('interviews', list);
-      toast('Marked as completed', 'success');
-      renderInterviews(container, state);
-    }
-    if (act === 'cancel') {
-      iv.status = 'Cancelled';
-      state.set('interviews', list);
-      toast('Interview cancelled', 'info');
-      renderInterviews(container, state);
-    }
-    if (act === 'editNotes') {
-      const card = btn.closest('.interview-card');
-      const ta = card?.querySelector('.edit-notes-area');
-      if (ta) {
-        ta.style.display = ta.style.display === 'none' ? 'block' : 'none';
-        if (ta.style.display === 'block') ta.querySelector('textarea')?.focus();
-      }
-    }
-    if (act === 'saveNotes') {
-      const card = btn.closest('.interview-card');
-      const ta = card?.querySelector('.edit-notes-area textarea');
-      if (ta) {
-        iv.notes = ta.value;
-        state.set('interviews', list);
-        toast('Notes updated', 'success');
-        renderInterviews(container, state);
-      }
-    }
-    if (act === 'toggleNotes') {
-      const card = btn.closest('.interview-card');
-      const notesBody = card?.querySelector('.notes-body');
-      if (notesBody) {
-        notesBody.style.display = notesBody.style.display === 'none' ? 'block' : 'none';
-        btn.textContent = notesBody.style.display === 'none' ? 'Show Notes' : 'Hide Notes';
-      }
-    }
-  };
+    if (action === 'complete') current.status = 'Completed';
+    if (action === 'cancel') current.status = 'Cancelled';
+    if (action === 'toggle-notes') current.showNotes = !current.showNotes;
+    state.set('interviews', [...list]);
+    toast(action === 'toggle-notes' ? 'Notes toggled' : 'Interview updated', action === 'cancel' ? 'info' : 'success');
+    renderInterviews(container, state);
+  });
+
+  container.querySelector('#storyList')?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-act="delete-story"]');
+    if (!button) return;
+    const nextStories = (state.get('stories') || []).filter(story => story.id !== button.dataset.id);
+    state.set('stories', nextStories);
+    toast('Story removed', 'info');
+    renderInterviews(container, state);
+  });
 }
 
-function renderInterviewCard(iv) {
-  const statusColors = {
-    Scheduled: '#2196F3',
-    Completed: '#4CAF50',
-    Cancelled: '#9E9E9E'
-  };
-  const typeBadgeColors = {
-    Phone: '#8BC34A',
-    Video: '#03A9F4',
-    Onsite: '#FF9800',
-    Technical: '#E91E63'
-  };
-  const color = statusColors[iv.status] || '#999';
-  const badgeColor = typeBadgeColors[iv.type] || '#999';
-  const hasNotes = iv.notes && iv.notes.trim().length > 0;
-  const dateStr = iv.date ? new Date(iv.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : '';
-  const timeStr = iv.time || '';
+function renderInterviewCard(interview, job, stories, profile) {
+  const prep = buildInterviewPrep(interview, job || interview, stories, profile);
+  const isScheduled = interview.status === 'Scheduled';
+  const storyPreview = prep.storyMatches.length
+    ? prep.storyMatches.map(story => `<span class="chip">${escapeHtml(story.title)}</span>`).join('')
+    : '<span class="muted">No strong story match yet</span>';
 
   return `
-    <div class="interview-card" style="border:1px solid var(--border);border-left:4px solid ${color};border-radius:8px;padding:14px;margin-bottom:12px;background:var(--surface)">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
-        <div>
-          <div style="font-weight:600;font-size:15px">${escapeHtml(iv.company)}</div>
-          <div class="muted" style="font-size:13px">${escapeHtml(iv.role || '')}</div>
-          <div style="margin-top:6px;font-size:13px">
-            <span style="margin-right:12px">&#128197; ${escapeHtml(dateStr)}${timeStr ? ' at ' + escapeHtml(timeStr) : ''}</span>
-            <span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;color:#fff;background:${badgeColor}">${escapeHtml(iv.type)}</span>
-            <span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;color:${color};border:1px solid ${color};margin-left:4px">${escapeHtml(iv.status)}</span>
-          </div>
+    <div class="prep-card">
+      <div class="section-intro">
+        <div class="section-title-row">
+          <h3>${escapeHtml(interview.company)}</h3>
+          <p class="section-copy">${escapeHtml(interview.role || job?.title || '')}</p>
         </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          ${iv.status === 'Scheduled' ? `
-            <button class="btn small" data-act="complete" data-id="${iv.id}" style="font-size:11px">COMPLETE</button>
-            <button class="btn small" data-act="cancel" data-id="${iv.id}" style="font-size:11px">CANCEL</button>
-          ` : ''}
-          <button class="btn small" data-act="editNotes" data-id="${iv.id}" style="font-size:11px">EDIT NOTES</button>
+        <div class="action-cluster">
+          <span class="fit-grade fit-grade-${prep.evaluation.grade.toLowerCase()}">${escapeHtml(prep.evaluation.grade)} · ${prep.evaluation.score}%</span>
+          <span class="chip">${escapeHtml(interview.type || 'Interview')}</span>
+          <span class="chip">${escapeHtml(interview.status || 'Scheduled')}</span>
         </div>
       </div>
-      ${hasNotes ? `
-        <div style="margin-top:8px">
-          <button class="btn small" data-act="toggleNotes" data-id="${iv.id}" style="font-size:11px">Show Notes</button>
-          <div class="notes-body" style="display:none;margin-top:6px;padding:8px;background:var(--bg);border-radius:4px;font-size:13px;white-space:pre-wrap">${escapeHtml(iv.notes)}</div>
+      <div class="story-meta">
+        <span class="chip">Date: ${escapeHtml(interview.date || '')}</span>
+        ${interview.time ? `<span class="chip">Time: ${escapeHtml(interview.time)}</span>` : ''}
+        ${job?.fitGrade ? `<span class="chip">Saved Fit: ${escapeHtml(job.fitGrade)}</span>` : ''}
+      </div>
+      <div class="story-grid">
+        <div>
+          <strong>Prep focus</strong>
+          <div class="fit-chip-row" style="margin-top:6px;">
+            ${prep.focusAreas.map(area => `<span class="chip chip-risk">${escapeHtml(area)}</span>`).join('')}
+          </div>
+        </div>
+        <div>
+          <strong>Likely questions</strong>
+          <ul class="prep-list">
+            ${prep.likelyQuestions.map(question => `<li>${escapeHtml(question)}</li>`).join('')}
+          </ul>
+        </div>
+        <div>
+          <strong>Story matches</strong>
+          <div class="fit-chip-row" style="margin-top:6px;">${storyPreview}</div>
+        </div>
+        <div>
+          <strong>Talking points</strong>
+          <ul class="prep-list">
+            ${prep.talkingPoints.map(point => `<li>${escapeHtml(point)}</li>`).join('')}
+          </ul>
+        </div>
+        ${interview.notes ? `
+          <div>
+            <strong>Notes</strong>
+            <p class="muted" style="margin-top:6px;">${escapeHtml(interview.notes)}</p>
+          </div>
+        ` : ''}
+      </div>
+      <div class="action-cluster">
+        ${isScheduled ? `<button class="btn small" data-act="complete" data-id="${interview.id}" type="button">Complete</button>` : ''}
+        ${isScheduled ? `<button class="btn small ghost" data-act="cancel" data-id="${interview.id}" type="button">Cancel</button>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function renderStoryCard(story) {
+  return `
+    <div class="story-card">
+      <div class="section-intro">
+        <div class="section-title-row">
+          <h3>${escapeHtml(story.title || 'Untitled story')}</h3>
+        </div>
+        <button class="btn danger small" data-act="delete-story" data-id="${story.id}" type="button">Delete</button>
+      </div>
+      ${story.skills?.length ? `
+        <div class="fit-chip-row">
+          ${story.skills.map(skill => `<span class="chip chip-strong">${escapeHtml(skill)}</span>`).join('')}
         </div>
       ` : ''}
-      <div class="edit-notes-area" style="display:none;margin-top:8px">
-        <textarea class="input" rows="3" style="width:100%">${escapeHtml(iv.notes || '')}</textarea>
-        <button class="btn small" data-act="saveNotes" data-id="${iv.id}" style="margin-top:6px;font-size:11px">SAVE NOTES</button>
+      ${story.situation ? `
+        <div>
+          <strong>Situation</strong>
+          <p class="muted" style="margin-top:6px;">${escapeHtml(story.situation)}</p>
+        </div>
+      ` : ''}
+      <div>
+        <strong>Action / Result</strong>
+        <p class="muted" style="margin-top:6px;">${escapeHtml(story.action || '')}</p>
       </div>
     </div>
   `;

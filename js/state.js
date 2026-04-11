@@ -5,11 +5,27 @@
 import { STORAGE_KEYS } from './config.js';
 
 const listeners = {};
+const JSON_FIELDS = [
+  ['jobs', STORAGE_KEYS.jobs, []],
+  ['resumes', STORAGE_KEYS.resumes, []],
+  ['companies', STORAGE_KEYS.companies, []],
+  ['contacts', STORAGE_KEYS.contacts, []],
+  ['interviews', STORAGE_KEYS.interviews, []],
+  ['networking', STORAGE_KEYS.networking, []],
+  ['offers', STORAGE_KEYS.offers, []],
+  ['stories', STORAGE_KEYS.stories, []],
+  ['agentConfig', STORAGE_KEYS.agentConfig, null],
+  ['agentRuns', STORAGE_KEYS.agentRuns, []]
+];
 const data = {
   jobs: [],
   resumes: [],
   companies: [],
   contacts: [],
+  interviews: [],
+  networking: [],
+  offers: [],
+  stories: [],
   settings: {},
   apiKeys: {},
   user: null,
@@ -38,6 +54,15 @@ export function set(key, value) {
   persist();
 }
 
+function readStoredValue(storageKey, fallback) {
+  try {
+    const raw = localStorage.getItem(storageKey);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 /**
  * Listen for an event.
  */
@@ -63,13 +88,17 @@ export function emit(event, payload) {
  */
 export function persist() {
   try {
-    localStorage.setItem(STORAGE_KEYS.jobs, JSON.stringify(data.jobs));
-    localStorage.setItem(STORAGE_KEYS.resumes, JSON.stringify(data.resumes));
-    localStorage.setItem(STORAGE_KEYS.companies, JSON.stringify(data.companies));
-    localStorage.setItem(STORAGE_KEYS.contacts, JSON.stringify(data.contacts));
-    localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify({ role: data.role, ...data.settings }));
-    if (data.agentConfig) localStorage.setItem(STORAGE_KEYS.agentConfig, JSON.stringify(data.agentConfig));
-    if (data.agentRuns) localStorage.setItem(STORAGE_KEYS.agentRuns, JSON.stringify(data.agentRuns));
+    JSON_FIELDS.forEach(([key, storageKey]) => {
+      if (data[key] !== undefined && data[key] !== null) {
+        localStorage.setItem(storageKey, JSON.stringify(data[key]));
+      } else {
+        localStorage.removeItem(storageKey);
+      }
+    });
+    localStorage.setItem(
+      STORAGE_KEYS.settings,
+      JSON.stringify({ role: data.role, listView: data.listView, ...data.settings })
+    );
   } catch (e) {
     console.warn('Persist failed:', e);
   }
@@ -80,15 +109,13 @@ export function persist() {
  */
 export function loadFromStorage() {
   try {
-    data.jobs = JSON.parse(localStorage.getItem(STORAGE_KEYS.jobs) || '[]');
-    data.resumes = JSON.parse(localStorage.getItem(STORAGE_KEYS.resumes) || '[]');
-    data.companies = JSON.parse(localStorage.getItem(STORAGE_KEYS.companies) || '[]');
-    data.contacts = JSON.parse(localStorage.getItem(STORAGE_KEYS.contacts) || '[]');
-    const settings = JSON.parse(localStorage.getItem(STORAGE_KEYS.settings) || '{}');
+    JSON_FIELDS.forEach(([key, storageKey, fallback]) => {
+      data[key] = readStoredValue(storageKey, fallback);
+    });
+    const settings = readStoredValue(STORAGE_KEYS.settings, {});
     data.role = settings.role || 'Candidate';
+    data.listView = settings.listView !== false;
     data.settings = settings;
-    data.agentConfig = JSON.parse(localStorage.getItem(STORAGE_KEYS.agentConfig) || 'null');
-    data.agentRuns = JSON.parse(localStorage.getItem(STORAGE_KEYS.agentRuns) || '[]');
   } catch (e) {
     console.warn('Load from storage failed:', e);
   }
@@ -99,14 +126,10 @@ export function loadFromStorage() {
  */
 export async function syncFromFirestore(getAllDocs) {
   try {
-    const jobs = await getAllDocs('jobs');
-    if (jobs && jobs.length > 0) data.jobs = jobs;
-    const resumes = await getAllDocs('resumes');
-    if (resumes && resumes.length > 0) data.resumes = resumes;
-    const companies = await getAllDocs('companies');
-    if (companies && companies.length > 0) data.companies = companies;
-    const contacts = await getAllDocs('contacts');
-    if (contacts && contacts.length > 0) data.contacts = contacts;
+    for (const key of ['jobs', 'resumes', 'companies', 'contacts', 'interviews', 'networking', 'offers', 'stories']) {
+      const items = await getAllDocs(key);
+      if (items && items.length > 0) data[key] = items;
+    }
     emit('change', { key: 'all', value: null, old: null });
   } catch (e) {
     console.warn('Firestore sync failed, using localStorage:', e);

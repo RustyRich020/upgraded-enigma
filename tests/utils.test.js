@@ -27,6 +27,10 @@ describe('fmtDate', () => {
     expect(fmtDate('2026-04-10')).toBe('2026-04-10');
   });
 
+  it('preserves plain ISO date strings without timezone shifting', () => {
+    expect(fmtDate('2026-01-01')).toBe('2026-01-01');
+  });
+
   it('returns empty for falsy input', () => {
     expect(fmtDate('')).toBe('');
     expect(fmtDate(null)).toBe('');

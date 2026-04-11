@@ -4,12 +4,13 @@
    tabbed page with a Compare toolbar button.
    ============================================================ */
 
-import { escapeHtml, fmtDate, today } from '../utils.js';
-import { STATUSES } from '../config.js';
+import { escapeHtml } from '../utils.js';
 import { renderTracker } from './tracker.js';
 import { renderTimeline } from './timeline.js';
 import { toast } from '../components/toast.js';
 import { renderJobComparison } from '../services/jd-intelligence.js';
+import { buildCareerProfile, evaluateOpportunity } from '../services/career-ops-lite.js';
+import { enableTabKeyboardNavigation, setActiveTab } from '../ui/a11y.js';
 
 const SESSION_KEY = 'tron_myJobs_activeTab';
 
@@ -23,31 +24,81 @@ const SESSION_KEY = 'tron_myJobs_activeTab';
  */
 export function renderMyJobs(container, state, { addJob, updateJob, removeJob }) {
   const savedTab = sessionStorage.getItem(SESSION_KEY) || 'table';
+  const jobs = (state.get('jobs') || []).filter(j => j.id && j.id !== '_meta' && j.title);
+  const activeCount = jobs.filter(job => job.status !== 'Closed').length;
+  const interviewCount = jobs.filter(job => ['Interview', 'Offer'].includes(job.status)).length;
+  const dueSoonLimit = new Date(Date.now() + (7 * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
+  const followUpCount = jobs.filter(job => job.follow && job.follow <= dueSoonLimit && job.status !== 'Closed').length;
+  const profile = buildCareerProfile({
+    resumes: state.get('resumes') || [],
+    jobs,
+    offers: state.get('offers') || [],
+    settings: state.get('settings') || {}
+  });
+  const scoredJobs = jobs.map(job => evaluateOpportunity(job, profile));
+  const avgFit = scoredJobs.length
+    ? Math.round(scoredJobs.reduce((sum, item) => sum + item.score, 0) / scoredJobs.length)
+    : 0;
 
   container.innerHTML = `
-    <div class="toolbar" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-      <div class="view-tabs" style="border-bottom:none;">
-        <button class="view-tab ${savedTab === 'table' ? 'active' : ''}" data-tab="table">Table</button>
-        <button class="view-tab ${savedTab === 'kanban' ? 'active' : ''}" data-tab="kanban">Kanban</button>
-        <button class="view-tab ${savedTab === 'timeline' ? 'active' : ''}" data-tab="timeline">Timeline</button>
+    <div class="section-shell">
+      <div class="section-intro">
+        <div class="section-title-row">
+          <p class="eyebrow">Pipeline Control</p>
+          <h2>My Jobs</h2>
+          <p class="section-copy">${jobs.length ? `${activeCount} active jobs and ${interviewCount} roles in later stages.` : 'Capture roles, organize them visually, and review the full timeline of your search.'}</p>
+        </div>
+        <button id="compareJobsBtn" class="btn ghost small" type="button">Compare</button>
       </div>
-      <button id="compareJobsBtn" class="btn ghost small">Compare</button>
-    </div>
-
-    <div class="tab-content ${savedTab !== 'table' ? 'hidden' : ''}" id="tab-table"></div>
-    <div class="tab-content ${savedTab !== 'kanban' ? 'hidden' : ''}" id="tab-kanban"></div>
-    <div class="tab-content ${savedTab !== 'timeline' ? 'hidden' : ''}" id="tab-timeline"></div>
-
-    <!-- Comparison panel (hidden by default) -->
-    <div id="comparePanel" class="panel" style="display:none;margin-top:16px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <h3 style="margin:0;">Job Comparison</h3>
-        <button id="closeCompareBtn" class="btn small ghost">Close</button>
+      <div class="section-hero">
+        <div class="glance-grid">
+          <div class="glance-card">
+            <div class="glance-label">Active Pipeline</div>
+            <div class="glance-value">${activeCount}</div>
+            <div class="glance-copy">${activeCount ? 'These roles are still alive and need active attention.' : 'Your tracker is quiet right now. Add a few roles to build momentum.'}</div>
+          </div>
+          <div class="glance-card">
+            <div class="glance-label">Due This Week</div>
+            <div class="glance-value">${followUpCount}</div>
+            <div class="glance-copy">${followUpCount ? 'Follow-ups are coming due soon, so this is your highest-leverage admin work.' : 'No near-term follow-ups are due. You have room to search or prep.'}</div>
+          </div>
+          <div class="glance-card">
+            <div class="glance-label">Average Fit</div>
+            <div class="glance-value">${avgFit ? `${avgFit}%` : '--'}</div>
+            <div class="glance-copy">${avgFit ? 'A quick signal for how aligned your current pipeline is overall.' : 'Upload a resume and add role detail to unlock stronger fit signals.'}</div>
+          </div>
+        </div>
+        <div class="quick-switcher" aria-label="My Jobs shortcuts">
+          <span class="muted">Jump to:</span>
+          <button class="btn small ghost" type="button" data-jump-tab="table">Review table</button>
+          <button class="btn small ghost" type="button" data-jump-tab="kanban">Move stages</button>
+          <button class="btn small ghost" type="button" data-jump-tab="timeline">See timeline</button>
+          <span class="chip">${interviewCount} late-stage role${interviewCount === 1 ? '' : 's'}</span>
+        </div>
       </div>
-      <p class="muted" style="margin-bottom:12px;">Select 2-3 jobs below to compare ATS scores and skill gaps.</p>
-      <div id="compareJobSelect" style="margin-bottom:12px;"></div>
-      <button id="runCompareBtn" class="btn brand small" style="margin-bottom:16px;">Run Comparison</button>
-      <div id="compareResults"></div>
+      <div class="view-tabs" role="tablist" aria-label="My Jobs views">
+        <button class="view-tab ${savedTab === 'table' ? 'active' : ''}" data-tab="table" role="tab" aria-selected="${savedTab === 'table'}">Table</button>
+        <button class="view-tab ${savedTab === 'kanban' ? 'active' : ''}" data-tab="kanban" role="tab" aria-selected="${savedTab === 'kanban'}">Kanban</button>
+        <button class="view-tab ${savedTab === 'timeline' ? 'active' : ''}" data-tab="timeline" role="tab" aria-selected="${savedTab === 'timeline'}">Timeline</button>
+      </div>
+
+      <div class="tab-content ${savedTab !== 'table' ? 'hidden' : ''}" id="tab-table"></div>
+      <div class="tab-content ${savedTab !== 'kanban' ? 'hidden' : ''}" id="tab-kanban"></div>
+      <div class="tab-content ${savedTab !== 'timeline' ? 'hidden' : ''}" id="tab-timeline"></div>
+
+      <!-- Comparison panel (hidden by default) -->
+      <div id="comparePanel" class="panel hidden">
+        <div class="section-intro">
+          <div class="section-title-row">
+            <h3>Job Comparison</h3>
+            <p class="section-copy">Pick 2 to 3 jobs to compare ATS fit and gaps side by side.</p>
+          </div>
+          <button id="closeCompareBtn" class="btn small ghost" type="button">Close</button>
+        </div>
+        <div id="compareJobSelect" class="compare-picker" style="margin-bottom:12px;"></div>
+        <button id="runCompareBtn" class="btn brand small" style="margin-bottom:16px;" type="button">Run Comparison</button>
+        <div id="compareResults"></div>
+      </div>
     </div>
   `;
 
@@ -58,31 +109,45 @@ export function renderMyJobs(container, state, { addJob, updateJob, removeJob })
     timeline: container.querySelector('#tab-timeline'),
   };
 
-  /* ---- Build inner content shells ---- */
   buildTablePane(panes.table);
   buildKanbanPane(panes.kanban);
   buildTimelinePane(panes.timeline);
 
-  /* ---- Render the active tab ---- */
-  renderTab(savedTab, panes, state, { addJob, updateJob, removeJob });
+  const rendered = new Set();
+  function renderTabOnce(tab) {
+    renderTab(tab, panes, state, { addJob, updateJob, removeJob });
+    rendered.add(tab);
+  }
 
-  /* ---- Tab click handler ---- */
+  function activateTab(tab) {
+    setActiveTab(tabBar, tab);
+    Object.entries(panes).forEach(([key, el]) => {
+      el.classList.toggle('hidden', key !== tab);
+    });
+    sessionStorage.setItem(SESSION_KEY, tab);
+    if (!rendered.has(tab) || tab === 'table' || tab === 'kanban') {
+      renderTabOnce(tab);
+    }
+  }
+
+  activateTab(savedTab);
+
   tabBar.addEventListener('click', (e) => {
     const btn = e.target.closest('.view-tab');
     if (!btn) return;
     const tab = btn.dataset.tab;
     if (!tab) return;
-
-    tabBar.querySelectorAll('.view-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    Object.entries(panes).forEach(([key, el]) => {
-      el.classList.toggle('hidden', key !== tab);
-    });
-
-    sessionStorage.setItem(SESSION_KEY, tab);
-    renderTab(tab, panes, state, { addJob, updateJob, removeJob });
+    activateTab(tab);
   });
+
+  container.querySelectorAll('[data-jump-tab]').forEach(button => {
+    button.addEventListener('click', () => {
+      const tab = button.dataset.jumpTab;
+      if (tab) activateTab(tab);
+    });
+  });
+
+  enableTabKeyboardNavigation(tabBar, activateTab);
 
   /* ---- Compare button ---- */
   const comparePanel = container.querySelector('#comparePanel');
@@ -90,13 +155,13 @@ export function renderMyJobs(container, state, { addJob, updateJob, removeJob })
   const closeCompareBtn = container.querySelector('#closeCompareBtn');
 
   compareBtn.addEventListener('click', () => {
-    const isVisible = comparePanel.style.display !== 'none';
-    comparePanel.style.display = isVisible ? 'none' : 'block';
+    const isVisible = !comparePanel.classList.contains('hidden');
+    comparePanel.classList.toggle('hidden', isVisible);
     if (!isVisible) buildCompareSelector(container, state);
   });
 
   closeCompareBtn.addEventListener('click', () => {
-    comparePanel.style.display = 'none';
+    comparePanel.classList.add('hidden');
   });
 
   /* ---- Run Comparison ---- */
@@ -133,8 +198,8 @@ function buildTablePane(el) {
   el.innerHTML = `
     <div class="toolbar" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
       <h2>Applications</h2>
-      <div style="display:flex;gap:8px;">
-        <button id="toggleViewBtn" class="btn ghost small">KANBAN</button>
+      <div class="action-cluster">
+        <button id="toggleViewBtn" class="btn ghost small" type="button">Kanban</button>
       </div>
     </div>
 
@@ -260,15 +325,13 @@ function buildCompareSelector(container, state) {
   }
 
   selectEl.innerHTML = `
-    <div style="max-height:200px;overflow-y:auto;border:1px solid var(--color-surface-border);border-radius:var(--radius-md);padding:8px;">
-      ${jobs.map(j => `
-        <label style="display:flex;align-items:center;gap:8px;padding:4px 0;cursor:pointer;">
-          <input type="checkbox" class="compare-check" value="${j.id}" />
-          <strong>${escapeHtml(j.title)}</strong>
-          <span class="muted">@ ${escapeHtml(j.company || 'Unknown')}</span>
-        </label>
-      `).join('')}
-    </div>
+    ${jobs.map(j => `
+      <label>
+        <input type="checkbox" class="compare-check" value="${j.id}" />
+        <strong>${escapeHtml(j.title)}</strong>
+        <span class="muted">@ ${escapeHtml(j.company || 'Unknown')}</span>
+      </label>
+    `).join('')}
   `;
 }
 

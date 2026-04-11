@@ -6,47 +6,52 @@
 /* ---- Landing Page ---- */
 .landing-hero {
   min-height: calc(100vh - var(--header-height));
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  text-align: center; padding: 48px 24px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 56px 24px;
+  background:
+    radial-gradient(circle at top, rgba(196, 123, 58, 0.12), transparent 38%),
+    radial-gradient(circle at bottom right, rgba(45, 139, 95, 0.08), transparent 32%);
 }
 
 .landing-logo {
-  width: 72px; height: 72px;
+  width: 78px; height: 78px;
   border-radius: var(--radius-xl);
   display: flex; align-items: center; justify-content: center;
-  background: var(--color-primary-dim);
+  background: linear-gradient(135deg, rgba(196, 123, 58, 0.14), rgba(45, 139, 95, 0.12));
   margin-bottom: 24px;
+  box-shadow: var(--shadow-lg);
 }
 
 .landing-title {
   font-family: var(--font-display);
-  font-size: 40px; font-weight: 700;
+  font-size: 48px; font-weight: 700;
   color: var(--color-text-heading);
-  letter-spacing: -0.5px;
+  letter-spacing: -0.04em;
   line-height: 1.15;
   margin-bottom: 12px;
-  max-width: 480px;
+  max-width: 580px;
 }
 
 .landing-subtitle {
-  font-size: 17px; font-weight: 400;
+  font-size: 18px; font-weight: 400;
   color: var(--color-text-dim);
   letter-spacing: 0;
   line-height: 1.5;
   margin-bottom: 32px;
-  max-width: 460px;
+  max-width: 620px;
 }
 
 .landing-features {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px; max-width: 760px; width: 100%;
-  margin-top: 48px; margin-bottom: 0;
+  gap: 16px; max-width: 960px; width: 100%;
+  margin-top: 40px; margin-bottom: 0;
 }
 
 .feature-card {
-  background: var(--color-surface);
+  background: var(--color-surface-glass);
   border: 1px solid var(--color-surface-border);
   border-radius: var(--radius-lg);
   padding: 24px; text-align: left;
@@ -59,11 +64,11 @@
 .feature-card:hover {
   border-color: var(--color-primary-dim);
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 }
 .feature-card .feature-icon {
   width: 40px; height: 40px; border-radius: var(--radius-md);
-  background: var(--color-bg-secondary);
+  background: linear-gradient(135deg, rgba(196, 123, 58, 0.1), rgba(45, 139, 95, 0.08));
   display: flex; align-items: center; justify-content: center;
   margin-bottom: 14px;
 }
@@ -73,7 +78,7 @@
 }
 .feature-card p { font-size: 13px; color: var(--color-text-dim); line-height: 1.6; }
 
-.landing-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.landing-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 
 .landing-skip {
   display: block; margin-top: 24px;
@@ -81,6 +86,181 @@
   cursor: pointer; transition: color var(--transition-fast);
 }
 .landing-skip:hover { color: var(--color-primary); }
+.landing-shell {
+  display: grid;
+  gap: 22px;
+  width: min(1040px, 100%);
+  justify-items: center;
+}
+.landing-badges,
+.landing-proof,
+.landing-stats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.landing-proof {
+  padding-top: 20px;
+  border-top: 1px solid var(--color-surface-border);
+  width: min(520px, 100%);
+}
+.landing-proof span {
+  font-size: 13px;
+  color: var(--color-text-dim);
+}
+.landing-stat {
+  min-width: 120px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--color-surface-border);
+  background: var(--color-surface-glass);
+  box-shadow: var(--shadow-sm);
+}
+.landing-stat strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1;
+  color: var(--color-text-heading);
+}
+.landing-stat span {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--color-text-dim);
+}
+
+/* ---- Dashboard ---- */
+.dashboard-shell {
+  display: grid;
+  gap: 18px;
+}
+.dashboard-grid-tight {
+  display: grid;
+  gap: 14px;
+}
+.dashboard-hero-card {
+  padding: 22px;
+  border-radius: 20px;
+  border: 1px solid rgba(196, 123, 58, 0.18);
+  background:
+    radial-gradient(circle at top right, rgba(196, 123, 58, 0.12), transparent 28%),
+    var(--color-surface-gradient);
+  box-shadow: var(--shadow-md);
+}
+.dashboard-panel-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.dashboard-panel-title h4,
+.dashboard-panel-title h3 {
+  margin: 0;
+}
+.dashboard-panel-title p {
+  margin-top: 4px;
+}
+.notification-panel {
+  display: grid;
+  gap: 12px;
+}
+.bls-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.bls-stat {
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--color-surface-border);
+  background: var(--color-surface-glass);
+  text-align: center;
+}
+.bls-value {
+  margin: 8px 0;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--color-text-heading);
+}
+.bls-value.accent { color: var(--color-info); }
+.bls-value.good { color: var(--color-success); }
+.bls-value.warn { color: var(--color-warning); }
+.career-ops-panel {
+  background:
+    radial-gradient(circle at top left, rgba(45, 139, 95, 0.08), transparent 30%),
+    var(--color-surface-gradient);
+}
+.career-ops-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.career-ops-column {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+.career-ops-column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+.career-ops-column-header h3 {
+  margin: 0;
+}
+.career-ops-column-header p {
+  margin-top: 4px;
+}
+.career-ops-stack {
+  display: grid;
+  gap: 12px;
+}
+.career-ops-role,
+.career-ops-skill,
+.career-ops-action {
+  border: 1px solid var(--color-surface-border);
+  border-radius: 16px;
+  background: var(--color-surface-glass);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.career-ops-role-head,
+.career-ops-skill-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+.career-ops-role-head strong,
+.career-ops-skill-head strong,
+.career-ops-action strong {
+  color: var(--color-text-heading);
+}
+.career-ops-summary {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-text-dim);
+}
+.career-ops-role .fit-chip-row,
+.career-ops-skill .fit-chip-row {
+  margin-top: 10px;
+}
+.career-ops-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.career-ops-action p,
+.career-ops-skill p {
+  margin: 6px 0 0;
+  line-height: 1.55;
+}
 
 /* ---- Profile Setup ---- */
 .setup-container {
@@ -433,15 +613,18 @@ body.auth-mode .header-actions .user-info { display: none !important; }
 
 /* ---- Unified Search Result Cards ---- */
 .search-result-card {
-  background: var(--color-surface);
+  background: var(--color-surface-gradient);
   border: 1px solid var(--color-surface-border);
-  border-radius: var(--radius-lg);
+  border-radius: 18px;
   padding: 18px 20px;
   margin-bottom: 12px;
-  transition: border-color var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 .search-result-card:hover {
   border-color: rgba(212,135,77,0.25);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 .src-card-header {
   display: flex;
@@ -453,7 +636,7 @@ body.auth-mode .header-actions .user-info { display: none !important; }
   width: 36px; height: 36px;
   border-radius: var(--radius-md);
   object-fit: contain;
-  background: #fff;
+  background: var(--color-bg-elevated);
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -476,8 +659,8 @@ body.auth-mode .header-actions .user-info { display: none !important; }
 }
 .src-card-source {
   font-size: 11px;
-  color: var(--color-muted);
-  background: var(--color-bg);
+  color: var(--color-text-subtle);
+  background: var(--color-bg-elevated);
   padding: 3px 8px;
   border-radius: var(--radius-full);
   flex-shrink: 0;
@@ -492,7 +675,7 @@ body.auth-mode .header-actions .user-info { display: none !important; }
   margin-bottom: 8px;
 }
 .src-card-detail {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--color-text-dim);
 }
 .src-card-salary {
@@ -501,16 +684,15 @@ body.auth-mode .header-actions .user-info { display: none !important; }
 }
 .src-card-desc {
   font-size: 13px;
-  color: var(--color-muted);
+  color: var(--color-text-dim);
   line-height: 1.5;
   margin-bottom: 10px;
-  max-height: 40px;
-  overflow: hidden;
 }
 .src-card-actions {
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 /* Search form styling */
@@ -520,6 +702,15 @@ body.auth-mode .header-actions .user-info { display: none !important; }
 }
 
 @media (max-width: 768px) {
+  .landing-title { font-size: 36px; }
+  .landing-subtitle { font-size: 16px; }
+  .landing-proof { width: 100%; }
+  .bls-grid { grid-template-columns: 1fr; }
+  .career-ops-grid { grid-template-columns: 1fr; }
+  .career-ops-action { flex-direction: column; align-items: flex-start; }
+  .career-ops-column-header,
+  .career-ops-role-head,
+  .career-ops-skill-head { flex-direction: column; }
   .src-card-header { flex-wrap: wrap; }
   .src-card-details { gap: 8px; }
   .src-card-detail { font-size: 13px; }

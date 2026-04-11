@@ -4,6 +4,7 @@
 
 import { escapeHtml, fmtDate, today } from '../utils.js';
 import { STATUSES } from '../config.js';
+import { buildCareerProfile, evaluateOpportunity } from '../services/career-ops-lite.js';
 
 /**
  * Render the tracker view (table + kanban toggle).
@@ -14,6 +15,16 @@ import { STATUSES } from '../config.js';
 export function renderTracker(container, state, { addJob, updateJob, removeJob }) {
   // Filter out _meta docs from Firestore
   const jobs = (state.get('jobs') || []).filter(j => j.id && j.id !== '_meta' && j.title);
+  const profile = buildCareerProfile({
+    resumes: state.get('resumes') || [],
+    jobs,
+    offers: state.get('offers') || [],
+    settings: state.get('settings') || {}
+  });
+  const scoredJobs = jobs.map(job => ({
+    ...job,
+    fit: evaluateOpportunity(job, profile)
+  }));
   const isListView = state.get('listView') !== false;
   const role = state.get('role') || 'Candidate';
   const hideSalary = role === 'Auditor';
@@ -24,12 +35,17 @@ export function renderTracker(container, state, { addJob, updateJob, removeJob }
     if (jobs.length === 0) {
       tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">&#9670;</div><h3>No jobs tracked yet</h3><p>Click "+ JOB" to add your first application</p></div></td></tr>`;
     } else {
-      tbody.innerHTML = jobs.map(j => `
+      tbody.innerHTML = scoredJobs.map(j => `
         <tr draggable="true" data-id="${j.id}">
-          <td>${j.url
-            ? `<a href="${escapeHtml(j.url)}" target="_blank" style="color:var(--orange-bright)">${escapeHtml(j.title || '')}</a>`
-            : escapeHtml(j.title || '')
-          }</td>
+          <td>
+            <div class="table-job-cell">
+              ${j.url
+                ? `<a href="${escapeHtml(j.url)}" target="_blank" style="color:var(--color-primary)">${escapeHtml(j.title || '')}</a>`
+                : escapeHtml(j.title || '')
+              }
+              ${j.fit ? `<div class="fit-inline"><span class="fit-grade fit-grade-${(j.fit.grade || 'c').toLowerCase()}">${escapeHtml(j.fit.grade)}</span><span class="muted">${j.fit.score}% fit</span></div>` : ''}
+            </div>
+          </td>
           <td>${escapeHtml(j.company || '')}</td>
           <td>
             <select class="input small" data-act="chgStatus" data-id="${j.id}" style="width:auto">
@@ -80,7 +96,7 @@ export function renderTracker(container, state, { addJob, updateJob, removeJob }
   }
 
   // Kanban rendering
-  renderKanban(container, jobs, updateJob);
+  renderKanban(container, scoredJobs, updateJob);
 
   // Toggle view button
   const toggleBtn = container.querySelector('#toggleViewBtn');
@@ -94,7 +110,18 @@ export function renderTracker(container, state, { addJob, updateJob, removeJob }
       if (listView) listView.classList.toggle('hidden', !next);
       if (kanbanView) kanbanView.classList.toggle('hidden', next);
       toggleBtn.textContent = next ? 'KANBAN' : 'LIST';
-      if (!next) renderKanban(container, state.get('jobs') || [], updateJob);
+      if (!next) {
+        const nextJobs = (state.get('jobs') || []).filter(j => j.id && j.id !== '_meta' && j.title).map(job => ({
+          ...job,
+          fit: evaluateOpportunity(job, buildCareerProfile({
+            resumes: state.get('resumes') || [],
+            jobs: state.get('jobs') || [],
+            offers: state.get('offers') || [],
+            settings: state.get('settings') || {}
+          }))
+        }));
+        renderKanban(container, nextJobs, updateJob);
+      }
     };
   }
 
@@ -113,7 +140,11 @@ function renderKanban(container, jobs, updateJob) {
     el.className = 'card';
     el.draggable = true;
     el.dataset.id = j.id;
-    el.innerHTML = `<strong>${escapeHtml(j.title)}</strong><div class="muted">${escapeHtml(j.company)}</div>`;
+    el.innerHTML = `
+      <strong>${escapeHtml(j.title)}</strong>
+      <div class="muted">${escapeHtml(j.company)}</div>
+      ${j.fit ? `<div class="fit-inline"><span class="fit-grade fit-grade-${(j.fit.grade || 'c').toLowerCase()}">${escapeHtml(j.fit.grade)}</span><span class="muted">${j.fit.score}% fit</span></div>` : ''}
+    `;
 
     el.addEventListener('dragstart', ev => {
       ev.dataTransfer.setData('text/plain', j.id);
