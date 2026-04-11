@@ -6,7 +6,7 @@ import { makeChart, getThemeColors } from '../components/charts.js';
 import { escapeHtml, fmtDate } from '../utils.js';
 import { fetchBlsData } from '../services/bls-service.js';
 import { toast } from '../components/toast.js';
-import { requestPermission, scheduleChecks } from '../services/notifications.js';
+import { requestPermission, getPermissionStatus, scheduleChecks } from '../services/notifications.js';
 import { getApi } from '../services/api-keys.js';
 import { renderChecklistHTML, bindChecklistEvents, isChecklistDismissed } from '../components/getting-started.js';
 
@@ -192,18 +192,37 @@ export function renderDashboard(container, state) {
     };
   }
 
-  // Notification enable button
+  // Notification status + enable button
   const notifBtn = document.getElementById('enableNotifBtn');
+  const notifStatus = document.getElementById('notifStatus');
+  const permStatus = getPermissionStatus();
+
+  if (notifStatus) {
+    const colors = { granted: 'var(--color-success)', denied: 'var(--color-danger)', default: 'var(--color-muted)', unsupported: 'var(--color-muted)' };
+    notifStatus.innerHTML = `<span style="font-size:12px;color:${colors[permStatus.status]}">${permStatus.label}</span>`;
+  }
+
   if (notifBtn) {
-    notifBtn.onclick = async () => {
-      const granted = await requestPermission();
-      if (granted) {
-        toast('Notifications enabled!', 'success');
-        scheduleChecks(() => state.get('jobs') || [], getApi('ntfyTopic'));
-      } else {
-        toast('Notification permission denied', 'error');
-      }
-    };
+    if (permStatus.status === 'granted') {
+      notifBtn.textContent = 'NOTIFICATIONS ON';
+      notifBtn.disabled = true;
+      notifBtn.style.opacity = '0.5';
+    } else if (permStatus.status === 'denied') {
+      notifBtn.textContent = 'RESET IN BROWSER';
+      notifBtn.onclick = () => {
+        toast('Click the lock/info icon in your browser address bar → Site Settings → Notifications → Allow. Then reload the page.', 'info');
+      };
+    } else {
+      notifBtn.onclick = async () => {
+        const granted = await requestPermission();
+        if (granted) {
+          scheduleChecks(() => (state.get('jobs') || []).filter(j => j.id !== '_meta'), getApi('ntfyTopic'));
+          notifBtn.textContent = 'NOTIFICATIONS ON';
+          notifBtn.disabled = true;
+          if (notifStatus) notifStatus.innerHTML = '<span style="font-size:12px;color:var(--color-success)">Enabled</span>';
+        }
+      };
+    }
   }
 }
 
