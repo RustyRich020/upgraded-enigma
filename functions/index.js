@@ -930,3 +930,76 @@ function isRecent(dateStr) {
   const diff = (new Date() - new Date(dateStr)) / (1000 * 3600 * 24);
   return diff <= 7;
 }
+
+// ============================================================
+// QQ STUDIOS — Contact Form & Newsletter Cloud Functions
+// ============================================================
+
+exports.contactForm = functions.https.onRequest(async (req, res) => {
+  // CORS
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') { res.status(204).send(''); return; }
+  if (req.method !== 'POST') { res.status(405).send('Method not allowed'); return; }
+
+  try {
+    const { name, email, subject, message } = req.body;
+    if (!name || !email || !message) {
+      res.status(400).json({ error: 'Name, email, and message are required' });
+      return;
+    }
+
+    // Store in Firestore
+    await db.collection('contactSubmissions').add({
+      name, email, subject: subject || 'General',
+      message, createdAt: new Date().toISOString(),
+      status: 'new'
+    });
+
+    // Send notification via ntfy if configured
+    try {
+      await fetch('https://ntfy.sh/qq-studios-contact', {
+        method: 'POST',
+        body: `New contact from ${name} (${email}): ${subject || 'General'}\n\n${message.slice(0, 200)}`,
+        headers: { 'Title': 'QQ Studios Contact Form', 'Priority': '4', 'Tags': 'envelope' },
+      });
+    } catch {} // ntfy is best-effort
+
+    console.log(`Contact form submission from ${name} (${email})`);
+    res.status(200).json({ success: true, message: 'Message received! We will get back to you within 24 hours.' });
+  } catch (err) {
+    console.error('Contact form error:', err);
+    res.status(500).json({ error: 'Failed to send message. Please try again.' });
+  }
+});
+
+exports.newsletterSignup = functions.https.onRequest(async (req, res) => {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') { res.status(204).send(''); return; }
+  if (req.method !== 'POST') { res.status(405).send('Method not allowed'); return; }
+
+  try {
+    const { email } = req.body;
+    if (!email) { res.status(400).json({ error: 'Email is required' }); return; }
+
+    // Check for duplicate
+    const existing = await db.collection('newsletter').where('email', '==', email).limit(1).get();
+    if (!existing.empty) {
+      res.status(200).json({ success: true, message: "You're already subscribed!" });
+      return;
+    }
+
+    await db.collection('newsletter').add({
+      email, subscribedAt: new Date().toISOString(), source: 'qq-studios.com'
+    });
+
+    console.log('Newsletter signup:', email);
+    res.status(200).json({ success: true, message: 'Subscribed! Watch your inbox.' });
+  } catch (err) {
+    console.error('Newsletter error:', err);
+    res.status(500).json({ error: 'Failed to subscribe. Please try again.' });
+  }
+});
