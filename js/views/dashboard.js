@@ -404,7 +404,8 @@ export function renderDashboard(container, state) {
     localStorage.removeItem('jobsynk_auto_search');
     // Store the query so find-jobs can pick it up
     sessionStorage.setItem('jobsynk_pending_search', autoSearch);
-    navigate('find-jobs');
+    // Defer navigation so the current render cycle completes first
+    setTimeout(() => navigate('find-jobs'), 200);
     return; // Stop rendering the rest of the dashboard
   }
 
