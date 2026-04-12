@@ -369,6 +369,10 @@ export function renderLanding(container) {
             <span class="lp-footer-sep">&middot;</span>
             <a href="mailto:support@qq-studios.com" class="lp-footer-link">Support</a>
             <span class="lp-footer-sep">&middot;</span>
+            <a href="/privacy.html" target="_blank" class="lp-footer-link">Privacy</a>
+            <span class="lp-footer-sep">&middot;</span>
+            <a href="/terms.html" target="_blank" class="lp-footer-link">Terms</a>
+            <span class="lp-footer-sep">&middot;</span>
             <a href="#auth" class="lp-footer-link">Sign In</a>
           </div>
           <p class="lp-footer-copy">&copy; ${new Date().getFullYear()} QQ Studios LLC. All rights reserved.</p>
