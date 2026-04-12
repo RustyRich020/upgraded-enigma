@@ -137,6 +137,27 @@ export function renderFindJobs(container, state, addJob) {
   });
 
   enableTabKeyboardNavigation(tabBar, activateTab);
+
+  // Auto-search: pick up pending search from onboarding flow
+  const pendingSearch = sessionStorage.getItem('jobsynk_pending_search');
+  if (pendingSearch) {
+    sessionStorage.removeItem('jobsynk_pending_search');
+    // Ensure search tab is active and rendered
+    activateTab('search');
+    // Fill in keyword and trigger search after a short delay for DOM readiness
+    setTimeout(() => {
+      const keywordInput = container.querySelector('#searchKeyword') || container.querySelector('input[placeholder*="security"]');
+      if (keywordInput) {
+        keywordInput.value = pendingSearch;
+        keywordInput.dispatchEvent(new Event('input', { bubbles: true }));
+        // Click search button after input is set
+        setTimeout(() => {
+          const searchBtn = container.querySelector('#searchAllBtn') || container.querySelector('button[class*="brand"]');
+          if (searchBtn) searchBtn.click();
+        }, 500);
+      }
+    }, 300);
+  }
 }
 
 /* ============================================================

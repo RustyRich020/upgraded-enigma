@@ -11,14 +11,36 @@ import { getCurrentUser } from '../firebase/auth.js';
 import { provisionUser, isProvisioned } from '../firebase/provisioning.js';
 import { toast } from '../components/toast.js';
 
+/* Role-to-skill suggestion map for smarter skill step */
+const ROLE_SKILL_MAP = {
+  'Software Engineer': ['javascript', 'python', 'react', 'aws', 'docker', 'sql', 'git'],
+  'Data Analyst': ['sql', 'python', 'excel', 'tableau', 'power bi', 'statistics'],
+  'Security Analyst': ['firewall', 'siem', 'linux', 'python', 'networking', 'incident response'],
+  'Network Engineer': ['cisco', 'firewall', 'tcp/ip', 'linux', 'aws', 'vpn'],
+  'DevOps Engineer': ['docker', 'kubernetes', 'aws', 'terraform', 'ci/cd', 'linux', 'python'],
+  'Project Manager': ['agile', 'scrum', 'jira', 'stakeholder management', 'risk management'],
+  'Product Manager': ['roadmapping', 'agile', 'sql', 'analytics', 'user research', 'a/b testing'],
+  'UX Designer': ['figma', 'user research', 'prototyping', 'wireframing', 'accessibility', 'css'],
+};
+
+function getSkillSuggestionsForRoles(roles) {
+  const suggestions = new Set();
+  roles.forEach(role => {
+    const key = Object.keys(ROLE_SKILL_MAP).find(k => role.toLowerCase().includes(k.toLowerCase()));
+    if (key) ROLE_SKILL_MAP[key].forEach(s => suggestions.add(s));
+  });
+  // Fallback generic suggestions if no match
+  if (suggestions.size === 0) {
+    ['sql', 'python', 'excel', 'aws', 'javascript', 'docker', 'linux', 'agile'].forEach(s => suggestions.add(s));
+  }
+  return [...suggestions];
+}
+
 const STEPS = [
-  { id: 'country', question: 'Are you based in the United States?', type: 'choice' },
-  { id: 'status', question: "What's your current employment status?", type: 'choice' },
-  { id: 'roles', question: 'What roles are you looking for?', type: 'tags' },
-  { id: 'location', question: 'Where do you want to work?', type: 'input' },
-  { id: 'experience', question: "What's your experience level?", type: 'choice' },
+  { id: 'roles-experience', question: 'What are you looking for?', type: 'composite' },
+  { id: 'location-salary', question: 'Where do you want to work?', type: 'composite' },
   { id: 'skills', question: 'What are your top skills?', type: 'tags' },
-  { id: 'name', question: "What's your name?", type: 'input' },
+  { id: 'confirm', question: 'Almost there!', type: 'confirm' },
 ];
 
 export function renderProfileSetup(container, state, onComplete) {
@@ -27,13 +49,13 @@ export function renderProfileSetup(container, state, onComplete) {
 
   const profile = {
     country: 'us',
-    status: '',
     targetRoles: [],
     location: '',
     remote: false,
     experienceLevel: '',
     skills: [],
-    name: defaultName,
+    minSalary: '',
+    name: defaultName || 'there',
     theme: 'default',
   };
 
@@ -64,7 +86,7 @@ export function renderProfileSetup(container, state, onComplete) {
         <!-- Navigation -->
         <div class="onb-nav">
           ${step > 0 ? '<button class="onb-back" id="onbBack">← Back</button>' : '<div></div>'}
-          ${s.type === 'tags' || s.type === 'input' ? '<button class="onb-continue" id="onbNext">Continue →</button>' : '<div></div>'}
+          ${s.type !== 'confirm' ? '<button class="onb-continue" id="onbNext">Continue →</button>' : '<div></div>'}
         </div>
       </div>
 
@@ -147,17 +169,37 @@ export function renderProfileSetup(container, state, onComplete) {
         }
         .onb-continue:hover { background: var(--color-primary-bright); }
 
+        /* Experience inline selector */
+        .onb-exp-selector { display: flex; gap: 8px; }
+        .onb-exp-card {
+          flex: 1; padding: 12px 8px; border: 2px solid var(--color-surface-border);
+          border-radius: 12px; background: var(--color-surface); cursor: pointer;
+          transition: all 0.15s; text-align: center; font-family: var(--font-body);
+        }
+        .onb-exp-card:hover { border-color: var(--color-primary); background: var(--color-primary-subtle); }
+        .onb-exp-card.selected { border-color: var(--color-primary); background: var(--color-primary-dim); }
+        .onb-exp-label { display: block; font-size: 14px; font-weight: 600; color: var(--color-text); }
+        .onb-exp-sub { display: block; font-size: 11px; color: var(--color-muted); margin-top: 2px; }
+
+        /* Confirm summary */
+        .onb-confirm-summary {
+          background: var(--color-bg-secondary); border: 1px solid var(--color-surface-border);
+          border-radius: 12px; padding: 24px; margin-bottom: 8px;
+        }
+
         @media (max-width: 600px) {
           .onb-card { padding: 24px 20px; }
           .onb-question { font-size: 22px; }
+          .onb-exp-selector { flex-wrap: wrap; }
+          .onb-exp-card { min-width: calc(50% - 4px); }
         }
       </style>
     `;
 
     bindEvents(s, profile, container);
     container.querySelector('#onbNext')?.addEventListener('click', () => {
-      // Validate: require at least one role before advancing past the roles step
-      if (s.id === 'roles' && profile.targetRoles.length === 0) {
+      // Validate: require at least one role before advancing past the roles+experience step
+      if (s.id === 'roles-experience' && profile.targetRoles.length === 0) {
         const input = container.querySelector('#onbRoleInput');
         if (input) {
           input.style.borderColor = 'var(--color-danger)';
@@ -200,6 +242,9 @@ export function renderProfileSetup(container, state, onComplete) {
       try { if (!(await isProvisioned())) await provisionUser({ name: profile.name, role: 'Candidate', theme: profile.theme }, true); } catch {}
       localStorage.setItem(STORAGE_KEYS.onboarded, 'true');
       localStorage.setItem('jobsynk_checklist', JSON.stringify({ accountCreated: true, profileSetup: true, firstJobAdded: false, firstSearch: false, apiKeyConnected: false, resumeUploaded: false, dismissed: false }));
+      // Auto-search: store query so first dashboard load redirects to find-jobs
+      const searchQuery = profile.targetRoles.slice(0, 2).join(' ');
+      localStorage.setItem('jobsynk_auto_search', searchQuery);
       if (onComplete) onComplete();
       navigate('dashboard');
     }, 3000);
@@ -210,41 +255,30 @@ export function renderProfileSetup(container, state, onComplete) {
 
 function renderStepContent(s, p) {
   switch (s.id) {
-    case 'country': return `
-      <div class="onb-choices">
-        <button class="onb-choice ${p.country === 'us' ? 'selected' : ''}" data-value="us">
-          <span class="onb-choice-icon">🇺🇸</span>
-          <span class="onb-choice-text">Yes, I'm in the US</span>
-        </button>
-        <button class="onb-choice ${p.country === 'other' ? 'selected' : ''}" data-value="other">
-          <span class="onb-choice-icon">🌍</span>
-          <span class="onb-choice-text">No, I'm outside the US</span>
-        </button>
-      </div>`;
-
-    case 'status': return `
-      <div class="onb-choices">
-        ${[
-          { v: 'unemployed', icon: '🔍', label: 'Actively looking', sub: 'Currently unemployed' },
-          { v: 'employed-looking', icon: '👀', label: 'Employed, looking', sub: 'Open to new opportunities' },
-          { v: 'employed-passive', icon: '💼', label: 'Employed, not looking', sub: 'Just exploring' },
-          { v: 'student', icon: '🎓', label: 'Student / New grad', sub: 'Entering the job market' },
-        ].map(o => `
-          <button class="onb-choice ${p.status === o.v ? 'selected' : ''}" data-value="${o.v}">
-            <span class="onb-choice-icon">${o.icon}</span>
-            <div class="onb-choice-text">${o.label}<div class="onb-choice-sub">${o.sub}</div></div>
-          </button>
-        `).join('')}
-      </div>`;
-
-    case 'roles': return `
+    case 'roles-experience': return `
       <div class="onb-tags" id="onbRoleTags">${p.targetRoles.map(r => `<span class="onb-tag">${escapeHtml(r)}<button data-rm="${escapeHtml(r)}">&times;</button></span>`).join('')}</div>
       <input class="onb-input" id="onbRoleInput" placeholder="Type a job title and press Enter" autofocus>
       <div class="onb-suggestions" id="onbRoleSuggestions">
         ${['Security Analyst', 'Data Analyst', 'Software Engineer', 'Network Engineer', 'DevOps Engineer', 'Project Manager', 'Product Manager', 'UX Designer'].filter(r => !p.targetRoles.includes(r)).map(r => `<button class="onb-suggest" data-s="${r}">${r}</button>`).join('')}
+      </div>
+      <div style="margin-top:20px;">
+        <div style="font-size:14px;font-weight:600;color:var(--color-text-dim);margin-bottom:10px;">Experience level</div>
+        <div class="onb-exp-selector">
+          ${[
+            { v: 'entry', label: 'Entry', sub: '0-2 yr' },
+            { v: 'mid', label: 'Mid', sub: '3-5 yr' },
+            { v: 'senior', label: 'Senior', sub: '6-10 yr' },
+            { v: 'lead', label: 'Lead', sub: '10+ yr' },
+          ].map(o => `
+            <button class="onb-exp-card ${p.experienceLevel === o.v ? 'selected' : ''}" data-exp="${o.v}">
+              <span class="onb-exp-label">${o.label}</span>
+              <span class="onb-exp-sub">${o.sub}</span>
+            </button>
+          `).join('')}
+        </div>
       </div>`;
 
-    case 'location': return `
+    case 'location-salary': return `
       <input class="onb-input" id="onbLocation" placeholder="City, state, or country" value="${escapeHtml(p.location)}">
       <label class="onb-toggle" id="onbRemoteToggle">
         <input type="checkbox" id="onbRemote" ${p.remote ? 'checked' : ''}>
@@ -252,54 +286,47 @@ function renderStepContent(s, p) {
           <div class="onb-toggle-label">Open to remote work</div>
           <div class="onb-toggle-sub">Include remote positions in your search</div>
         </div>
-      </label>`;
-
-    case 'experience': return `
-      <div class="onb-choices">
-        ${[
-          { v: 'entry', icon: '🌱', label: 'Entry Level', sub: '0–2 years' },
-          { v: 'mid', icon: '📈', label: 'Mid Level', sub: '3–5 years' },
-          { v: 'senior', icon: '⭐', label: 'Senior', sub: '6–10 years' },
-          { v: 'lead', icon: '🏆', label: 'Lead / Manager', sub: '10+ years' },
-        ].map(o => `
-          <button class="onb-choice ${p.experienceLevel === o.v ? 'selected' : ''}" data-value="${o.v}">
-            <span class="onb-choice-icon">${o.icon}</span>
-            <div class="onb-choice-text">${o.label}<div class="onb-choice-sub">${o.sub}</div></div>
-          </button>
-        `).join('')}
+      </label>
+      <div style="margin-top:14px;">
+        <label style="font-size:14px;font-weight:600;color:var(--color-text-dim);display:block;margin-bottom:8px;">Minimum salary (optional)</label>
+        <input class="onb-input" id="onbMinSalary" type="number" placeholder="e.g. 80000" value="${p.minSalary || ''}">
       </div>`;
 
-    case 'skills': return `
-      <div class="onb-tags" id="onbSkillTags">${p.skills.map(s => `<span class="onb-tag">${escapeHtml(s)}<button data-rm="${escapeHtml(s)}">&times;</button></span>`).join('')}</div>
+    case 'skills': {
+      const smartSuggestions = getSkillSuggestionsForRoles(p.targetRoles);
+      return `
+      <div class="onb-tags" id="onbSkillTags">${p.skills.map(sk => `<span class="onb-tag">${escapeHtml(sk)}<button data-rm="${escapeHtml(sk)}">&times;</button></span>`).join('')}</div>
       <input class="onb-input" id="onbSkillInput" placeholder="Type a skill and press Enter" autofocus>
       <div class="onb-suggestions" id="onbSkillSuggestions">
-        ${['SQL', 'Python', 'Excel', 'AWS', 'JavaScript', 'Docker', 'Linux', 'PowerShell', 'Tableau', 'Agile', 'Firewall', 'Cisco'].filter(s => !p.skills.includes(s.toLowerCase())).map(s => `<button class="onb-suggest" data-s="${s.toLowerCase()}">${s}</button>`).join('')}
+        ${smartSuggestions.filter(sk => !p.skills.includes(sk)).map(sk => `<button class="onb-suggest" data-s="${sk}">${sk}</button>`).join('')}
       </div>`;
+    }
 
-    case 'name':
-      return `<input class="onb-input" id="onbName" placeholder="Your full name" value="${escapeHtml(p.name)}" autofocus>`;
+    case 'confirm': {
+      const rolesList = p.targetRoles.length ? p.targetRoles.join(', ') : 'any role';
+      const loc = p.location || 'anywhere';
+      const skillsList = p.skills.length ? p.skills.join(', ') : 'all skills';
+      return `
+      <div class="onb-confirm-summary">
+        <p style="font-size:17px;line-height:1.6;color:var(--color-text);">
+          We'll search for <strong>${escapeHtml(rolesList)}</strong>
+          in <strong>${escapeHtml(loc)}</strong>${p.remote ? ' + remote' : ''}
+          matching <strong>${escapeHtml(skillsList)}</strong>${p.experienceLevel ? ` at <strong>${escapeHtml(p.experienceLevel)}</strong> level` : ''}${p.minSalary ? ` from <strong>$${Number(p.minSalary).toLocaleString()}</strong>+` : ''}.
+        </p>
+      </div>
+      <button class="onb-continue" id="onbLaunchSearch" style="width:100%;margin-top:20px;font-size:18px;padding:18px 32px;">
+        Start searching →
+      </button>`;
+    }
 
     default: return '';
   }
 }
 
 function bindEvents(s, p, container) {
-  // Choice cards — click to select + auto-advance after 300ms
-  if (s.type === 'choice') {
-    container.querySelectorAll('.onb-choice').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (s.id === 'country') p.country = btn.dataset.value;
-        if (s.id === 'status') p.status = btn.dataset.value;
-        if (s.id === 'experience') p.experienceLevel = btn.dataset.value;
-        container.querySelectorAll('.onb-choice').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        setTimeout(() => container._onbAdvance(), 300);
-      });
-    });
-  }
-
-  // Tag inputs
-  if (s.id === 'roles') {
+  // Step 1: Roles + Experience combined
+  if (s.id === 'roles-experience') {
+    // Role tag input
     const input = container.querySelector('#onbRoleInput');
     input?.addEventListener('keydown', e => {
       if (e.key === 'Enter' && input.value.trim()) {
@@ -309,7 +336,7 @@ function bindEvents(s, p, container) {
         refreshTags(container, '#onbRoleTags', p.targetRoles);
       }
     });
-    container.querySelectorAll('.onb-suggest').forEach(btn => {
+    container.querySelectorAll('#onbRoleSuggestions .onb-suggest').forEach(btn => {
       btn.addEventListener('click', () => {
         if (!p.targetRoles.includes(btn.dataset.s)) p.targetRoles.push(btn.dataset.s);
         btn.remove();
@@ -317,8 +344,25 @@ function bindEvents(s, p, container) {
       });
     });
     bindTagRemoval(container, '#onbRoleTags', p.targetRoles);
+
+    // Experience level inline selector
+    container.querySelectorAll('.onb-exp-card').forEach(btn => {
+      btn.addEventListener('click', () => {
+        p.experienceLevel = btn.dataset.exp;
+        container.querySelectorAll('.onb-exp-card').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    });
   }
 
+  // Step 2: Location + Remote + Salary
+  if (s.id === 'location-salary') {
+    container.querySelector('#onbLocation')?.addEventListener('input', e => { p.location = e.target.value; });
+    container.querySelector('#onbRemote')?.addEventListener('change', e => { p.remote = e.target.checked; });
+    container.querySelector('#onbMinSalary')?.addEventListener('input', e => { p.minSalary = e.target.value; });
+  }
+
+  // Step 3: Skills
   if (s.id === 'skills') {
     const input = container.querySelector('#onbSkillInput');
     input?.addEventListener('keydown', e => {
@@ -329,7 +373,7 @@ function bindEvents(s, p, container) {
         refreshTags(container, '#onbSkillTags', p.skills);
       }
     });
-    container.querySelectorAll('.onb-suggest').forEach(btn => {
+    container.querySelectorAll('#onbSkillSuggestions .onb-suggest').forEach(btn => {
       btn.addEventListener('click', () => {
         if (!p.skills.includes(btn.dataset.s)) p.skills.push(btn.dataset.s);
         btn.remove();
@@ -339,13 +383,11 @@ function bindEvents(s, p, container) {
     bindTagRemoval(container, '#onbSkillTags', p.skills);
   }
 
-  // Input fields
-  if (s.id === 'location') {
-    container.querySelector('#onbLocation')?.addEventListener('input', e => { p.location = e.target.value; });
-    container.querySelector('#onbRemote')?.addEventListener('change', e => { p.remote = e.target.checked; });
-  }
-  if (s.id === 'name') {
-    container.querySelector('#onbName')?.addEventListener('input', e => { p.name = e.target.value; });
+  // Step 4: Confirm — launch search button triggers finish
+  if (s.id === 'confirm') {
+    container.querySelector('#onbLaunchSearch')?.addEventListener('click', () => {
+      container._onbAdvance();
+    });
   }
 
   // Back button also uses the exposed function
