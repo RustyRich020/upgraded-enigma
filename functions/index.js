@@ -595,7 +595,7 @@ async function sendAllNotifications(message, channels, uid) {
         await fetch(`https://ntfy.sh/${ntfyTopic}`, {
           method: "POST",
           body: message,
-          headers: { "Title": "JobSynk", "Priority": "3", "Tags": "briefcase" },
+          headers: { "Title": "JobSynk", "Priority": "3", "Tags": "briefcase", "Click": "https://jobsynk.qq-studios.com/", "Actions": "view, Open JobSynk, https://jobsynk.qq-studios.com/#my-jobs" },
         });
         results.ntfy = { success: true };
       }

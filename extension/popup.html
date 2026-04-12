@@ -6,18 +6,18 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { width: 320px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #050508; color: #eaedf3; }
     .header { padding: 16px; border-bottom: 1px solid #1c1d2a; display: flex; align-items: center; gap: 10px; }
-    .logo { width: 28px; height: 28px; border: 2px solid #ff1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,26,26,0.1); }
-    .logo span { font-weight: 900; font-size: 12px; color: #ff1a1a; }
+    .logo { width: 28px; height: 28px; border: 2px solid #C47B3A; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: rgba(196,123,58,0.1); }
+    .logo span { font-weight: 900; font-size: 12px; color: #C47B3A; }
     h1 { font-size: 14px; font-weight: 900; letter-spacing: 2px; }
     .content { padding: 16px; }
     .stat { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1c1d2a; font-size: 13px; }
-    .stat-value { color: #ff1a1a; font-weight: 700; }
+    .stat-value { color: #C47B3A; font-weight: 700; }
     .pending { padding: 12px; margin: 8px 0; background: #0f1018; border: 1px solid #1c1d2a; border-radius: 8px; }
     .pending-title { font-size: 12px; font-weight: 700; }
     .pending-meta { font-size: 11px; color: #9da3b0; margin-top: 2px; }
     .empty { text-align: center; padding: 24px; color: #5a5f72; font-size: 12px; }
-    .btn { display: block; width: 100%; padding: 10px; background: #ff1a1a; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; margin-top: 12px; text-align: center; text-decoration: none; }
-    .btn:hover { background: #cc0000; }
+    .btn { display: block; width: 100%; padding: 10px; background: #C47B3A; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; margin-top: 12px; text-align: center; text-decoration: none; }
+    .btn:hover { background: #D4874D; }
     .btn-ghost { background: transparent; border: 1px solid #1c1d2a; color: #9da3b0; }
     .footer { padding: 12px 16px; border-top: 1px solid #1c1d2a; text-align: center; }
     .footer a { color: #00e5ff; font-size: 11px; text-decoration: none; }
@@ -25,8 +25,8 @@
 </head>
 <body>
   <div class="header">
-    <div class="logo"><span>T</span></div>
-    <h1>JOBSYNK</h1>
+    <div class="logo"><span>JS</span></div>
+    <h1>JobSynk</h1>
   </div>
   <div class="content">
     <div class="stat">
@@ -34,8 +34,8 @@
       <span class="stat-value" id="pendingCount">0</span>
     </div>
     <div id="pendingList"></div>
-    <a href="http://localhost:3000/#tracker" target="_blank" class="btn" id="openAppBtn">OPEN JOBSYNK</a>
-    <button class="btn btn-ghost" id="clearBtn" style="margin-top:8px">CLEAR SAVED</button>
+    <a href="https://jobsynk.qq-studios.com/#my-jobs" target="_blank" class="btn" id="openAppBtn">Open JobSynk</a>
+    <button class="btn btn-ghost" id="clearBtn" style="margin-top:8px">Clear Saved</button>
   </div>
   <div class="footer">
     <a href="https://github.com/RustyRich020/upgraded-enigma" target="_blank">GitHub</a>

@@ -1,8 +1,10 @@
 {
   "name": "JobSynk",
   "short_name": "JobSynk",
-  "description": "Professional job tracking and career management system with AI-powered analysis",
-  "start_url": "/index.html",
+  "description": "AI-powered career management. Search jobs, optimize resumes, generate cover letters, and track your pipeline.",
+  "start_url": "/index.html#landing",
+  "scope": "/",
+  "id": "jobsynk",
   "display": "standalone",
   "orientation": "any",
   "theme_color": "#C47B3A",
@@ -16,8 +18,8 @@
   ],
   "screenshots": [],
   "shortcuts": [
-    { "name": "Add Job", "url": "/index.html#tracker", "description": "Add a new job to your tracker" },
-    { "name": "Search Jobs", "url": "/index.html#search", "description": "Search remote and local job listings" },
-    { "name": "AI Tools", "url": "/index.html#ai", "description": "AI-powered resume matching" }
+    { "name": "Find Jobs", "url": "/index.html#find-jobs", "description": "Search across 4 job sources" },
+    { "name": "My Jobs", "url": "/index.html#my-jobs", "description": "Track your application pipeline" },
+    { "name": "My Profile", "url": "/index.html#my-profile", "description": "Resumes, cover letters, and companies" }
   ]
 }
