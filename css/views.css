@@ -611,6 +611,98 @@ body.auth-mode .header-actions .user-info { display: none !important; }
   .checklist-item { padding: 6px 8px; }
 }
 
+/* ---- Demo Banner ---- */
+.demo-banner {
+  background: linear-gradient(135deg, rgba(45,139,95,0.12), rgba(196,123,58,0.08));
+  border: 1px solid rgba(45,139,95,0.2);
+  border-radius: var(--radius-lg);
+  padding: 14px 20px;
+  margin-bottom: 16px;
+}
+.demo-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.demo-banner-text {
+  font-size: 14px;
+  color: var(--color-text);
+}
+.demo-banner-text strong {
+  color: var(--color-accent);
+}
+.demo-banner-actions {
+  display: flex;
+  gap: 8px;
+}
+@media (max-width: 768px) {
+  .demo-banner-inner { flex-direction: column; text-align: center; }
+}
+
+/* ---- Free Tier Widget ---- */
+.free-tier-widget {
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.free-tier-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.free-tier-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-primary);
+}
+.free-tier-link {
+  font-size: 12px;
+  color: var(--color-text-dim);
+  text-decoration: none;
+}
+.free-tier-link:hover { color: var(--color-primary); }
+.free-tier-meters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.free-tier-meter {
+  display: grid;
+  grid-template-columns: 80px 1fr 40px;
+  align-items: center;
+  gap: 8px;
+}
+.free-tier-meter-label {
+  font-size: 11px;
+  color: var(--color-text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.free-tier-meter-bar {
+  height: 6px;
+  background: var(--color-surface-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.free-tier-meter-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+.free-tier-meter-count {
+  font-size: 11px;
+  color: var(--color-text-dim);
+  text-align: right;
+}
+
 /* ---- Unified Search Result Cards ---- */
 .search-result-card {
   background: var(--color-surface-gradient);

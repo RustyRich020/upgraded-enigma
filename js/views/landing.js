@@ -255,6 +255,10 @@ export function renderLanding(container) {
               Get started free
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14m-7-7l7 7-7 7"/></svg>
             </button>
+            <button class="lp-cta-demo" id="landingDemo">
+              Try Demo
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </button>
             <button class="lp-cta-secondary" id="landingSignIn">Sign in</button>
           </div>
           <p class="lp-note">No credit card required</p>
@@ -498,6 +502,28 @@ export function renderLanding(container) {
         cursor: pointer; transition: all 0.2s;
       }
       .lp-cta-secondary:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+      .lp-cta-demo {
+        background: transparent;
+        color: var(--color-accent);
+        border: 2px solid var(--color-accent);
+        padding: 12px 28px;
+        border-radius: 12px;
+        font-family: var(--font-body);
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .lp-cta-demo:hover {
+        background: var(--color-accent);
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(45,139,95,0.3);
+      }
 
       .lp-note { font-size: 13px; color: var(--color-muted); margin-top: 16px; animation: fadeIn 0.6s ease-out 0.4s backwards; }
 
@@ -875,7 +901,7 @@ export function renderLanding(container) {
       }
       @media (max-width: 480px) {
         .lp-headline { font-size: 32px; }
-        .lp-cta-primary, .lp-cta-secondary { width: 100%; justify-content: center; }
+        .lp-cta-primary, .lp-cta-demo, .lp-cta-secondary { width: 100%; justify-content: center; }
         .lp-features { gap: 16px; }
         .lp-feature-img { height: 140px; }
       }
@@ -890,6 +916,22 @@ export function renderLanding(container) {
     if (user) { localStorage.setItem(STORAGE_KEYS.onboarded, 'true'); navigate('dashboard'); }
   };
 
+  const demo = async () => {
+    try {
+      const user = await signInAnonymously();
+      if (user) {
+        localStorage.setItem(STORAGE_KEYS.onboarded, 'true');
+        localStorage.setItem('jobsynk_demo_mode', 'true');
+        const { provisionUser } = await import('../firebase/provisioning.js');
+        await provisionUser({ name: 'Demo User', role: 'Candidate', theme: 'default' }, true);
+        navigate('dashboard');
+      }
+    } catch (e) {
+      console.error('Demo failed:', e);
+    }
+  };
+
+  container.querySelector('#landingDemo')?.addEventListener('click', demo);
   container.querySelector('#landingSignUp')?.addEventListener('click', signUp);
   container.querySelector('#landingSignUp2')?.addEventListener('click', signUp);
   container.querySelector('#landingSignIn')?.addEventListener('click', signIn);

@@ -187,4 +187,44 @@ function formatApiName(name) {
   return names[name] || name;
 }
 
-export default { showUpgradeBanner, showUsageMeter, renderPricingTable, renderUsageDashboard };
+/**
+ * Render a compact free-tier usage summary widget.
+ * Shows the top 4 most-used APIs with meter bars.
+ * @returns {string} HTML string (empty if not on free tier)
+ */
+export function renderFreeTierSummary() {
+  const tier = getUserTier();
+  if (tier !== 'free') return '';
+
+  // Get top 4 most-used APIs
+  const summary = getUsageSummary()
+    .filter(api => api.limit !== '∞')
+    .sort((a, b) => b.percentage - a.percentage)
+    .slice(0, 4);
+
+  if (summary.length === 0) return '';
+
+  return `
+    <div class="free-tier-widget">
+      <div class="free-tier-header">
+        <span class="free-tier-label">Free Tier</span>
+        <a href="#settings" class="free-tier-link">View all limits</a>
+      </div>
+      <div class="free-tier-meters">
+        ${summary.map(api => `
+          <div class="free-tier-meter">
+            <div class="free-tier-meter-label">${formatApiName(api.name)}</div>
+            <div class="free-tier-meter-bar">
+              <div class="free-tier-meter-fill" style="width:${api.percentage}%;background:${
+                api.percentage >= 100 ? 'var(--color-danger)' : api.percentage >= 80 ? 'var(--color-warning)' : 'var(--color-accent)'
+              }"></div>
+            </div>
+            <div class="free-tier-meter-count">${api.remaining}/${api.limit}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+export default { showUpgradeBanner, showUsageMeter, renderPricingTable, renderUsageDashboard, renderFreeTierSummary };
