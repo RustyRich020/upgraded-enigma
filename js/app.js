@@ -198,6 +198,7 @@ async function loadUserData() {
    ============================================================ */
 function updateUserUI() {
   const user = getUserProfile();
+  const currentUser = getCurrentUser();
   const userInfo = document.getElementById('userInfo');
   const userName = document.getElementById('userName');
   const userAvatar = document.getElementById('userAvatar');
@@ -206,17 +207,20 @@ function updateUserUI() {
   const sidebarUpgradeBtn = document.getElementById('sidebarUpgradeBtn');
   const apiStatusTag = document.getElementById('apiStatusTag');
 
-  if (user) {
-    const displayName = user.displayName || (user.email ? user.email.split('@')[0] : (user.isAnonymous ? 'Guest' : 'User'));
+  if (user || currentUser) {
+    // Prefer live currentUser values to avoid stale state after signup
+    const email = currentUser?.email || user?.email || null;
+    const displayName = currentUser?.displayName || user?.displayName || (email ? email.split('@')[0] : (user?.isAnonymous || currentUser?.isAnonymous ? 'Guest' : 'User'));
     const initial = displayName.charAt(0).toUpperCase();
+    const isAnon = currentUser ? currentUser.isAnonymous : (user?.isAnonymous ?? true);
 
     if (userInfo) userInfo.style.display = 'flex';
     if (userName) userName.textContent = displayName;
     if (userAvatar) userAvatar.textContent = initial;
 
     if (sidebarAuth) sidebarAuth.style.display = '';
-    if (sidebarUserEmail) sidebarUserEmail.textContent = user.email || 'Guest (anonymous)';
-    if (sidebarUpgradeBtn) sidebarUpgradeBtn.style.display = user.isAnonymous ? '' : 'none';
+    if (sidebarUserEmail) sidebarUserEmail.textContent = email || 'Guest (anonymous)';
+    if (sidebarUpgradeBtn) sidebarUpgradeBtn.style.display = isAnon ? '' : 'none';
   } else {
     if (userInfo) userInfo.style.display = 'none';
     if (sidebarAuth) sidebarAuth.style.display = 'none';

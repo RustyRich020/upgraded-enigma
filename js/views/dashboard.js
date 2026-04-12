@@ -356,45 +356,52 @@ export function renderDashboard(container, state) {
 
   // Demo mode banner
   if (localStorage.getItem('jobsynk_demo_mode') === 'true') {
-    const banner = document.createElement('div');
-    banner.className = 'demo-banner';
-    banner.innerHTML = `
-      <div class="demo-banner-inner">
-        <div class="demo-banner-text">
-          <strong>Demo Mode</strong> — You're exploring JobSynk with sample data.
-        </div>
-        <div class="demo-banner-actions">
-          <button class="btn brand small" id="demoBannerSignup">Sign up to save your data</button>
-          <button class="btn ghost small" id="demoBannerDismiss">Dismiss</button>
-        </div>
-      </div>
-    `;
-    // Insert at the very top of the dashboard container
     const shell = container.querySelector('.section-shell') || container.querySelector('.dashboard-shell') || container;
-    shell.insertBefore(banner, shell.firstChild);
+    // Before inserting the demo banner, check if one already exists
+    const existingDemoBanner = shell.querySelector('.demo-banner');
+    if (!existingDemoBanner) {
+      const banner = document.createElement('div');
+      banner.className = 'demo-banner';
+      banner.innerHTML = `
+        <div class="demo-banner-inner">
+          <div class="demo-banner-text">
+            <strong>Demo Mode</strong> — You're exploring JobSynk with sample data.
+          </div>
+          <div class="demo-banner-actions">
+            <button class="btn brand small" id="demoBannerSignup">Sign up to save your data</button>
+            <button class="btn ghost small" id="demoBannerDismiss">Dismiss</button>
+          </div>
+        </div>
+      `;
+      shell.insertBefore(banner, shell.firstChild);
 
-    banner.querySelector('#demoBannerSignup')?.addEventListener('click', () => {
-      localStorage.removeItem('jobsynk_demo_mode');
-      sessionStorage.setItem('authMode', 'signup');
-      navigate('auth');
-    });
-    banner.querySelector('#demoBannerDismiss')?.addEventListener('click', () => {
-      banner.remove();
-    });
+      banner.querySelector('#demoBannerSignup')?.addEventListener('click', () => {
+        localStorage.removeItem('jobsynk_demo_mode');
+        sessionStorage.setItem('authMode', 'signup');
+        navigate('auth');
+      });
+      banner.querySelector('#demoBannerDismiss')?.addEventListener('click', () => {
+        banner.remove();
+      });
+    }
   }
 
   // Free tier widget
   const freeTierHTML = renderFreeTierSummary();
   if (freeTierHTML) {
-    const widget = document.createElement('div');
-    widget.innerHTML = freeTierHTML;
     const shell = container.querySelector('.section-shell') || container.querySelector('.dashboard-shell') || container;
-    // Insert after the demo banner (or at top if no demo banner)
-    const demoBanner = shell.querySelector('.demo-banner');
-    if (demoBanner) {
-      demoBanner.insertAdjacentElement('afterend', widget.firstElementChild);
-    } else {
-      shell.insertBefore(widget.firstElementChild, shell.firstChild);
+    // Before inserting the free tier widget, check if one already exists
+    const existingWidget = shell.querySelector('.free-tier-widget');
+    if (!existingWidget) {
+      const widget = document.createElement('div');
+      widget.innerHTML = freeTierHTML;
+      // Insert after the demo banner (or at top if no demo banner)
+      const demoBanner = shell.querySelector('.demo-banner');
+      if (demoBanner) {
+        demoBanner.insertAdjacentElement('afterend', widget.firstElementChild);
+      } else {
+        shell.insertBefore(widget.firstElementChild, shell.firstChild);
+      }
     }
   }
 

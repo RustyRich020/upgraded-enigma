@@ -155,7 +155,20 @@ export function renderProfileSetup(container, state, onComplete) {
     `;
 
     bindEvents(s, profile, container);
-    container.querySelector('#onbNext')?.addEventListener('click', () => container._onbAdvance());
+    container.querySelector('#onbNext')?.addEventListener('click', () => {
+      // Validate: require at least one role before advancing past the roles step
+      if (s.id === 'roles' && profile.targetRoles.length === 0) {
+        const input = container.querySelector('#onbRoleInput');
+        if (input) {
+          input.style.borderColor = 'var(--color-danger)';
+          input.setAttribute('placeholder', 'Please add at least one role');
+          input.focus();
+        }
+        toast('Please add at least one target role before continuing.', 'error');
+        return;
+      }
+      container._onbAdvance();
+    });
   }
 
   function finish() {
