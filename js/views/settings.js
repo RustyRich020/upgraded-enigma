@@ -59,7 +59,7 @@ export function renderSettings(container, apiKeys, onSave, onClear) {
         <div class="section-title-row">
           <p class="eyebrow">Configuration</p>
           <h2>Settings</h2>
-          <p class="section-copy">Connect API keys, manage your tier, and configure notifications. Free sources work out of the box.</p>
+          <p class="section-copy">Connect API keys, manage your tier, and configure notifications. Free sources work out of the box. Need help? <a href="mailto:support@qq-studios.com" style="color:var(--color-primary)">support@qq-studios.com</a></p>
         </div>
       </div>
 
@@ -272,7 +272,7 @@ export function renderSettings(container, apiKeys, onSave, onClear) {
       const phone = container.querySelector('#apiPhoneNumber')?.value?.trim();
       if (!phone) { toast('Enter a phone number first', 'error'); return; }
       testSmsBtn.disabled = true; testSmsBtn.textContent = 'Sending...';
-      await sendSMS(phone, 'JobSynk test: SMS notifications are working!');
+      await sendSMS(phone, 'JobSynk test: SMS notifications are working! Support: support@qq-studios.com');
       testSmsBtn.disabled = false; testSmsBtn.textContent = 'Send Test SMS';
     });
   }
