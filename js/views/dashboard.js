@@ -354,54 +354,47 @@ export function renderDashboard(container, state) {
   // Swipe carousel for mobile
   initSwipeCards(metricsEl, { label: 'Dashboard stats' });
 
-  // Demo mode banner
-  if (localStorage.getItem('jobsynk_demo_mode') === 'true') {
+  // Demo mode banner — use global ID check to prevent duplicates across re-renders
+  if (localStorage.getItem('jobsynk_demo_mode') === 'true' && !document.getElementById('demoBannerSingleton')) {
     const shell = container.querySelector('.section-shell') || container.querySelector('.dashboard-shell') || container;
-    // Before inserting the demo banner, check if one already exists
-    const existingDemoBanner = shell.querySelector('.demo-banner');
-    if (!existingDemoBanner) {
-      const banner = document.createElement('div');
-      banner.className = 'demo-banner';
-      banner.innerHTML = `
-        <div class="demo-banner-inner">
-          <div class="demo-banner-text">
-            <strong>Demo Mode</strong> — You're exploring JobSynk with sample data.
-          </div>
-          <div class="demo-banner-actions">
-            <button class="btn brand small" id="demoBannerSignup">Sign up to save your data</button>
-            <button class="btn ghost small" id="demoBannerDismiss">Dismiss</button>
-          </div>
+    const banner = document.createElement('div');
+    banner.className = 'demo-banner';
+    banner.id = 'demoBannerSingleton';
+    banner.innerHTML = `
+      <div class="demo-banner-inner">
+        <div class="demo-banner-text">
+          <strong>Demo Mode</strong> — You're exploring JobSynk with sample data.
         </div>
-      `;
-      shell.insertBefore(banner, shell.firstChild);
+        <div class="demo-banner-actions">
+          <button class="btn brand small" id="demoBannerSignup">Sign up to save your data</button>
+          <button class="btn ghost small" id="demoBannerDismiss">Dismiss</button>
+        </div>
+      </div>
+    `;
+    shell.insertBefore(banner, shell.firstChild);
 
-      banner.querySelector('#demoBannerSignup')?.addEventListener('click', () => {
-        localStorage.removeItem('jobsynk_demo_mode');
-        sessionStorage.setItem('authMode', 'signup');
-        navigate('auth');
-      });
-      banner.querySelector('#demoBannerDismiss')?.addEventListener('click', () => {
-        banner.remove();
-      });
-    }
+    banner.querySelector('#demoBannerSignup')?.addEventListener('click', () => {
+      localStorage.removeItem('jobsynk_demo_mode');
+      sessionStorage.setItem('authMode', 'signup');
+      navigate('auth');
+    });
+    banner.querySelector('#demoBannerDismiss')?.addEventListener('click', () => {
+      banner.remove();
+    });
   }
 
-  // Free tier widget
+  // Free tier widget — use global ID check to prevent duplicates across re-renders
   const freeTierHTML = renderFreeTierSummary();
-  if (freeTierHTML) {
+  if (freeTierHTML && !document.getElementById('freeTierSingleton')) {
     const shell = container.querySelector('.section-shell') || container.querySelector('.dashboard-shell') || container;
-    // Before inserting the free tier widget, check if one already exists
-    const existingWidget = shell.querySelector('.free-tier-widget');
-    if (!existingWidget) {
-      const widget = document.createElement('div');
-      widget.innerHTML = freeTierHTML;
-      // Insert after the demo banner (or at top if no demo banner)
-      const demoBanner = shell.querySelector('.demo-banner');
-      if (demoBanner) {
-        demoBanner.insertAdjacentElement('afterend', widget.firstElementChild);
-      } else {
-        shell.insertBefore(widget.firstElementChild, shell.firstChild);
-      }
+    const widget = document.createElement('div');
+    widget.id = 'freeTierSingleton';
+    widget.innerHTML = freeTierHTML;
+    const demoBanner = document.getElementById('demoBannerSingleton');
+    if (demoBanner) {
+      demoBanner.insertAdjacentElement('afterend', widget);
+    } else {
+      shell.insertBefore(widget, shell.firstChild);
     }
   }
 
