@@ -116,6 +116,8 @@ export async function sendNtfy(message, topic) {
         'Title': 'JobSynk',
         'Priority': '3',
         'Tags': 'briefcase',
+        'Click': 'https://jobsynk.qq-studios.com/',
+        'Actions': 'view, Open JobSynk, https://jobsynk.qq-studios.com/#my-jobs',
       }
     });
     return resp.ok;
