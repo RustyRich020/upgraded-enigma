@@ -127,8 +127,7 @@ export function renderAuth(container, callbacks = {}) {
             font-size: 13px;
             font-weight: 600;
             color: var(--color-text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             margin-bottom: 6px;
             display: block;
           }
