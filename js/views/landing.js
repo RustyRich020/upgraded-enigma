@@ -365,11 +365,13 @@ export function renderLanding(container) {
             <span>JobSynk</span>
           </div>
           <div class="lp-footer-links">
-            <a href="#auth" class="lp-footer-link">Sign In</a>
+            <a href="mailto:hello@qq-studios.com" class="lp-footer-link">Contact</a>
             <span class="lp-footer-sep">&middot;</span>
-            <a href="https://github.com/RustyRich020/upgraded-enigma" target="_blank" rel="noopener" class="lp-footer-link">GitHub</a>
+            <a href="mailto:support@qq-studios.com" class="lp-footer-link">Support</a>
+            <span class="lp-footer-sep">&middot;</span>
+            <a href="#auth" class="lp-footer-link">Sign In</a>
           </div>
-          <p class="lp-footer-copy">&copy; ${new Date().getFullYear()} JobSynk. Built with care.</p>
+          <p class="lp-footer-copy">&copy; ${new Date().getFullYear()} QQ Studios LLC. All rights reserved.</p>
         </div>
       </footer>
 
