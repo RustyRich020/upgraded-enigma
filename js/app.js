@@ -168,14 +168,10 @@ function handleGuestAccess(user) {
 }
 
 function handleProfileComplete() {
-  if (FEATURES.onboardingTour && !isTourCompleted()) {
-    router.navigate('dashboard');
-    renderAll();
-    setTimeout(() => startTour(), 800);
-  } else {
-    router.navigate('dashboard');
-    renderAll();
-  }
+  // Skip the tour for brand-new users — let them see real job results first.
+  // The tour will trigger later once they have at least 1 tracked job.
+  router.navigate('dashboard');
+  renderAll();
 }
 
 async function loadUserData() {
@@ -568,9 +564,12 @@ async function boot() {
           scheduleChecks(() => state.get('jobs') || [], getApi('ntfyTopic'));
         }
 
-        // Show tour if needed
+        // Show tour only after user has some data, not immediately after onboarding
         if (FEATURES.onboardingTour && localStorage.getItem(STORAGE_KEYS.onboarded) === 'true' && !isTourCompleted()) {
-          setTimeout(() => startTour(), 1200);
+          const jobCount = (state.get('jobs') || []).filter(j => j.id && j.id !== '_meta').length;
+          if (jobCount > 0) {
+            setTimeout(() => startTour(), 1200);
+          }
         }
       } else {
         // User signed out

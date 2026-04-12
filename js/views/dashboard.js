@@ -398,6 +398,16 @@ export function renderDashboard(container, state) {
     }
   }
 
+  // Auto-search for new users — redirect to find-jobs with a pending search
+  const autoSearch = localStorage.getItem('jobsynk_auto_search');
+  if (autoSearch) {
+    localStorage.removeItem('jobsynk_auto_search');
+    // Store the query so find-jobs can pick it up
+    sessionStorage.setItem('jobsynk_pending_search', autoSearch);
+    navigate('find-jobs');
+    return; // Stop rendering the rest of the dashboard
+  }
+
   container.querySelectorAll('[data-dash-nav]').forEach(btn => {
     btn.addEventListener('click', () => navigate(btn.dataset.dashNav));
   });
@@ -406,11 +416,53 @@ export function renderDashboard(container, state) {
 
   const checklistContainer = document.getElementById('dashboardChecklist');
   if (checklistContainer && !isChecklistDismissed()) {
-    const userName = state.get('settings')?.name || '';
-    checklistContainer.innerHTML = renderChecklistHTML(userName);
-    bindChecklistEvents(checklistContainer, () => {
-      renderDashboard(container, state);
-    });
+    const jobCount = jobs.length;
+    if (jobCount === 0) {
+      // Show a compact "Get started in 3 steps" card instead of the 6-item checklist
+      checklistContainer.innerHTML = `
+        <div class="smart-onboard">
+          <div class="smart-onboard-header">
+            <h3>Get started in seconds</h3>
+            <button class="btn ghost small" id="dismissSmartOnboard">Dismiss</button>
+          </div>
+          <div class="smart-onboard-steps">
+            <button class="smart-step" data-action="search">
+              <span class="smart-step-num">1</span>
+              <span class="smart-step-text">Search jobs</span>
+              <span class="smart-step-arrow">&rarr;</span>
+            </button>
+            <button class="smart-step" data-action="resume">
+              <span class="smart-step-num">2</span>
+              <span class="smart-step-text">Upload resume</span>
+              <span class="smart-step-arrow">&rarr;</span>
+            </button>
+            <button class="smart-step" data-action="settings">
+              <span class="smart-step-num">3</span>
+              <span class="smart-step-text">Connect AI key</span>
+              <span class="smart-step-arrow">&rarr;</span>
+            </button>
+          </div>
+        </div>
+      `;
+      checklistContainer.querySelector('#dismissSmartOnboard')?.addEventListener('click', () => {
+        checklistContainer.innerHTML = '';
+        localStorage.setItem('jobsynk_checklist', JSON.stringify({ dismissed: true }));
+      });
+      checklistContainer.querySelectorAll('.smart-step').forEach(step => {
+        step.addEventListener('click', () => {
+          const action = step.dataset.action;
+          if (action === 'search') navigate('find-jobs');
+          else if (action === 'resume') navigate('my-profile');
+          else if (action === 'settings') navigate('settings');
+        });
+      });
+    } else {
+      const userName = state.get('settings')?.name || '';
+      checklistContainer.innerHTML = renderChecklistHTML(userName);
+      bindChecklistEvents(checklistContainer, () => {
+        renderDashboard(container, state);
+      });
+    }
   } else if (checklistContainer) {
     checklistContainer.innerHTML = '';
   }

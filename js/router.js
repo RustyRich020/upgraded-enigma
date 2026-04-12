@@ -93,6 +93,9 @@ function handleRoute() {
   const sidebar = document.getElementById('sidebar');
   if (sidebar) sidebar.classList.toggle('hidden', PUBLIC_ROUTES.has(view));
 
+  // Force scroll to top on every navigation
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
   const main = document.getElementById('main-content');
   if (main) main.scrollTop = 0;
 
